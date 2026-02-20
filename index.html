@@ -28,14 +28,19 @@
 
         .psicologa-item { padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: 600; font-size: 12px; }
         input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
-        .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        
+        /* BOTONES DE ACCIÓN: Texto en negro para mejor lectura */
+        .btn-action { width: 100%; background: var(--brand-color); color: #000000 !important; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
         
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; color: #333; }
         
-        .fc .fc-button { font-size: 0.85em !important; text-transform: capitalize !important; }
-        /* Estilo para que las cabeceras de los días no se vean amontonadas */
-        .fc-col-header-cell-cushion { text-transform: capitalize; padding: 5px 0 !important; }
+        /* BOTONES DEL CALENDARIO: Forzado a texto negro */
+        .fc .fc-button { font-size: 0.85em !important; text-transform: capitalize !important; color: #000000 !important; font-weight: 600 !important; }
+        .fc .fc-button-primary { background-color: var(--brand-color) !important; border-color: rgba(0,0,0,0.1) !important; }
+        .fc .fc-button-primary:hover { background-color: #eee !important; }
+        
+        .fc-col-header-cell-cushion { text-transform: capitalize; padding: 5px 0 !important; color: #333; }
     </style>
 </head>
 <body>
@@ -76,7 +81,7 @@
                         <div style="flex:1"><label style="font-size:9px">Barra</label><input type="color" id="brand-color-picker" value="#a5c941"></div>
                         <div style="flex:1"><label style="font-size:9px">Texto</label><input type="color" id="text-color-picker" value="#ffffff"></div>
                     </div>
-                    <button class="btn-action" id="save-style-btn" style="background:white; color:black; margin-top:15px; padding:8px; font-size:12px;">Sincronizar</button>
+                    <button class="btn-action" id="save-style-btn" style="background:white; color:black !important; margin-top:15px; padding:8px; font-size:12px;">Sincronizar</button>
                 </div>
                 <hr style="opacity:0.2; margin:15px 0;">
                 <h3 style="font-size:16px;">Equipo y Colores</h3>
@@ -95,7 +100,7 @@
             <input type="text" id="p-name" placeholder="Nombre Paciente">
             <select id="p-select"></select>
             <button class="btn-action" id="p-save" style="margin-top:10px">Guardar Cita</button>
-            <button class="btn-action" id="p-cancel" style="background:#999; margin-top:8px;">Cancelar</button>
+            <button class="btn-action" id="p-cancel" style="background:#999 !important; color:white !important; margin-top:8px;">Cancelar</button>
         </div>
     </div>
 
@@ -207,10 +212,7 @@
                 initialView: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek',
                 locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
                 longPressDelay: 0, eventLongPressDelay: 0, selectMirror: true,
-                
-                // CORRECCIÓN DE FORMATO DE FECHA (SOLO DÍA Y NÚMERO)
-                dayHeaderFormat: { weekday: 'short', day: 'numeric', month: undefined, year: undefined },
-                
+                dayHeaderFormat: { weekday: 'short', day: 'numeric' },
                 headerToolbar: { 
                     left: 'prev,next', 
                     center: 'title', 
