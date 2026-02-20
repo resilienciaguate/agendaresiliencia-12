@@ -1,109 +1,125 @@
-<style>
-    :root { 
-        --brand-green: #a5c941; 
-        --brand-white: #ffffff;
-        --brand-dark: #292929;
-        --error: #ff4d4d;
-    }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resiliencia Guate - Agenda Oficial</title>
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css' rel='stylesheet' />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --brand-green: #a5c941; --brand-white: #ffffff; --brand-dark: #292929; --error: #ff4d4d; }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); margin: 0; color: var(--brand-white); display: flex; flex-direction: column; min-height: 100vh; }
+        #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        .login-box { background: var(--brand-white); padding: 40px; border-radius: 20px; width: 350px; text-align: center; color: #333; }
+        .top-nav { background-color: var(--brand-green); padding: 10px 30px; display: none; justify-content: space-between; align-items: center; }
+        #app-content { display: none; grid-template-columns: 320px 1fr 300px; gap: 20px; padding: 20px; flex: 1; }
+        .side-panel { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+        .calendar-card { background: white; border-radius: 12px; padding: 25px; color: #333; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        .btn-action { width: 100%; background: var(--brand-green); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
+    </style>
+</head>
+<body>
 
-    body { 
-        font-family: 'Montserrat', sans-serif; 
-        background-color: var(--brand-dark); 
-        margin: 0; 
-        color: var(--brand-white);
-    }
-
-    /* Pantalla de Inicio con tus colores específicos */
-    #login-screen { 
-        position: fixed; 
-        inset: 0; 
-        background-color: var(--brand-dark); 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        z-index: 2000; 
-    }
-
-    .login-box { 
-        background: var(--brand-white); 
-        padding: 50px 40px; 
-        border-radius: 20px; 
-        width: 350px; 
-        text-align: center; 
-        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-    }
-
-    .login-box h2 { 
-        color: var(--brand-dark); 
-        margin-bottom: 5px;
-        font-weight: 600;
-    }
-
-    .login-box p {
-        color: #666;
-        font-size: 12px;
-        margin-bottom: 30px;
-        letter-spacing: 1px;
-    }
-
-    /* Inputs Estilizados */
-    .login-box input { 
-        width: 100%; 
-        padding: 14px; 
-        margin: 10px 0; 
-        border-radius: 10px; 
-        border: 2px solid #eee; 
-        background: #f9f9f9; 
-        font-family: inherit;
-        box-sizing: border-box;
-        transition: 0.3s;
-    }
-
-    .login-box input:focus {
-        border-color: var(--brand-green);
-        outline: none;
-        background: white;
-    }
-
-    /* Botón con tu verde específico */
-    .btn-login { 
-        width: 100%; 
-        background-color: var(--brand-green); 
-        color: var(--brand-white); 
-        border: none; 
-        padding: 16px; 
-        border-radius: 10px; 
-        cursor: pointer; 
-        font-weight: 700; 
-        font-size: 15px;
-        margin-top: 20px;
-        transition: transform 0.2s, opacity 0.2s;
-        text-transform: uppercase;
-    }
-
-    .btn-login:hover { 
-        opacity: 0.9;
-        transform: translateY(-2px);
-    }
-
-    /* Ajuste para el error */
-    #error-msg {
-        color: var(--error);
-        font-size: 13px;
-        margin-top: 15px;
-        font-weight: 500;
-    }
-</style>
-
-<div id="login-screen">
-    <div class="login-box">
-        <h2>Resiliencia Guate</h2>
-        <p>ACCESO AL PORTAL CLÍNICO</p>
-        
-        <input type="email" id="email" placeholder="Correo Electrónico">
-        <input type="password" id="password" placeholder="Contraseña">
-        
-        <button class="btn-login" id="login-btn">Entrar al Sistema</button>
-        <div id="error-msg" style="display:none;">⚠️ Credenciales no válidas</div>
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Resiliencia Guate</h2>
+            <p>ACCESO PROFESIONAL</p>
+            <input type="email" id="email" placeholder="Correo electrónico">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button class="btn-action" id="login-btn">INICIAR SESIÓN</button>
+            <p id="error-msg" style="color:red; display:none; margin-top:10px;">Error de acceso</p>
+        </div>
     </div>
-</div>
+
+    <div class="top-nav" id="nav-bar">
+        <h1>🧠 Resiliencia Guate</h1>
+        <button class="btn-logout" id="logout-btn">Cerrar Sesión</button>
+    </div>
+
+    <div id="app-content">
+        <div class="side-panel" id="admin-sidebar" style="display:none;">
+            <h3>Gestión de Doctores</h3>
+            <input type="email" id="new-doc-email" placeholder="Correo del doctor">
+            <input type="text" id="new-doc-name" placeholder="Nombre completo">
+            <button class="btn-action" id="add-doc-btn">Registrar Doctor</button>
+            <div id="active-docs-list" style="margin-top:20px;"></div>
+        </div>
+        <div class="calendar-card">
+            <div id='calendar'></div>
+        </div>
+        <div class="side-panel">
+            <h3>Guía Rápida</h3>
+            <p>• Haz clic para agendar.<br>• Arrastra para mover.<br>• Clic en cita para borrar.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // ==========================================
+        // 1. PEGA TUS DATOS DE FIREBASE AQUÍ ABAJO
+        // ==========================================
+        const firebaseConfig = {      
+  apiKey: "Resiliencia1212",
+  authDomain: "agendaresiliencia-12.firebaseapp.com",
+  projectId: "agendaresiliencia-12",
+  storageBucket: "agendaresiliencia-12.firebasestorage.app",
+  messagingSenderId: "1068233469888",
+  appId: "1:1068233469888:web:f958c72f406ac8698da225"
+        }; // <--- REEMPLAZA ESTE BLOQUE CON EL TUYO
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const ADMIN_EMAIL = "resilienciaguate@gmail.com";
+
+        // --- LÓGICA DE SESIÓN ---
+        document.getElementById('login-btn').onclick = () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            signInWithEmailAndPassword(auth, email, pass).catch(() => {
+                document.getElementById('error-msg').style.display = 'block';
+            });
+        };
+
+        document.getElementById('logout-btn').onclick = () => signOut(auth);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('nav-bar').style.display = 'flex';
+                document.getElementById('app-content').style.display = 'grid';
+                if(user.email === ADMIN_EMAIL) document.getElementById('admin-sidebar').style.display = 'block';
+                initCalendar(user.email);
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('nav-bar').style.display = 'none';
+                document.getElementById('app-content').style.display = 'none';
+            }
+        });
+
+        function initCalendar(email) {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',
+                locale: 'es',
+                selectable: true,
+                events: [],
+                select: async (info) => {
+                    const patient = prompt("Nombre del Paciente:");
+                    if(patient) await addDoc(collection(db, "citas"), { title: patient, start: info.startStr, end: info.endStr, user: email });
+                }
+            });
+            calendar.render();
+            onSnapshot(collection(db, "citas"), (snap) => {
+                calendar.removeAllEvents();
+                snap.forEach(d => calendar.addEvent({ id: d.id, ...d.data() }));
+            });
+        }
+    </script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+</body>
+</html>
