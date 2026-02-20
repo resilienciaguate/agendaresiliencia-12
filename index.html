@@ -9,19 +9,32 @@
     <style>
         :root { --brand-color: #a5c941; --brand-dark: #292929; --header-text-color: #ffffff; }
         html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; overflow-x: hidden; }
-        body { display: flex; flex-direction: column; }
-        .top-nav { background-color: var(--brand-color); padding: 10px 15px; display: none; justify-content: space-between; align-items: center; min-height: 60px; position: sticky; top: 0; z-index: 999; }
+        body { display: flex; flex-direction: column; overflow-y: auto !important; }
+
+        #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .login-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; color: #333; }
+
+        .top-nav { 
+            background-color: var(--brand-color); padding: 10px 15px; display: none; 
+            justify-content: space-between; align-items: center; min-height: 60px;
+            position: sticky; top: 0; z-index: 999;
+        }
+
         #app-content { display: none; flex-direction: column; padding: 10px; gap: 15px; flex: 1; }
-        @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 300px; position: sticky; top: 80px; } }
+        @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 320px; position: sticky; top: 80px; } }
+
         .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+
         .psicologa-item { padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: 600; font-size: 12px; }
         input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
         .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        #assign-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; color: #333; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
-        #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .login-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; color: #333; }
+        
+        #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; color: #333; }
+        
+        /* Estilos de botones de vista */
+        .fc .fc-button { font-size: 0.85em !important; text-transform: capitalize !important; }
     </style>
 </head>
 <body>
@@ -36,9 +49,9 @@
     </div>
 
     <div class="top-nav" id="nav-bar">
-        <div style="display:flex; align-items:center; gap:8px;">
-            <div id="default-logo" style="width:30px;height:30px;background:white;border-radius:50%;color:var(--brand-color);display:flex;align-items:center;justify-content:center;font-weight:bold;">RG</div>
-            <img id="app-logo" src="" style="display:none; max-height:45px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div id="default-logo" style="width:35px;height:35px;background:white;border-radius:50%;color:var(--brand-color);display:flex;align-items:center;justify-content:center;font-weight:bold;">RG</div>
+            <img id="app-logo" src="" style="display:none; max-height:50px; object-fit: contain;">
             <h1 id="user-display" style="font-size:12px; margin:0; color:var(--header-text-color);">Portal</h1>
         </div>
         <button onclick="location.reload()" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px;">Salir</button>
@@ -50,14 +63,29 @@
                 <h3 style="margin-top:0">Panel Admin</h3>
                 <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
                 <input type="email" id="new-doc-email" placeholder="Correo">
-                <button class="btn-action" id="add-doc-btn">Añadir</button>
+                <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
+                
+                <div style="margin-top:20px; padding:15px; background:rgba(255,255,255,0.05); border-radius:10px; border:1px solid rgba(255,255,255,0.1);">
+                    <strong style="font-size:11px; display:block; margin-bottom:10px; opacity:0.8;">APARIENCIA (NUBE)</strong>
+                    <label style="font-size:10px;">Subir Logo:</label>
+                    <input type="file" id="logo-upload" accept="image/*" style="font-size:10px; background:none; border:none; color:white;">
+                    <label style="font-size:10px;">Ancho Logo:</label>
+                    <input type="range" id="logo-size" min="40" max="250" value="100" style="margin:5px 0;">
+                    <div style="display:flex; gap:10px; margin-top:5px;">
+                        <div style="flex:1"><label style="font-size:9px">Barra</label><input type="color" id="brand-color-picker" value="#a5c941"></div>
+                        <div style="flex:1"><label style="font-size:9px">Texto</label><input type="color" id="text-color-picker" value="#ffffff"></div>
+                    </div>
+                    <button class="btn-action" id="save-style-btn" style="background:white; color:black; margin-top:15px; padding:8px; font-size:12px;">Sincronizar Estética</button>
+                </div>
                 <hr style="opacity:0.2; margin:15px 0;">
             </div>
             <h3 style="margin-top:0; font-size:16px;">Equipo y Colores</h3>
             <div id="docs-list"></div>
         </div>
         
-        <div class="calendar-card"><div id='calendar'></div></div>
+        <div class="calendar-card">
+            <div id='calendar'></div>
+        </div>
     </div>
 
     <div id="assign-modal">
@@ -73,7 +101,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA",
@@ -91,12 +119,10 @@
         let doctorColors = {};
 
         document.getElementById('login-btn').onclick = async () => {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
             try {
                 await setPersistence(auth, browserLocalPersistence);
-                await signInWithEmailAndPassword(auth, e, p);
-            } catch (err) { alert("Error: Revisa tus datos"); }
+                await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+            } catch (err) { alert("Error de acceso"); }
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -105,11 +131,52 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'flex';
-                document.getElementById('user-display').innerText = user.email.split('@')[0].toUpperCase();
+                document.getElementById('user-display').innerText = user.email.toUpperCase();
                 if(isAdmin) document.getElementById('admin-tools').style.display = 'block';
+                
                 cargarEquipo(isAdmin, user.email);
+                escucharEstetica();
             }
         });
+
+        // FUNCIONALIDAD DE ESTÉTICA EN LA NUBE
+        function escucharEstetica() {
+            onSnapshot(doc(db, "configuracion", "apariencia"), (snap) => {
+                if (snap.exists()) {
+                    const d = snap.data();
+                    const root = document.documentElement;
+                    if(d.color) root.style.setProperty('--brand-color', d.color);
+                    if(d.textColor) root.style.setProperty('--header-text-color', d.textColor);
+                    if(d.logoB64) {
+                        const img = document.getElementById('app-logo');
+                        img.src = d.logoB64; img.style.display = 'block';
+                        img.style.width = d.logoWidth + 'px';
+                        document.getElementById('default-logo').style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        document.getElementById('save-style-btn').onclick = async () => {
+            const file = document.getElementById('logo-upload').files[0];
+            const data = { 
+                color: document.getElementById('brand-color-picker').value,
+                textColor: document.getElementById('text-color-picker').value,
+                logoWidth: document.getElementById('logo-size').value
+            };
+            if(file) {
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    data.logoB64 = reader.result;
+                    await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true});
+                    alert("Estética guardada en la nube");
+                };
+                reader.readAsDataURL(file);
+            } else {
+                await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true});
+                alert("Colores actualizados");
+            }
+        };
 
         function cargarEquipo(isAdmin, userEmail) {
             onSnapshot(collection(db, "psicologas"), (snap) => {
@@ -137,26 +204,23 @@
         }
 
         function initCalendar(email, isAdmin) {
-            let selectedInfo = null;
             const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
                 initialView: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek',
                 locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
-                selectMirror: true, // Ayuda visual al tocar
-                longPressDelay: 0, // REACCIÓN INSTANTÁNEA AL TOQUE
-                eventLongPressDelay: 0,
-                headerToolbar: { left: 'prev,next', center: 'title', right: 'timeGridWeek,timeGridDay' },
+                longPressDelay: 0, eventLongPressDelay: 0, selectMirror: true,
+                headerToolbar: { 
+                    left: 'prev,next', 
+                    center: 'title', 
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay' 
+                },
+                buttonText: { month: 'Mes', week: 'Semana', day: 'Día' },
                 select: (info) => {
-                    selectedInfo = info;
                     if(isAdmin) {
+                        window.selectedInfo = info;
                         document.getElementById('assign-modal').style.display = 'flex';
                     } else {
-                        const p = prompt("Nombre del Paciente:");
-                        if(p) {
-                            addDoc(collection(db, "citas"), { 
-                                title: p, start: info.startStr, end: info.endStr, 
-                                user: email.toLowerCase(), color: doctorColors[email.toLowerCase()] || '#a5c941' 
-                            });
-                        }
+                        const p = prompt("Paciente:");
+                        if(p) addDoc(collection(db, "citas"), { title: p, start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: doctorColors[email.toLowerCase()] || '#a5c941' });
                     }
                 },
                 eventClick: (info) => { if(confirm("¿Eliminar cita?")) deleteDoc(doc(db, "citas", info.event.id)); }
@@ -176,18 +240,15 @@
             document.getElementById('p-save').onclick = () => {
                 const name = document.getElementById('p-name').value;
                 const sel = document.getElementById('p-select');
-                if(name && selectedInfo) {
-                    addDoc(collection(db, "citas"), { 
-                        title: name, start: selectedInfo.startStr, end: selectedInfo.endStr, 
-                        user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color 
-                    });
+                if(name && window.selectedInfo) {
+                    addDoc(collection(db, "citas"), { title: name, start: window.selectedInfo.startStr, end: window.selectedInfo.endStr, user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color });
                     document.getElementById('assign-modal').style.display = 'none';
                     document.getElementById('p-name').value = "";
                 }
             };
         }
         document.getElementById('p-cancel').onclick = () => document.getElementById('assign-modal').style.display = 'none';
-        
+
         document.getElementById('add-doc-btn').onclick = async () => {
             const n = document.getElementById('new-doc-name').value;
             const e = document.getElementById('new-doc-email').value.trim().toLowerCase();
