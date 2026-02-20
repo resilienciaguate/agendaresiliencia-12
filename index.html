@@ -169,7 +169,6 @@
         };
 
         function cargarEquipo(isAdmin, userEmail) {
-            // Escuchar citas globalmente para el conteo
             onSnapshot(collection(db, "citas"), (citasSnap) => {
                 const counts = {};
                 citasSnap.forEach(c => {
@@ -177,7 +176,6 @@
                     counts[u] = (counts[u] || 0) + 1;
                 });
 
-                // Escuchar lista de psicólogas
                 onSnapshot(collection(db, "psicologas"), (snap) => {
                     const list = document.getElementById('docs-list');
                     const select = document.getElementById('p-select');
@@ -208,9 +206,19 @@
         function initCalendar(email, isAdmin) {
             const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
                 initialView: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek',
-                locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
-                longPressDelay: 0, eventLongPressDelay: 0, selectMirror: true,
+                locale: 'es', 
+                allDaySlot: false, 
+                selectable: true, 
+                height: 'auto',
+                longPressDelay: 0, 
+                eventLongPressDelay: 0, 
+                selectMirror: true,
                 dayHeaderFormat: { weekday: 'short', day: 'numeric' },
+                
+                // --- AJUSTE DE HORARIO: 7am a 8pm (20:00) ---
+                slotMinTime: "07:00:00",
+                slotMaxTime: "21:00:00", // Se pone una hora más para que se vea la franja de las 20:00
+                
                 headerToolbar: { left: 'prev,next', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                 buttonText: { month: 'Mes', week: 'Semana', day: 'Día' },
                 select: (info) => {
