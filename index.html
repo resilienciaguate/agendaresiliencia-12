@@ -225,7 +225,7 @@
                             await addDoc(collection(db, "citas"), { title: p, phone: t || "", start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: doctorColors[email.toLowerCase()] || '#a5c941' }); 
                             if(t) {
                                 const f = new Date(info.startStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-                                const msg = encodeURIComponent(`*Cita Agendada* ✅\n\nHola ${p}, tu cita en *RESILIENCIA* ha sido programada para el ${f}.`);
+                                const msg = encodeURIComponent(`*Cita Agendada* \n\nHola ${p}, tu cita en *RESILIENCIA* ha sido programada para el ${f}.`);
                                 window.open(`https://wa.me/${t}?text=${msg}`, '_blank');
                             }
                         }
