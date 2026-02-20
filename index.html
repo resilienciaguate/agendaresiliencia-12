@@ -26,19 +26,16 @@
         .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
-        .psicologa-item { padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: 600; font-size: 12px; }
+        .psicologa-item { padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: #000 !important; font-weight: 600; font-size: 12px; }
         input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
         
-        /* BOTONES DE ACCIÓN: Texto en negro para mejor lectura */
-        .btn-action { width: 100%; background: var(--brand-color); color: #000000 !important; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .btn-action { width: 100%; background: var(--brand-color); color: #000 !important; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
         
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; color: #333; }
         
-        /* BOTONES DEL CALENDARIO: Forzado a texto negro */
-        .fc .fc-button { font-size: 0.85em !important; text-transform: capitalize !important; color: #000000 !important; font-weight: 600 !important; }
+        .fc .fc-button { font-size: 0.85em !important; text-transform: capitalize !important; color: #000 !important; font-weight: 600 !important; }
         .fc .fc-button-primary { background-color: var(--brand-color) !important; border-color: rgba(0,0,0,0.1) !important; }
-        .fc .fc-button-primary:hover { background-color: #eee !important; }
         
         .fc-col-header-cell-cushion { text-transform: capitalize; padding: 5px 0 !important; color: #333; }
     </style>
@@ -84,7 +81,7 @@
                     <button class="btn-action" id="save-style-btn" style="background:white; color:black !important; margin-top:15px; padding:8px; font-size:12px;">Sincronizar</button>
                 </div>
                 <hr style="opacity:0.2; margin:15px 0;">
-                <h3 style="font-size:16px;">Equipo y Colores</h3>
+                <h3 style="font-size:16px;">Equipo y Citas Totales</h3>
                 <div id="docs-list"></div>
             </div>
         </div>
@@ -163,47 +160,48 @@
 
         document.getElementById('save-style-btn').onclick = async () => {
             const file = document.getElementById('logo-upload').files[0];
-            const data = { 
-                color: document.getElementById('brand-color-picker').value,
-                textColor: document.getElementById('text-color-picker').value,
-                logoWidth: document.getElementById('logo-size').value
-            };
+            const data = { color: document.getElementById('brand-color-picker').value, textColor: document.getElementById('text-color-picker').value, logoWidth: document.getElementById('logo-size').value };
             if(file) {
                 const reader = new FileReader();
-                reader.onloadend = async () => {
-                    data.logoB64 = reader.result;
-                    await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true});
-                    alert("Estética actualizada");
-                };
+                reader.onloadend = async () => { data.logoB64 = reader.result; await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); alert("Sincronizado"); };
                 reader.readAsDataURL(file);
-            } else {
-                await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true});
-                alert("Colores actualizados");
-            }
+            } else { await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); alert("Colores actualizados"); }
         };
 
         function cargarEquipo(isAdmin, userEmail) {
-            onSnapshot(collection(db, "psicologas"), (snap) => {
-                const list = document.getElementById('docs-list');
-                const select = document.getElementById('p-select');
-                list.innerHTML = ""; select.innerHTML = "";
-                snap.forEach(d => {
-                    const data = d.data();
-                    doctorColors[data.email.toLowerCase()] = data.color;
-                    if(isAdmin) {
-                        const item = document.createElement('div');
-                        item.className = 'psicologa-item';
-                        item.style.backgroundColor = data.color;
-                        item.innerHTML = `<span>${data.name}</span>`;
-                        select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
-                        const del = document.createElement('span');
-                        del.innerHTML = "✕"; del.style.cursor="pointer";
-                        del.onclick = () => deleteDoc(doc(db, "psicologas", d.id));
-                        item.appendChild(del);
-                        list.appendChild(item);
-                    }
+            // Escuchar citas globalmente para el conteo
+            onSnapshot(collection(db, "citas"), (citasSnap) => {
+                const counts = {};
+                citasSnap.forEach(c => {
+                    const u = c.data().user.toLowerCase();
+                    counts[u] = (counts[u] || 0) + 1;
                 });
-                if (!window.calendarObj) initCalendar(userEmail, isAdmin);
+
+                // Escuchar lista de psicólogas
+                onSnapshot(collection(db, "psicologas"), (snap) => {
+                    const list = document.getElementById('docs-list');
+                    const select = document.getElementById('p-select');
+                    list.innerHTML = ""; select.innerHTML = "";
+                    snap.forEach(d => {
+                        const data = d.data();
+                        const emailLower = data.email.toLowerCase();
+                        doctorColors[emailLower] = data.color;
+                        if(isAdmin) {
+                            const total = counts[emailLower] || 0;
+                            const item = document.createElement('div');
+                            item.className = 'psicologa-item';
+                            item.style.backgroundColor = data.color;
+                            item.innerHTML = `<span>${data.name} (${total})</span>`;
+                            select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
+                            const del = document.createElement('span');
+                            del.innerHTML = "✕"; del.style.cursor="pointer";
+                            del.onclick = () => deleteDoc(doc(db, "psicologas", d.id));
+                            item.appendChild(del);
+                            list.appendChild(item);
+                        }
+                    });
+                    if (!window.calendarObj) initCalendar(userEmail, isAdmin);
+                });
             });
         }
 
@@ -213,55 +211,36 @@
                 locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
                 longPressDelay: 0, eventLongPressDelay: 0, selectMirror: true,
                 dayHeaderFormat: { weekday: 'short', day: 'numeric' },
-                headerToolbar: { 
-                    left: 'prev,next', 
-                    center: 'title', 
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay' 
-                },
+                headerToolbar: { left: 'prev,next', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                 buttonText: { month: 'Mes', week: 'Semana', day: 'Día' },
                 select: (info) => {
-                    if(isAdmin) {
-                        window.selectedInfo = info;
-                        document.getElementById('assign-modal').style.display = 'flex';
-                    } else {
-                        const p = prompt("Paciente:");
-                        if(p) addDoc(collection(db, "citas"), { title: p, start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: doctorColors[email.toLowerCase()] || '#a5c941' });
-                    }
+                    if(isAdmin) { window.selectedInfo = info; document.getElementById('assign-modal').style.display = 'flex'; }
+                    else { const p = prompt("Paciente:"); if(p) addDoc(collection(db, "citas"), { title: p, start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: doctorColors[email.toLowerCase()] || '#a5c941' }); }
                 },
-                eventClick: (info) => { if(confirm("¿Eliminar cita?")) deleteDoc(doc(db, "citas", info.event.id)); }
+                eventClick: (info) => { if(confirm("¿Eliminar?")) deleteDoc(doc(db, "citas", info.event.id)); }
             });
             calendar.render();
             window.calendarObj = calendar;
-
             const q = isAdmin ? collection(db, "citas") : query(collection(db, "citas"), where("user", "==", email.toLowerCase()));
             onSnapshot(q, (snap) => {
                 calendar.removeAllEvents();
-                snap.forEach(d => {
-                    const c = d.data();
-                    calendar.addEvent({ id: d.id, ...c, color: doctorColors[c.user.toLowerCase()] || c.color });
-                });
+                snap.forEach(d => { const c = d.data(); calendar.addEvent({ id: d.id, ...c, color: doctorColors[c.user.toLowerCase()] || c.color }); });
             });
-
             document.getElementById('p-save').onclick = () => {
                 const name = document.getElementById('p-name').value;
                 const sel = document.getElementById('p-select');
                 if(name && window.selectedInfo) {
                     addDoc(collection(db, "citas"), { title: name, start: window.selectedInfo.startStr, end: window.selectedInfo.endStr, user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color });
-                    document.getElementById('assign-modal').style.display = 'none';
-                    document.getElementById('p-name').value = "";
+                    document.getElementById('assign-modal').style.display = 'none'; document.getElementById('p-name').value = "";
                 }
             };
         }
         document.getElementById('p-cancel').onclick = () => document.getElementById('assign-modal').style.display = 'none';
-
         document.getElementById('add-doc-btn').onclick = async () => {
             const n = document.getElementById('new-doc-name').value;
             const e = document.getElementById('new-doc-email').value.trim().toLowerCase();
             const palette = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4'];
-            if(n && e) {
-                await addDoc(collection(db, "psicologas"), { name: n, email: e, color: palette[Math.floor(Math.random()*palette.length)] });
-                document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
-            }
+            if(n && e) { await addDoc(collection(db, "psicologas"), { name: n, email: e, color: palette[Math.floor(Math.random()*palette.length)] }); document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = ""; }
         };
     </script>
 </body>
