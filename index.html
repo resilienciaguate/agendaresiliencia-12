@@ -2,41 +2,56 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Resiliencia Guate - Agenda Profesional</title>
+    <title>Resiliencia Guate - Gestión Profesional</title>
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css' rel='stylesheet' />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --brand-green: #a5c941; --brand-white: #ffffff; --brand-dark: #292929; }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); margin: 0; color: var(--brand-white); }
-        #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 3000; }
         .login-box { background: var(--brand-white); padding: 40px; border-radius: 20px; width: 320px; text-align: center; color: #333; }
         .top-nav { background-color: var(--brand-green); padding: 10px 30px; display: none; justify-content: space-between; align-items: center; }
         #app-content { display: none; grid-template-columns: 300px 1fr; gap: 20px; padding: 20px; }
         .side-panel { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; }
         .calendar-card { background: white; border-radius: 12px; padding: 20px; color: #333; }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; }
-        .btn-action { width: 100%; background: var(--brand-green); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
+        .btn-action { width: 100%; background: var(--brand-green); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-        .psicologa-tag { font-size: 11px; padding: 4px; border-radius: 4px; margin-bottom: 5px; display: block; color: white; text-align: center; }
-        .logo-container { display: flex; align-items: center; gap: 10px; }
-        .logo-placeholder { width: 35px; height: 35px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--brand-green); font-weight: bold; }
+        
+        /* Modal de Asignación */
+        #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 4000; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 350px; color: #333; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="margin:0 0 20px 0">Resiliencia Guate</h2>
+            <h2 style="margin-bottom:20px">Resiliencia Guate</h2>
             <input type="email" id="email" placeholder="Correo electrónico">
             <input type="password" id="password" placeholder="Contraseña">
-            <button class="btn-action" id="login-btn">Entrar al Sistema</button>
+            <button class="btn-action" id="login-btn">Entrar</button>
             <p id="error-msg" style="color:red; display:none; font-size:12px; margin-top:10px;">⚠️ Datos incorrectos</p>
         </div>
     </div>
 
+    <div id="assign-modal">
+        <div class="modal-content">
+            <h3 style="margin-top:0">Asignar Nueva Cita</h3>
+            <label>Paciente:</label>
+            <input type="text" id="modal-patient-name" placeholder="Nombre completo">
+            <label>Asignar a Psicóloga:</label>
+            <select id="modal-psicologa-select"></select>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="btn-action" id="confirm-assign">Guardar Cita</button>
+                <button class="btn-action" style="background:#999" id="cancel-assign">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <div class="top-nav" id="nav-bar">
-        <div class="logo-container">
-            <div class="logo-placeholder">RG</div>
+        <div style="display:flex; align-items:center; gap:10px">
+            <div style="width:35px; height:35px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--brand-green); font-weight:bold;">RG</div>
             <h1 id="user-display" style="font-size:16px; margin:0; color:white;">Portal</h1>
         </div>
         <button class="btn-logout" id="logout-btn">Cerrar Sesión</button>
@@ -47,7 +62,7 @@
             <h3>Gestión de Psicólogas</h3>
             <input type="email" id="new-doc-email" placeholder="Correo">
             <input type="text" id="new-doc-name" placeholder="Nombre">
-            <button class="btn-action" id="add-doc-btn">Registrar Nueva</button>
+            <button class="btn-action" id="add-doc-btn">Registrar</button>
             <div id="docs-list" style="margin-top:20px;"></div>
         </div>
         <div class="calendar-card">
@@ -73,7 +88,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
-        let listaPsicologas = [];
+        
+        let selectedTimeInfo = null;
+        let psicologasData = [];
 
         const stringToColor = (str) => {
             let hash = 0;
@@ -81,11 +98,11 @@
             return `hsl(${hash % 360}, 65%, 40%)`;
         };
 
+        // LOGIN / LOGOUT
         document.getElementById('login-btn').onclick = () => {
             signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
                 .catch(() => document.getElementById('error-msg').style.display = 'block');
         };
-
         document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
 
         onAuthStateChanged(auth, (user) => {
@@ -96,76 +113,54 @@
                 document.getElementById('app-content').style.display = isAdmin ? 'grid' : 'block';
                 document.getElementById('user-display').innerText = isAdmin ? "ADMIN: Resiliencia Guate" : `PSICÓLOGA: ${user.email}`;
                 
-                if(isAdmin) { document.getElementById('admin-panel').style.display = 'block'; }
-                
-                // Cargar lista de psicólogas para el selector de Admin
-                onSnapshot(collection(db, "psicologas"), (snap) => {
-                    listaPsicologas = [];
-                    const listDiv = document.getElementById('docs-list');
-                    if(listDiv) listDiv.innerHTML = "";
-                    snap.forEach(d => {
-                        listaPsicologas.push({id: d.id, ...d.data()});
-                        if(listDiv) {
-                            const color = stringToColor(d.data().email);
-                            listDiv.innerHTML += `<div class="psicologa-tag" style="background:${color}">${d.data().name}</div>`;
-                        }
-                    });
-                    initCalendar(user.email, isAdmin);
-                });
+                if(isAdmin) {
+                    document.getElementById('admin-panel').style.display = 'block';
+                    cargarPsicologasAdmin();
+                }
+                initCalendar(user.email, isAdmin);
             }
         });
 
-        // Registrar Nueva Psicóloga
+        function cargarPsicologasAdmin() {
+            onSnapshot(collection(db, "psicologas"), (snap) => {
+                psicologasData = [];
+                const select = document.getElementById('modal-psicologa-select');
+                const list = document.getElementById('docs-list');
+                select.innerHTML = "";
+                list.innerHTML = "";
+                
+                snap.forEach(d => {
+                    const data = d.data();
+                    psicologasData.push(data);
+                    select.innerHTML += `<option value="${data.email}">${data.name}</option>`;
+                    list.innerHTML += `<div style="background:${stringToColor(data.email)}; color:white; padding:5px; border-radius:5px; margin-bottom:5px; font-size:12px; text-align:center">${data.name}</div>`;
+                });
+            });
+        }
+
         document.getElementById('add-doc-btn').onclick = async () => {
             const email = document.getElementById('new-doc-email').value;
             const name = document.getElementById('new-doc-name').value;
-            if(email && name) {
-                await addDoc(collection(db, "psicologas"), { email, name });
-                document.getElementById('new-doc-email').value = "";
-                document.getElementById('new-doc-name').value = "";
-            }
+            if(email && name) await addDoc(collection(db, "psicologas"), { email, name });
         };
 
         function initCalendar(userEmail, isAdmin) {
             const calendarEl = document.getElementById('calendar');
-            calendarEl.innerHTML = ""; // Limpiar antes de reiniciar
-            
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'timeGridWeek',
                 locale: 'es',
-                slotDuration: '01:00:00', // Las ranuras visuales son de 1h
-                snapDuration: '01:00:00',
-                selectable: true,
+                slotDuration: '01:00:00',
                 allDaySlot: false,
+                selectable: true,
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' },
-                select: async (info) => {
-                    const patient = prompt("Nombre del Paciente:");
-                    if(!patient) return;
-
-                    let targetUser = userEmail;
+                select: (info) => {
+                    selectedTimeInfo = info;
                     if(isAdmin) {
-                        let opciones = "Escribe el número de la psicóloga:\n";
-                        listaPsicologas.forEach((p, i) => opciones += `${i+1}. ${p.name}\n`);
-                        const choice = prompt(opciones);
-                        if(choice && listaPsicologas[choice-1]) {
-                            targetUser = listaPsicologas[choice-1].email;
-                        } else {
-                            alert("Asignación cancelada o inválida"); return;
-                        }
+                        document.getElementById('assign-modal').style.display = 'flex';
+                    } else {
+                        const patient = prompt("Nombre del Paciente:");
+                        if(patient) guardarCita(patient, userEmail);
                     }
-
-                    // Forzar duración de 1 hora
-                    let startTime = new Date(info.start);
-                    let endTime = new Date(startTime.getTime() + (60 * 60 * 1000));
-
-                    await addDoc(collection(db, "citas"), {
-                        title: patient,
-                        start: startTime.toISOString(),
-                        end: endTime.toISOString(),
-                        user: targetUser,
-                        color: stringToColor(targetUser)
-                    });
-                    calendar.unselect();
                 },
                 eventClick: async (info) => {
                     if(confirm(`¿Eliminar cita de ${info.event.title}?`)) await deleteDoc(doc(db, "citas", info.event.id));
@@ -179,6 +174,34 @@
                 snap.forEach(d => calendar.addEvent({ id: d.id, ...d.data() }));
             });
         }
+
+        async function guardarCita(paciente, emailAsignado) {
+            let start = new Date(selectedTimeInfo.start);
+            let end = new Date(start.getTime() + (60 * 60 * 1000)); // Siempre 1 hora
+            await addDoc(collection(db, "citas"), {
+                title: paciente,
+                start: start.toISOString(),
+                end: end.toISOString(),
+                user: emailAsignado,
+                color: stringToColor(emailAsignado)
+            });
+            document.getElementById('assign-modal').style.display = 'none';
+        }
+
+        document.getElementById('confirm-assign').onclick = () => {
+            const paciente = document.getElementById('modal-patient-name').value;
+            const email = document.getElementById('modal-psicologa-select').value;
+            if(paciente) {
+                guardarCita(paciente, email);
+                document.getElementById('modal-patient-name').value = "";
+            } else {
+                alert("Escribe el nombre del paciente");
+            }
+        };
+
+        document.getElementById('cancel-assign').onclick = () => {
+            document.getElementById('assign-modal').style.display = 'none';
+        };
     </script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 </body>
