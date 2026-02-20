@@ -207,26 +207,28 @@
         function initCalendar(email, isAdmin) {
             const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
                 initialView: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek',
-                locale: 'es', 
-                allDaySlot: false, 
-                selectable: true, 
-                height: 'auto',
-                longPressDelay: 0, 
-                eventLongPressDelay: 0, 
-                selectMirror: true,
+                locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
+                longPressDelay: 0, eventLongPressDelay: 0, selectMirror: true,
                 dayHeaderFormat: { weekday: 'short', day: 'numeric' },
                 slotMinTime: "07:00:00",
                 slotMaxTime: "21:00:00",
                 headerToolbar: { left: 'prev,next', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                 buttonText: { month: 'Mes', week: 'Semana', day: 'Día' },
-                select: (info) => {
+                select: async (info) => {
                     if(isAdmin) { 
                         window.selectedInfo = info; 
                         document.getElementById('assign-modal').style.display = 'flex'; 
                     } else { 
                         const p = prompt("Nombre Paciente:");
                         const t = prompt("Teléfono WhatsApp (ej: 50212345678):");
-                        if(p) addDoc(collection(db, "citas"), { title: p, phone: t || "", start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: doctorColors[email.toLowerCase()] || '#a5c941' }); 
+                        if(p) {
+                            await addDoc(collection(db, "citas"), { title: p, phone: t || "", start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: doctorColors[email.toLowerCase()] || '#a5c941' }); 
+                            if(t) {
+                                const f = new Date(info.startStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+                                const msg = encodeURIComponent(`*Cita Agendada* ✅\n\nHola ${p}, tu cita en *Resiliencia Guate* ha sido programada para el ${f}.`);
+                                window.open(`https://wa.me/${t}?text=${msg}`, '_blank');
+                            }
+                        }
                     }
                 },
                 eventClick: (info) => {
@@ -241,7 +243,7 @@
                         const msg = encodeURIComponent(`Hola ${nombre}, te saluda Resiliencia Guate. Te recordamos tu cita el día ${fecha}. ¡Te esperamos!`);
                         window.open(`https://wa.me/${telefono}?text=${msg}`, '_blank');
                     } else {
-                        if(confirm("¿Eliminar cita de forma permanente?")) deleteDoc(doc(db, "citas", info.event.id));
+                        if(confirm("¿Eliminar cita?")) deleteDoc(doc(db, "citas", info.event.id));
                     }
                 }
             });
@@ -253,33 +255,25 @@
                 calendar.removeAllEvents();
                 snap.forEach(d => { 
                     const c = d.data(); 
-                    calendar.addEvent({ 
-                        id: d.id, 
-                        title: c.title, 
-                        start: c.start, 
-                        end: c.end, 
-                        color: doctorColors[c.user.toLowerCase()] || c.color,
-                        extendedProps: { phone: c.phone, user: c.user }
-                    }); 
+                    calendar.addEvent({ id: d.id, title: c.title, start: c.start, end: c.end, color: doctorColors[c.user.toLowerCase()] || c.color, extendedProps: { phone: c.phone } }); 
                 });
             });
 
-            document.getElementById('p-save').onclick = () => {
+            document.getElementById('p-save').onclick = async () => {
                 const name = document.getElementById('p-name').value;
                 const phone = document.getElementById('p-phone').value;
                 const sel = document.getElementById('p-select');
                 if(name && window.selectedInfo) {
-                    addDoc(collection(db, "citas"), { 
-                        title: name, 
-                        phone: phone,
-                        start: window.selectedInfo.startStr, 
-                        end: window.selectedInfo.endStr, 
-                        user: sel.value.toLowerCase(), 
-                        color: sel.options[sel.selectedIndex].dataset.color 
-                    });
+                    await addDoc(collection(db, "citas"), { title: name, phone: phone, start: window.selectedInfo.startStr, end: window.selectedInfo.endStr, user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color });
+                    
+                    if(phone) {
+                        const f = new Date(window.selectedInfo.startStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+                        const msg = encodeURIComponent(`*Cita Agendada* ✅\n\nHola ${name}, tu cita en *Resiliencia Guate* ha sido programada para el ${f}.`);
+                        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+                    }
+
                     document.getElementById('assign-modal').style.display = 'none'; 
-                    document.getElementById('p-name').value = "";
-                    document.getElementById('p-phone').value = "";
+                    document.getElementById('p-name').value = ""; document.getElementById('p-phone').value = "";
                 }
             };
         }
