@@ -11,73 +11,51 @@
         
         html { height: 100%; }
         body { 
-            min-height: 100%;
-            margin: 0; 
-            font-family: 'Montserrat', sans-serif; 
-            background-color: var(--brand-dark); 
-            color: white;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto !important;
+            min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; 
+            background-color: var(--brand-dark); color: white;
+            display: flex; flex-direction: column; overflow-y: auto !important;
         }
 
         #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-box { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 320px; text-align: center; color: #333; }
 
         .top-nav { 
-            background-color: var(--brand-color); 
-            padding: 10px 20px; 
-            display: none; 
-            justify-content: space-between; 
-            align-items: center; 
-            min-height: 60px;
-            flex-shrink: 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            background-color: var(--brand-color); padding: 10px 20px; display: none; 
+            justify-content: space-between; align-items: center; min-height: 60px;
+            position: sticky; top: 0; z-index: 1000;
         }
 
-        #app-content { 
-            display: none; 
-            flex-direction: column; 
-            padding: 15px; 
-            gap: 15px;
-            flex: 1 0 auto; 
-        }
+        #app-content { display: none; flex-direction: column; padding: 15px; gap: 15px; flex: 1 0 auto; }
 
         @media (min-width: 768px) {
             #app-content { flex-direction: row; align-items: flex-start; }
             .side-panel { width: 320px; position: sticky; top: 80px; }
         }
 
-        .side-panel { 
-            background: rgba(255,255,255,0.05); 
-            padding: 20px; 
-            border-radius: 15px; 
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+        .side-panel { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
 
         .calendar-card { 
-            flex: 1;
-            background: white; 
-            border-radius: 15px; 
-            padding: 15px; 
-            color: #333; 
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            flex: 1; background: white; border-radius: 15px; padding: 15px; 
+            color: #333; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        /* ETIQUETAS DE PSICÓLOGAS MEJORADAS */
+        .psicologa-item { 
+            padding: 12px 15px; border-radius: 10px; margin-bottom: 10px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            color: white; font-weight: 600; font-size: 13px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
         }
 
         input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
         .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .btn-logout { background: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; }
-
-        .psicologa-item { background: rgba(255,255,255,0.1); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid transparent; }
-        .btn-del { background: #ff4757; border: none; color: white; border-radius: 6px; width: 35px; height: 35px; cursor: pointer; }
+        .btn-del { background: rgba(0,0,0,0.3); border: none; color: white; border-radius: 6px; width: 30px; height: 30px; cursor: pointer; font-weight: bold; }
 
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10001; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; color: #333; }
         
-        /* Forzar que el calendario ocupe su espacio real para habilitar scroll de navegador */
         .fc-scroller { height: auto !important; overflow: hidden !important; }
     </style>
 </head>
@@ -89,7 +67,6 @@
             <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
             <button class="btn-action" id="login-btn">Entrar</button>
-            <p id="error-txt" style="color:red; font-size:12px; display:none; margin-top:10px;"></p>
         </div>
     </div>
 
@@ -104,15 +81,15 @@
 
     <div id="app-content">
         <div class="side-panel" id="admin-panel" style="display:none;">
-            <h3>Panel Admin</h3>
+            <h3>Registrar Equipo</h3>
             <input type="text" id="new-doc-name" placeholder="Nombre">
             <input type="email" id="new-doc-email" placeholder="Correo">
-            <button class="btn-action" id="add-doc-btn">Registrar Psicóloga</button>
+            <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
             
             <div style="margin-top:20px; padding:15px; background:rgba(255,255,255,0.05); border-radius:10px;">
-                <strong style="font-size:11px; display:block; margin-bottom:10px; opacity:0.8;">APARIENCIA</strong>
+                <strong style="font-size:11px; display:block; margin-bottom:10px;">ESTÉTICA GLOBAL</strong>
                 <input type="file" id="logo-upload" accept="image/*" style="font-size:10px;">
-                <input type="range" id="logo-size" min="40" max="220" value="100" style="margin:15px 0;">
+                <input type="range" id="logo-size" min="40" max="220" value="100" style="margin:10px 0;">
                 <div style="display:flex; gap:10px;">
                     <div style="flex:1"><label style="font-size:9px">BARRA</label><input type="color" id="brand-color-picker" value="#a5c941"></div>
                     <div style="flex:1"><label style="font-size:9px">TEXTO</label><input type="color" id="text-color-picker" value="#ffffff"></div>
@@ -120,7 +97,7 @@
                 <button class="btn-action" id="save-style-btn" style="background:white; color:black; margin-top:15px; padding:8px; font-size:12px;">Sincronizar</button>
             </div>
             
-            <h3>Equipo</h3>
+            <h3 style="margin-top:25px;">Psicólogas Activas</h3>
             <div id="docs-list"></div>
         </div>
         
@@ -157,15 +134,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
-
-        // Mantenemos un mapa de colores local para sincronizar rápido
         let doctorColors = {};
 
         document.getElementById('login-btn').onclick = async () => {
             try {
                 await setPersistence(auth, browserLocalPersistence);
                 await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-            } catch (err) { alert("Credenciales incorrectas"); }
+            } catch (err) { alert("Error al entrar"); }
         };
 
         document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
@@ -176,10 +151,8 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'flex';
-                document.getElementById('user-display').innerText = isAdmin ? "ADMINISTRADOR" : user.email;
-                if(isAdmin) { document.getElementById('admin-panel').style.display = 'block'; }
-                
-                // Primero cargamos los colores de los doctores, luego el calendario
+                document.getElementById('user-display').innerText = isAdmin ? "ADMIN" : user.email;
+                if(isAdmin) document.getElementById('admin-panel').style.display = 'block';
                 cargarEquipoYColores(isAdmin, user.email);
                 escucharEstetica();
             } else {
@@ -215,7 +188,7 @@
                 reader.onloadend = async () => {
                     data.logoB64 = reader.result;
                     await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true});
-                    alert("Cambios guardados");
+                    alert("Estética actualizada");
                 };
                 reader.readAsDataURL(file);
             } else {
@@ -229,34 +202,40 @@
                 const list = document.getElementById('docs-list');
                 const select = document.getElementById('p-select');
                 list.innerHTML = ""; select.innerHTML = "";
-                doctorColors = {}; // Reset
+                doctorColors = {};
 
                 snap.forEach(d => {
                     const data = d.data();
                     doctorColors[data.email.toLowerCase()] = data.color;
                     
+                    // Crear etiqueta visual con color de fondo
+                    const item = document.createElement('div');
+                    item.className = 'psicologa-item';
+                    item.style.backgroundColor = data.color; // AQUÍ SE ASIGNA EL COLOR A LA ETIQUETA
+                    item.innerHTML = `<span>${data.name}</span>`;
+                    
                     if(isAdmin) {
                         select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
-                        const item = document.createElement('div');
-                        item.className = 'psicologa-item';
-                        item.style.borderLeftColor = data.color;
-                        item.innerHTML = `<span>${data.name}</span> <button class="btn-del">✕</button>`;
-                        item.querySelector('button').onclick = () => { if(confirm("¿Eliminar psicóloga?")) deleteDoc(doc(db, "psicologas", d.id)); };
+                        const delBtn = document.createElement('button');
+                        delBtn.className = 'btn-del';
+                        delBtn.innerText = '✕';
+                        delBtn.onclick = () => { if(confirm("¿Eliminar?")) deleteDoc(doc(db, "psicologas", d.id)); };
+                        item.appendChild(delBtn);
+                        list.appendChild(item);
+                    } else {
+                        // Si no es admin, también mostramos la lista pero sin botón de borrar
                         list.appendChild(item);
                     }
                 });
                 
-                // Iniciamos calendario una vez tenemos los colores
-                if (!window.calendarObj) {
-                    initCalendar(userEmail, isAdmin);
-                }
+                if (!window.calendarObj) initCalendar(userEmail, isAdmin);
             });
         }
 
         document.getElementById('add-doc-btn').onclick = async () => {
             const name = document.getElementById('new-doc-name').value;
             const email = document.getElementById('new-doc-email').value.trim().toLowerCase();
-            const palette = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6'];
+            const palette = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#2ecc71', '#3498db'];
             if(name && email) {
                 await addDoc(collection(db, "psicologas"), { name, email, color: palette[Math.floor(Math.random()*palette.length)] });
                 document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
@@ -265,30 +244,25 @@
 
         function initCalendar(email, isAdmin) {
             let selectedInfo = null;
-            const calendarEl = document.getElementById('calendar');
-            const calendar = new FullCalendar.Calendar(calendarEl, {
+            const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
                 initialView: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek',
-                locale: 'es',
-                allDaySlot: false,
-                selectable: true,
-                height: 'auto',
+                locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
                 headerToolbar: { 
-                    left: 'prev,next today', 
-                    center: 'title', 
+                    left: 'prev,next today', center: 'title', 
                     right: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek' 
                 },
                 select: (info) => {
                     selectedInfo = info;
                     if(isAdmin) document.getElementById('assign-modal').style.display = 'flex';
                     else { 
-                        const p = prompt("Nombre del Paciente:"); 
+                        const p = prompt("Paciente:"); 
                         if(p) {
-                            const myColor = doctorColors[email.toLowerCase()] || '#a5c941';
-                            addDoc(collection(db, "citas"), { title: p, start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: myColor });
+                            const myCol = doctorColors[email.toLowerCase()] || '#a5c941';
+                            addDoc(collection(db, "citas"), { title: p, start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: myCol });
                         }
                     }
                 },
-                eventClick: (info) => { if(confirm("¿Eliminar esta cita?")) deleteDoc(doc(db, "citas", info.event.id)); }
+                eventClick: (info) => { if(confirm("¿Eliminar cita?")) deleteDoc(doc(db, "citas", info.event.id)); }
             });
             calendar.render();
             window.calendarObj = calendar;
@@ -297,10 +271,8 @@
             onSnapshot(q, (snap) => {
                 calendar.removeAllEvents();
                 snap.forEach(d => {
-                    const cita = d.data();
-                    // Forzamos el color de la psicóloga basado en su correo
-                    const colorFinal = doctorColors[cita.user.toLowerCase()] || cita.color || '#999';
-                    calendar.addEvent({ id: d.id, ...cita, color: colorFinal });
+                    const c = d.data();
+                    calendar.addEvent({ id: d.id, ...c, color: doctorColors[c.user.toLowerCase()] || c.color });
                 });
             });
 
@@ -309,11 +281,8 @@
                 const sel = document.getElementById('p-select');
                 if(name && selectedInfo) {
                     addDoc(collection(db, "citas"), { 
-                        title: name, 
-                        start: selectedInfo.startStr, 
-                        end: selectedInfo.endStr, 
-                        user: sel.value.toLowerCase(), 
-                        color: sel.options[sel.selectedIndex].dataset.color 
+                        title: name, start: selectedInfo.startStr, end: selectedInfo.endStr, 
+                        user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color 
                     });
                     document.getElementById('assign-modal').style.display = 'none';
                     document.getElementById('p-name').value = "";
