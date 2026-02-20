@@ -2,48 +2,48 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Resiliencia Guate - Agenda Privada</title>
+    <title>Resiliencia Guate - Gestión Privada</title>
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css' rel='stylesheet' />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --brand-green: #a5c941; --brand-white: #ffffff; --brand-dark: #292929; }
-        body { font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); margin: 0; color: var(--brand-white); display: flex; flex-direction: column; min-height: 100vh; }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); margin: 0; color: var(--brand-white); }
         #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-        .login-box { background: var(--brand-white); padding: 40px; border-radius: 20px; width: 350px; text-align: center; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .top-nav { background-color: var(--brand-green); padding: 10px 30px; display: none; justify-content: space-between; align-items: center; color: white; }
-        #app-content { display: none; grid-template-columns: 320px 1fr; gap: 20px; padding: 20px; flex: 1; }
-        .side-panel { background: rgba(255,255,255,0.05); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
-        .calendar-card { background: white; border-radius: 12px; padding: 25px; color: #333; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        .btn-action { width: 100%; background: var(--brand-green); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
-        .status-tag { font-size: 10px; background: #eee; padding: 2px 5px; border-radius: 4px; color: #666; margin-bottom: 5px; display: inline-block; }
+        .login-box { background: var(--brand-white); padding: 40px; border-radius: 20px; width: 320px; text-align: center; color: #333; }
+        .top-nav { background-color: var(--brand-green); padding: 10px 30px; display: none; justify-content: space-between; align-items: center; }
+        #app-content { display: none; grid-template-columns: 300px 1fr; gap: 20px; padding: 20px; }
+        .side-panel { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; }
+        .calendar-card { background: white; border-radius: 12px; padding: 20px; color: #333; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; }
+        .btn-action { width: 100%; background: var(--brand-green); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .psicologa-tag { font-size: 11px; padding: 4px; border-radius: 4px; margin-bottom: 5px; display: block; color: white; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <h2>Resiliencia Guate</h2>
+            <h2 style="margin:0 0 20px 0">Resiliencia Guate</h2>
             <input type="email" id="email" placeholder="Correo electrónico">
             <input type="password" id="password" placeholder="Contraseña">
-            <button class="btn-action" id="login-btn">Entrar</button>
-            <p id="error-msg" style="color:red; display:none; margin-top:10px;">⚠️ Error de acceso.</p>
+            <button class="btn-action" id="login-btn">Entrar al Sistema</button>
+            <p id="error-msg" style="color:red; display:none; font-size:12px; margin-top:10px;">⚠️ Datos incorrectos</p>
         </div>
     </div>
 
     <div class="top-nav" id="nav-bar">
-        <h1 id="user-title" style="font-size:16px; margin:0">Cargando...</h1>
+        <h1 id="user-display" style="font-size:16px; margin:0; color:white;">Portal</h1>
         <button class="btn-logout" id="logout-btn">Cerrar Sesión</button>
     </div>
 
     <div id="app-content">
-        <div class="side-panel" id="admin-sidebar" style="display:none;">
-            <h3>Gestión de Psicólogas</h3>
-            <input type="email" id="new-doc-email" placeholder="Correo de la psicóloga">
-            <input type="text" id="new-doc-name" placeholder="Nombre completo">
-            <button class="btn-action" id="add-doc-btn">Registrar</button>
-            <div id="active-docs-list" style="margin-top:20px;"></div>
+        <div class="side-panel" id="admin-panel" style="display:none;">
+            <h3>Equipo de Psicólogas</h3>
+            <input type="email" id="new-doc-email" placeholder="Correo">
+            <input type="text" id="new-doc-name" placeholder="Nombre">
+            <button class="btn-action" id="add-doc-btn">Registrar Nueva</button>
+            <div id="docs-list" style="margin-top:20px;"></div>
         </div>
         <div class="calendar-card">
             <div id='calendar'></div>
@@ -55,7 +55,6 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // CONFIGURACIÓN (Usa tus datos aquí)
         const firebaseConfig = {
             apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA",
             authDomain: "agendaresiliencia-12.firebaseapp.com",
@@ -70,59 +69,48 @@
         const db = getFirestore(app);
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
 
-        // LOGIN
-        document.getElementById('login-btn').onclick = () => {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            signInWithEmailAndPassword(auth, email, pass).catch(() => document.getElementById('error-msg').style.display = 'block');
+        // Función para generar colores fijos basados en el nombre
+        const stringToColor = (str) => {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
+            return `hsl(${hash % 360}, 60%, 45%)`;
         };
 
-        document.getElementById('logout-btn').onclick = () => signOut(auth);
+        document.getElementById('login-btn').onclick = () => {
+            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
+                .catch(() => document.getElementById('error-msg').style.display = 'block');
+        };
+
+        document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
-                document.getElementById('app-content').style.display = 'grid';
-                
-                const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-                document.getElementById('user-title').innerText = isAdmin ? "Portal Administrador" : `Agenda de: ${user.email}`;
+                document.getElementById('app-content').style.display = isAdmin ? 'grid' : 'block';
+                document.getElementById('user-display').innerText = isAdmin ? "ADMIN: Control Total" : `PSICÓLOGA: ${user.email}`;
                 
                 if(isAdmin) {
-                    document.getElementById('admin-sidebar').style.display = 'block';
-                    cargarPsicologas();
-                } else {
-                    document.getElementById('admin-sidebar').style.display = 'none';
-                    document.getElementById('app-content').style.gridTemplateColumns = "1fr";
+                    document.getElementById('admin-panel').style.display = 'block';
+                    cargarEquipo();
                 }
-                
                 initCalendar(user.email, isAdmin);
-            } else {
-                location.reload(); // Recarga para limpiar datos al salir
             }
         });
 
-        // GESTIÓN DE PSICÓLOGAS (Admin)
-        document.getElementById('add-doc-btn').onclick = async () => {
-            const email = document.getElementById('new-doc-email').value;
-            const name = document.getElementById('new-doc-name').value;
-            if(email && name) await addDoc(collection(db, "psicologas"), { email, name });
-        };
-
-        function cargarPsicologas() {
+        function cargarEquipo() {
             onSnapshot(collection(db, "psicologas"), (snap) => {
-                const list = document.getElementById('active-docs-list');
+                const list = document.getElementById('docs-list');
                 list.innerHTML = "";
                 snap.forEach(d => {
-                    list.innerHTML += `<div style="background:rgba(255,255,255,0.1); padding:8px; margin-bottom:5px; border-radius:5px; font-size:12px;">
-                        ${d.data().name} <br> <small>${d.data().email}</small>
-                    </div>`;
+                    const color = stringToColor(d.data().email);
+                    list.innerHTML += `<div class="psicologa-tag" style="background:${color}">${d.data().name}</div>`;
                 });
             });
         }
 
-        // CALENDARIO FILTRADO
-        function initCalendar(userEmail, isAdmin) {
+        function initCalendar(email, isAdmin) {
             const calendarEl = document.getElementById('calendar');
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'timeGridWeek',
@@ -133,11 +121,10 @@
                     const patient = prompt("Nombre del Paciente:");
                     if(patient) {
                         await addDoc(collection(db, "citas"), {
-                            title: isAdmin ? `${patient} (Admin)` : patient,
-                            start: info.startStr,
-                            end: info.endStr,
-                            user: userEmail, // Aquí se guarda quién creó la cita
-                            color: isAdmin ? '#292929' : '#a5c941'
+                            title: isAdmin ? `(Admin) ${patient}` : patient,
+                            start: info.startStr, end: info.endStr,
+                            user: email,
+                            color: stringToColor(email) // Cada psicóloga tiene su color
                         });
                     }
                 },
@@ -147,23 +134,14 @@
             });
             calendar.render();
 
-            // Lógica de Filtrado:
-            // Si es ADMIN: Trae todas las citas.
-            // Si es PSICÓLOGA: Trae solo donde 'user' == su correo.
-            const citasRef = collection(db, "citas");
-            const q = isAdmin ? citasRef : query(citasRef, where("user", "==", userEmail));
-
+            // EL FILTRO MÁGICO:
+            const q = isAdmin ? collection(db, "citas") : query(collection(db, "citas"), where("user", "==", email));
+            
             onSnapshot(q, (snap) => {
                 calendar.removeAllEvents();
-                snap.forEach(d => {
-                    calendar.addEvent({ id: d.id, ...d.data() });
-                });
+                snap.forEach(d => calendar.addEvent({ id: d.id, ...d.data() }));
             });
         }
-    </script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
-</body>
-</html>
     </script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 </body>
