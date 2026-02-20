@@ -17,7 +17,8 @@
         input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
         .btn-action { width: 100%; background: var(--brand-green); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
         .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
-        @media (max-width: 1000px) { #app-content { grid-template-columns: 1fr; } .side-panel { display: none; } }
+        .psicologa-item { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+        .btn-delete-small { background: #ff4d4d; border: none; color: white; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -40,12 +41,14 @@
 
     <div id="app-content">
         <div class="side-panel" id="admin-sidebar" style="display:none;">
-            <h3 style="margin-top:0">Gestión de Doctores</h3>
-            <p style="font-size:12px; opacity:0.8">Registra un nuevo especialista:</p>
-            <input type="email" id="new-doc-email" placeholder="Correo del doctor">
-            <input type="text" id="new-doc-name" placeholder="Nombre completo">
-            <button class="btn-action" id="add-doc-btn" style="padding:10px">Registrar</button>
-            <div id="active-docs-list" style="margin-top:20px;"></div>
+            <h3 style="margin-top:0">Gestión de Psicólogas</h3>
+            <p style="font-size:12px; opacity:0.8">Registra una nueva especialista:</p>
+            <input type="email" id="new-doc-email" placeholder="Correo (ejemplo@gmail.com)">
+            <input type="text" id="new-doc-name" placeholder="Nombre de la Psicóloga">
+            <button class="btn-action" id="add-doc-btn" style="padding:10px">Registrar Psicóloga</button>
+            <hr style="margin: 20px 0; opacity: 0.2;">
+            <h4>Equipo Actual</h4>
+            <div id="active-docs-list"></div>
         </div>
         <div class="calendar-card">
             <div id='calendar'></div>
@@ -59,29 +62,28 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ==========================================
-        // CREDENCIALES CARGADAS - AGENDORESILIENCIA-12
-        // ==========================================
-      const firebaseConfig = {
-  apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA",
-  authDomain: "agendaresiliencia-12.firebaseapp.com",
-  projectId: "agendaresiliencia-12",
-  storageBucket: "agendaresiliencia-12.firebasestorage.app",
-  messagingSenderId: "1068233469888",
-  appId: "1:1068233469888:web:f958c72f406ac8698da225"
-};
+        // CONFIGURACIÓN DE TU PROYECTO
+        const firebaseConfig = {
+            apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA",
+            authDomain: "agendaresiliencia-12.firebaseapp.com",
+            projectId: "agendaresiliencia-12",
+            storageBucket: "agendaresiliencia-12.firebasestorage.app",
+            messagingSenderId: "1068233469888",
+            appId: "1:1068233469888:web:f958c72f406ac8698da225"
+        };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
 
+        // Login
         document.getElementById('login-btn').onclick = () => {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
-            signInWithEmailAndPassword(auth, email, pass).catch((error) => {
-                console.error("Error de login:", error.message);
+            signInWithEmailAndPassword(auth, email, pass).catch(() => {
                 document.getElementById('error-msg').style.display = 'block';
             });
         };
@@ -93,8 +95,10 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'grid';
+                
                 if(user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                     document.getElementById('admin-sidebar').style.display = 'block';
+                    cargarPsicologas();
                 }
                 initCalendar(user.email);
             } else {
@@ -103,6 +107,40 @@
                 document.getElementById('app-content').style.display = 'none';
             }
         });
+
+        // Registrar Psicólogas
+        document.getElementById('add-doc-btn').onclick = async () => {
+            const email = document.getElementById('new-doc-email').value;
+            const name = document.getElementById('new-doc-name').value;
+            if(email && name) {
+                await addDoc(collection(db, "psicologas"), { email, name });
+                document.getElementById('new-doc-email').value = "";
+                document.getElementById('new-doc-name').value = "";
+                alert("Psicóloga registrada correctamente");
+            }
+        };
+
+        function cargarPsicologas() {
+            onSnapshot(collection(db, "psicologas"), (snap) => {
+                const list = document.getElementById('active-docs-list');
+                list.innerHTML = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    list.innerHTML += `
+                        <div class="psicologa-item">
+                            <span>${data.name}</span>
+                            <button class="btn-delete-small" onclick="borrarPsicologa('${d.id}')">X</button>
+                        </div>`;
+                });
+            });
+        }
+
+        // Hacer la función de borrar accesible globalmente
+        window.borrarPsicologa = async (id) => {
+            if(confirm("¿Eliminar a esta psicóloga del equipo?")) {
+                await deleteDoc(doc(db, "psicologas", id));
+            }
+        };
 
         function initCalendar(email) {
             const calendarEl = document.getElementById('calendar');
