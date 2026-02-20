@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Resiliencia Guate</title>
+    <title>Resiliencia</title>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
@@ -44,7 +44,7 @@
 
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="margin-top:0">Resiliencia Guate</h2>
+            <h2 style="margin-top:0">RESILIENCIA</h2>
             <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
             <button class="btn-action" id="login-btn" style="margin-top:10px">Entrar</button>
@@ -53,7 +53,7 @@
 
     <div class="top-nav" id="nav-bar">
         <div style="display:flex; align-items:center; gap:10px;">
-            <div id="default-logo" style="width:35px;height:35px;background:white;border-radius:50%;color:var(--brand-color);display:flex;align-items:center;justify-content:center;font-weight:bold;">RG</div>
+            <div id="default-logo" style="width:35px;height:35px;background:white;border-radius:50%;color:var(--brand-color);display:flex;align-items:center;justify-content:center;font-weight:bold;">R</div>
             <img id="app-logo" src="" style="display:none; max-height:50px; object-fit: contain;">
             <h1 id="user-display" style="font-size:12px; margin:0; color:var(--header-text-color);">Portal</h1>
         </div>
@@ -225,7 +225,7 @@
                             await addDoc(collection(db, "citas"), { title: p, phone: t || "", start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: doctorColors[email.toLowerCase()] || '#a5c941' }); 
                             if(t) {
                                 const f = new Date(info.startStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-                                const msg = encodeURIComponent(`*Cita Agendada* ✅\n\nHola ${p}, tu cita en *Resiliencia Guate* ha sido programada para el ${f}.`);
+                                const msg = encodeURIComponent(`*Cita Agendada* ✅\n\nHola ${p}, tu cita en *RESILIENCIA* ha sido programada para el ${f}.`);
                                 window.open(`https://wa.me/${t}?text=${msg}`, '_blank');
                             }
                         }
@@ -240,7 +240,7 @@
                     const menu = confirm(`Cita: ${nombre}\n\n¿Qué deseas hacer?\n\nOK: Enviar Recordatorio WhatsApp\nCANCELAR: Eliminar Cita`);
                     
                     if(menu) {
-                        const msg = encodeURIComponent(`Hola ${nombre}, te saluda Resiliencia Guate. Te recordamos tu cita el día ${fecha}. ¡Te esperamos!`);
+                        const msg = encodeURIComponent(`Hola ${nombre}, te saluda RESILIENCIA. Te recordamos tu cita el día ${fecha}. ¡Te esperamos!`);
                         window.open(`https://wa.me/${telefono}?text=${msg}`, '_blank');
                     } else {
                         if(confirm("¿Eliminar cita?")) deleteDoc(doc(db, "citas", info.event.id));
@@ -268,7 +268,7 @@
                     
                     if(phone) {
                         const f = new Date(window.selectedInfo.startStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-                        const msg = encodeURIComponent(`*Cita Agendada* ✅\n\nHola ${name}, tu cita en *Resiliencia Guate* ha sido programada para el ${f}.`);
+                        const msg = encodeURIComponent(`*Cita Agendada* ✅\n\nHola ${name}, tu cita en *RESILIENCIA* ha sido programada para el ${f}.`);
                         window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
                     }
 
