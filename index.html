@@ -8,52 +8,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --brand-color: #a5c941; --brand-dark: #292929; --header-text-color: #ffffff; }
-        
-        html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; }
-        body { overflow-y: auto !important; display: flex; flex-direction: column; }
-
+        html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; overflow-x: hidden; }
+        body { display: flex; flex-direction: column; }
+        .top-nav { background-color: var(--brand-color); padding: 10px 15px; display: none; justify-content: space-between; align-items: center; min-height: 60px; position: sticky; top: 0; z-index: 999; }
+        #app-content { display: none; flex-direction: column; padding: 10px; gap: 15px; flex: 1; }
+        @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 300px; position: sticky; top: 80px; } }
+        .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .psicologa-item { padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: 600; font-size: 12px; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
+        .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        #assign-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; color: #333; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
         #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; color: #333; }
-
-        .top-nav { 
-            background-color: var(--brand-color); padding: 10px 15px; display: none; 
-            justify-content: space-between; align-items: center; min-height: 60px;
-            position: sticky; top: 0; z-index: 1000;
-        }
-
-        #app-content { display: none; flex-direction: column; padding: 10px; gap: 15px; }
-
-        @media (min-width: 768px) {
-            #app-content { flex-direction: row; padding: 20px; }
-            .side-panel { width: 320px; position: sticky; top: 80px; }
-        }
-
-        .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
-
-        .calendar-card { 
-            flex: 1; background: white; border-radius: 15px; padding: 10px; 
-            color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow: hidden;
-        }
-
-        .psicologa-item { 
-            padding: 10px; border-radius: 8px; margin-bottom: 8px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            color: white; font-weight: 600; font-size: 12px;
-        }
-
-        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
-        .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 5px; }
-        .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; }
-
-        #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10001; align-items: center; justify-content: center; }
-        .modal-box { background: white; padding: 20px; border-radius: 15px; width: 85%; max-width: 320px; color: #333; }
-        
-        /* Fix de visibilidad de botones en móvil */
-        .fc .fc-toolbar { flex-direction: column; gap: 10px; }
-        @media (max-width: 768px) {
-            .fc-toolbar-chunk { display: flex; justify-content: center; width: 100%; }
-            .fc-header-toolbar { margin-bottom: 1em !important; }
-        }
     </style>
 </head>
 <body>
@@ -63,51 +31,49 @@
             <h2 style="margin-top:0">Resiliencia Guate</h2>
             <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
-            <button class="btn-action" id="login-btn">Entrar</button>
+            <button class="btn-action" id="login-btn" style="margin-top:10px">Entrar</button>
         </div>
     </div>
 
     <div class="top-nav" id="nav-bar">
         <div style="display:flex; align-items:center; gap:8px;">
-            <div id="default-logo" style="width:30px;height:30px;background:white;border-radius:50%;color:var(--brand-color);display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:12px;">RG</div>
+            <div id="default-logo" style="width:30px;height:30px;background:white;border-radius:50%;color:var(--brand-color);display:flex;align-items:center;justify-content:center;font-weight:bold;">RG</div>
             <img id="app-logo" src="" style="display:none; max-height:45px;">
             <h1 id="user-display" style="font-size:12px; margin:0; color:var(--header-text-color);">Portal</h1>
         </div>
-        <button class="btn-logout" id="logout-btn">Salir</button>
+        <button onclick="location.reload()" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px;">Salir</button>
     </div>
 
     <div id="app-content">
         <div class="side-panel">
             <div id="admin-tools" style="display:none;">
-                <h3 style="margin-top:0">Admin</h3>
-                <input type="text" id="new-doc-name" placeholder="Nombre">
+                <h3 style="margin-top:0">Panel Admin</h3>
+                <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
                 <input type="email" id="new-doc-email" placeholder="Correo">
                 <button class="btn-action" id="add-doc-btn">Añadir</button>
                 <hr style="opacity:0.2; margin:15px 0;">
             </div>
-            <h3 style="margin-top:0; font-size:16px;">Equipo</h3>
+            <h3 style="margin-top:0; font-size:16px;">Equipo y Colores</h3>
             <div id="docs-list"></div>
         </div>
         
-        <div class="calendar-card">
-            <div id='calendar'></div>
-        </div>
+        <div class="calendar-card"><div id='calendar'></div></div>
     </div>
 
     <div id="assign-modal">
         <div class="modal-box">
-            <h3>Nueva Cita</h3>
+            <h3 style="margin-top:0">Nueva Cita</h3>
             <input type="text" id="p-name" placeholder="Nombre Paciente">
             <select id="p-select"></select>
-            <button class="btn-action" id="p-save">Agendar</button>
-            <button class="btn-action" id="p-cancel" style="background:#999">Cancelar</button>
+            <button class="btn-action" id="p-save" style="margin-top:10px">Guardar Cita</button>
+            <button class="btn-action" id="p-cancel" style="background:#999; margin-top:8px;">Cancelar</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA",
@@ -125,13 +91,13 @@
         let doctorColors = {};
 
         document.getElementById('login-btn').onclick = async () => {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
             try {
                 await setPersistence(auth, browserLocalPersistence);
-                await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-            } catch (err) { alert("Error de acceso"); }
+                await signInWithEmailAndPassword(auth, e, p);
+            } catch (err) { alert("Error: Revisa tus datos"); }
         };
-
-        document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -142,8 +108,6 @@
                 document.getElementById('user-display').innerText = user.email.split('@')[0].toUpperCase();
                 if(isAdmin) document.getElementById('admin-tools').style.display = 'block';
                 cargarEquipo(isAdmin, user.email);
-            } else {
-                document.getElementById('login-screen').style.display = 'flex';
             }
         });
 
@@ -152,8 +116,6 @@
                 const list = document.getElementById('docs-list');
                 const select = document.getElementById('p-select');
                 list.innerHTML = ""; select.innerHTML = "";
-                doctorColors = {};
-
                 snap.forEach(d => {
                     const data = d.data();
                     doctorColors[data.email.toLowerCase()] = data.color;
@@ -161,11 +123,10 @@
                     item.className = 'psicologa-item';
                     item.style.backgroundColor = data.color;
                     item.innerHTML = `<span>${data.name}</span>`;
-                    
                     if(isAdmin) {
                         select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
-                        const del = document.createElement('button');
-                        del.className = 'btn-del'; del.innerText = '✕'; del.style.background='none'; del.style.border='none'; del.style.color='white';
+                        const del = document.createElement('span');
+                        del.innerHTML = "✕"; del.style.cursor="pointer";
                         del.onclick = () => deleteDoc(doc(db, "psicologas", d.id));
                         item.appendChild(del);
                     }
@@ -180,18 +141,16 @@
             const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
                 initialView: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek',
                 locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
-                unselectAuto: false, // Evita que se deseleccione al tocar otros elementos
-                longPressDelay: 100, // Toque rápido para móviles
-                headerToolbar: { 
-                    left: 'prev,next today', 
-                    center: 'title', 
-                    right: 'timeGridWeek,timeGridDay' // Ambos botones visibles en móvil
-                },
+                selectMirror: true, // Ayuda visual al tocar
+                longPressDelay: 0, // REACCIÓN INSTANTÁNEA AL TOQUE
+                eventLongPressDelay: 0,
+                headerToolbar: { left: 'prev,next', center: 'title', right: 'timeGridWeek,timeGridDay' },
                 select: (info) => {
                     selectedInfo = info;
-                    if(isAdmin) document.getElementById('assign-modal').style.display = 'flex';
-                    else {
-                        const p = prompt("Paciente:");
+                    if(isAdmin) {
+                        document.getElementById('assign-modal').style.display = 'flex';
+                    } else {
+                        const p = prompt("Nombre del Paciente:");
                         if(p) {
                             addDoc(collection(db, "citas"), { 
                                 title: p, start: info.startStr, end: info.endStr, 
@@ -200,7 +159,7 @@
                         }
                     }
                 },
-                eventClick: (info) => { if(confirm("¿Eliminar?")) deleteDoc(doc(db, "citas", info.event.id)); }
+                eventClick: (info) => { if(confirm("¿Eliminar cita?")) deleteDoc(doc(db, "citas", info.event.id)); }
             });
             calendar.render();
             window.calendarObj = calendar;
@@ -232,8 +191,9 @@
         document.getElementById('add-doc-btn').onclick = async () => {
             const n = document.getElementById('new-doc-name').value;
             const e = document.getElementById('new-doc-email').value.trim().toLowerCase();
+            const palette = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4'];
             if(n && e) {
-                await addDoc(collection(db, "psicologas"), { name: n, email: e, color: '#'+Math.floor(Math.random()*16777215).toString(16) });
+                await addDoc(collection(db, "psicologas"), { name: n, email: e, color: palette[Math.floor(Math.random()*palette.length)] });
                 document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
             }
         };
