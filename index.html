@@ -33,8 +33,9 @@
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; color: #333; }
         
-        /* Estilos de botones de vista */
         .fc .fc-button { font-size: 0.85em !important; text-transform: capitalize !important; }
+        /* Estilo para que las cabeceras de los días no se vean amontonadas */
+        .fc-col-header-cell-cushion { text-transform: capitalize; padding: 5px 0 !important; }
     </style>
 </head>
 <body>
@@ -58,16 +59,16 @@
     </div>
 
     <div id="app-content">
-        <div class="side-panel">
-            <div id="admin-tools" style="display:none;">
+        <div class="side-panel" id="side-panel-ui" style="display:none;">
+            <div id="admin-tools">
                 <h3 style="margin-top:0">Panel Admin</h3>
                 <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
                 <input type="email" id="new-doc-email" placeholder="Correo">
                 <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
                 
                 <div style="margin-top:20px; padding:15px; background:rgba(255,255,255,0.05); border-radius:10px; border:1px solid rgba(255,255,255,0.1);">
-                    <strong style="font-size:11px; display:block; margin-bottom:10px; opacity:0.8;">APARIENCIA (NUBE)</strong>
-                    <label style="font-size:10px;">Subir Logo:</label>
+                    <strong style="font-size:11px; display:block; margin-bottom:10px; opacity:0.8;">APARIENCIA</strong>
+                    <label style="font-size:10px;">Logo:</label>
                     <input type="file" id="logo-upload" accept="image/*" style="font-size:10px; background:none; border:none; color:white;">
                     <label style="font-size:10px;">Ancho Logo:</label>
                     <input type="range" id="logo-size" min="40" max="250" value="100" style="margin:5px 0;">
@@ -75,12 +76,12 @@
                         <div style="flex:1"><label style="font-size:9px">Barra</label><input type="color" id="brand-color-picker" value="#a5c941"></div>
                         <div style="flex:1"><label style="font-size:9px">Texto</label><input type="color" id="text-color-picker" value="#ffffff"></div>
                     </div>
-                    <button class="btn-action" id="save-style-btn" style="background:white; color:black; margin-top:15px; padding:8px; font-size:12px;">Sincronizar Estética</button>
+                    <button class="btn-action" id="save-style-btn" style="background:white; color:black; margin-top:15px; padding:8px; font-size:12px;">Sincronizar</button>
                 </div>
                 <hr style="opacity:0.2; margin:15px 0;">
+                <h3 style="font-size:16px;">Equipo y Colores</h3>
+                <div id="docs-list"></div>
             </div>
-            <h3 style="margin-top:0; font-size:16px;">Equipo y Colores</h3>
-            <div id="docs-list"></div>
         </div>
         
         <div class="calendar-card">
@@ -101,7 +102,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA",
@@ -122,7 +123,7 @@
             try {
                 await setPersistence(auth, browserLocalPersistence);
                 await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-            } catch (err) { alert("Error de acceso"); }
+            } catch (err) { alert("Acceso denegado"); }
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -132,14 +133,12 @@
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'flex';
                 document.getElementById('user-display').innerText = user.email.toUpperCase();
-                if(isAdmin) document.getElementById('admin-tools').style.display = 'block';
-                
+                if(isAdmin) document.getElementById('side-panel-ui').style.display = 'block';
                 cargarEquipo(isAdmin, user.email);
                 escucharEstetica();
             }
         });
 
-        // FUNCIONALIDAD DE ESTÉTICA EN LA NUBE
         function escucharEstetica() {
             onSnapshot(doc(db, "configuracion", "apariencia"), (snap) => {
                 if (snap.exists()) {
@@ -169,7 +168,7 @@
                 reader.onloadend = async () => {
                     data.logoB64 = reader.result;
                     await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true});
-                    alert("Estética guardada en la nube");
+                    alert("Estética actualizada");
                 };
                 reader.readAsDataURL(file);
             } else {
@@ -186,18 +185,18 @@
                 snap.forEach(d => {
                     const data = d.data();
                     doctorColors[data.email.toLowerCase()] = data.color;
-                    const item = document.createElement('div');
-                    item.className = 'psicologa-item';
-                    item.style.backgroundColor = data.color;
-                    item.innerHTML = `<span>${data.name}</span>`;
                     if(isAdmin) {
+                        const item = document.createElement('div');
+                        item.className = 'psicologa-item';
+                        item.style.backgroundColor = data.color;
+                        item.innerHTML = `<span>${data.name}</span>`;
                         select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
                         const del = document.createElement('span');
                         del.innerHTML = "✕"; del.style.cursor="pointer";
                         del.onclick = () => deleteDoc(doc(db, "psicologas", d.id));
                         item.appendChild(del);
+                        list.appendChild(item);
                     }
-                    list.appendChild(item);
                 });
                 if (!window.calendarObj) initCalendar(userEmail, isAdmin);
             });
@@ -208,6 +207,10 @@
                 initialView: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek',
                 locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
                 longPressDelay: 0, eventLongPressDelay: 0, selectMirror: true,
+                
+                // CORRECCIÓN DE FORMATO DE FECHA (SOLO DÍA Y NÚMERO)
+                dayHeaderFormat: { weekday: 'short', day: 'numeric', month: undefined, year: undefined },
+                
                 headerToolbar: { 
                     left: 'prev,next', 
                     center: 'title', 
