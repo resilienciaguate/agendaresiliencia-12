@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resiliencia Guate - Agenda</title>
+    <title>Resiliencia Guate - Portal Centralizado</title>
     
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
@@ -15,7 +15,12 @@
         #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-box { background: white; padding: 40px; border-radius: 20px; width: 320px; text-align: center; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
 
-        .top-nav { background-color: var(--brand-green); padding: 15px 30px; display: none; justify-content: space-between; align-items: center; }
+        .top-nav { background-color: var(--brand-green); padding: 10px 30px; display: none; justify-content: space-between; align-items: center; min-height: 70px; }
+        
+        #logo-container { display: flex; align-items: center; gap: 15px; }
+        #app-logo { max-height: 100px; width: auto; display: none; }
+        #default-logo { width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--brand-green); font-weight: bold; }
+
         #app-content { display: none; padding: 20px; gap: 20px; flex: 1; overflow: hidden; }
         
         .side-panel { width: 300px; min-width: 300px; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); overflow-y: auto; }
@@ -31,6 +36,9 @@
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 8000; align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 30px; border-radius: 15px; width: 350px; color: #333; }
         .fc { height: 100% !important; max-height: 75vh; }
+
+        .aesthetic-section { margin-top: 25px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .label-small { font-size: 11px; text-transform: uppercase; opacity: 0.7; margin-bottom: 5px; display: block; }
     </style>
 </head>
 <body>
@@ -46,9 +54,10 @@
     </div>
 
     <div class="top-nav" id="nav-bar">
-        <div style="display:flex; align-items:center; gap:10px">
-            <div style="width:35px; height:35px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--brand-green); font-weight:bold;">RG</div>
-            <h1 id="user-display" style="font-size:16px; margin:0; color:white;">Cargando...</h1>
+        <div id="logo-container">
+            <div id="default-logo">RG</div>
+            <img id="app-logo" src="" alt="Logo de la Clínica">
+            <h1 id="user-display" style="font-size:16px; margin:0; color:white;">Portal</h1>
         </div>
         <button class="btn-logout" id="logout-btn">Salir</button>
     </div>
@@ -59,6 +68,18 @@
             <input type="text" id="new-doc-name" placeholder="Nombre">
             <input type="email" id="new-doc-email" placeholder="Correo exacto">
             <button class="btn-action" id="add-doc-btn">Registrar</button>
+            
+            <div class="aesthetic-section">
+                <h3 style="margin:0 0 10px 0; font-size: 14px;">Personalizar Portal (Nube)</h3>
+                <span class="label-small">Logo de la Clínica</span>
+                <input type="file" id="logo-upload" accept="image/*" style="font-size: 11px; color: white; border: none;">
+                
+                <span class="label-small">Ancho del Logo</span>
+                <input type="range" id="logo-size" min="40" max="200" value="100">
+                
+                <button class="btn-action" id="save-style-btn" style="background: #ffffff; color: #333; margin-top: 10px; padding: 8px; font-size: 12px;">Sincronizar en la Red</button>
+            </div>
+
             <h3 style="margin-top:25px">Equipo</h3>
             <div id="docs-list"></div>
         </div>
@@ -80,7 +101,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA",
@@ -99,6 +120,53 @@
 
         let selectedTimeInfo = null;
 
+        // --- SINCRIZACIÓN DE ESTÉTICA EN LA NUBE ---
+        function listenToGlobalStyle() {
+            onSnapshot(doc(db, "configuracion", "apariencia"), (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    const logoImg = document.getElementById('app-logo');
+                    const defaultLogo = document.getElementById('default-logo');
+                    
+                    if (data.logoB64) {
+                        logoImg.src = data.logoB64;
+                        logoImg.style.display = 'block';
+                        logoImg.style.width = data.logoWidth + 'px';
+                        defaultLogo.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        document.getElementById('save-style-btn').onclick = async () => {
+            const btn = document.getElementById('save-style-btn');
+            const file = document.getElementById('logo-upload').files[0];
+            const width = document.getElementById('logo-size').value;
+            
+            btn.innerText = "Subiendo...";
+            btn.disabled = true;
+
+            let configData = { logoWidth: width };
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    configData.logoB64 = reader.result;
+                    await setDoc(doc(db, "configuracion", "apariencia"), configData, { merge: true });
+                    btn.innerText = "Sincronizar en la Red";
+                    btn.disabled = false;
+                    alert("¡Estética actualizada para todo el equipo!");
+                };
+                reader.readAsDataURL(file);
+            } else {
+                await setDoc(doc(db, "configuracion", "apariencia"), configData, { merge: true });
+                btn.innerText = "Sincronizar en la Red";
+                btn.disabled = false;
+                alert("Tamaño actualizado globalmente.");
+            }
+        };
+
+        // --- LÓGICA DE USUARIO ---
         document.getElementById('login-btn').onclick = async () => {
             const email = document.getElementById('email').value.trim().toLowerCase();
             const pass = document.getElementById('password').value;
@@ -106,15 +174,15 @@
                 await setPersistence(auth, browserLocalPersistence);
                 await signInWithEmailAndPassword(auth, email, pass);
             } catch (e) {
-                const err = document.getElementById('error-txt');
-                err.innerText = "Error: Datos incorrectos";
-                err.style.display = 'block';
+                document.getElementById('error-txt').innerText = "Error: Datos incorrectos";
+                document.getElementById('error-txt').style.display = 'block';
             }
         };
 
         document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
 
         onAuthStateChanged(auth, (user) => {
+            listenToGlobalStyle(); // Siempre escuchar cambios de logo
             if (user) {
                 const cleanEmail = user.email.trim().toLowerCase();
                 const isAdmin = cleanEmail === ADMIN_EMAIL.toLowerCase();
