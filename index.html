@@ -9,7 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     
     <style>
-        :root { --brand-color: #a5c941; --brand-dark: #292929; }
+        :root { 
+            --brand-color: #a5c941; 
+            --brand-dark: #292929; 
+            --header-text-color: #ffffff; /* Color de fuente por defecto */
+        }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); margin: 0; color: white; height: 100vh; display: flex; flex-direction: column; }
         
         #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
@@ -20,6 +24,9 @@
         #logo-container { display: flex; align-items: center; gap: 15px; }
         #app-logo { max-height: 100px; width: auto; display: none; }
         #default-logo { width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--brand-color); font-weight: bold; }
+
+        /* Estilo para el texto dinámico de la cabecera */
+        #user-display { font-size: 16px; margin: 0; color: var(--header-text-color) !important; transition: color 0.3s; }
 
         #app-content { display: none; padding: 20px; gap: 20px; flex: 1; overflow: hidden; }
         
@@ -62,7 +69,7 @@
         <div id="logo-container">
             <div id="default-logo">RG</div>
             <img id="app-logo" src="" alt="Logo">
-            <h1 id="user-display" style="font-size:16px; margin:0; color:white;">Portal</h1>
+            <h1 id="user-display">Portal</h1>
         </div>
         <button class="btn-logout" id="logout-btn">Salir</button>
     </div>
@@ -82,10 +89,18 @@
                 <span class="label-small">Ancho del Logo</span>
                 <input type="range" id="logo-size" min="40" max="220" value="100">
 
-                <span class="label-small">Color Institucional</span>
-                <input type="color" id="brand-color-picker" value="#a5c941" style="height:40px; cursor:pointer;">
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div style="flex: 1;">
+                        <span class="label-small">Color Fondo</span>
+                        <input type="color" id="brand-color-picker" value="#a5c941" style="height:35px; cursor:pointer;">
+                    </div>
+                    <div style="flex: 1;">
+                        <span class="label-small">Color Texto</span>
+                        <input type="color" id="text-color-picker" value="#ffffff" style="height:35px; cursor:pointer;">
+                    </div>
+                </div>
                 
-                <button class="btn-action" id="save-style-btn" style="background: white; color: #333; margin-top: 10px; padding: 8px; font-size: 11px;">Guardar y Sincronizar</button>
+                <button class="btn-action" id="save-style-btn" style="background: white; color: #333; margin-top: 15px; padding: 8px; font-size: 11px;">Guardar y Sincronizar</button>
             </div>
 
             <div class="export-section">
@@ -143,6 +158,8 @@
                     const defaultLogo = document.getElementById('default-logo');
                     
                     if (data.color) root.style.setProperty('--brand-color', data.color);
+                    if (data.textColor) root.style.setProperty('--header-text-color', data.textColor);
+                    
                     if (data.logoB64) {
                         logoImg.src = data.logoB64;
                         logoImg.style.display = 'block';
@@ -158,17 +175,22 @@
             const file = document.getElementById('logo-upload').files[0];
             const width = document.getElementById('logo-size').value;
             const color = document.getElementById('brand-color-picker').value;
+            const textColor = document.getElementById('text-color-picker').value;
             
             btn.innerText = "Sincronizando...";
             btn.disabled = true;
 
-            let configData = { logoWidth: width, color: color };
+            let configData = { 
+                logoWidth: width, 
+                color: color, 
+                textColor: textColor 
+            };
 
             const updateDB = async (data) => {
                 await setDoc(doc(db, "configuracion", "apariencia"), data, { merge: true });
                 btn.innerText = "Guardar y Sincronizar";
                 btn.disabled = false;
-                alert("Apariencia actualizada para todos.");
+                alert("Apariencia global actualizada.");
             };
 
             if (file) {
@@ -183,132 +205,9 @@
             }
         };
 
-        // --- EXPORTAR EXCEL (CSV) ---
+        // --- EXPORTAR ---
         document.getElementById('export-excel-btn').onclick = () => {
-            if (currentEvents.length === 0) return alert("No hay citas para exportar.");
-            
-            let csvContent = "data:text/csv;charset=utf-8,Paciente,Fecha Inicio,Fecha Fin,Psicologa\n";
-            currentEvents.forEach(e => {
-                csvContent += `"${e.title}","${e.start}","${e.end}","${e.user}"\n`;
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "agenda_resiliencia_guate.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        };
-
-        // --- LÓGICA DE FIREBASE ---
-        document.getElementById('login-btn').onclick = async () => {
-            const email = document.getElementById('email').value.trim().toLowerCase();
-            const pass = document.getElementById('password').value;
-            try {
-                await setPersistence(auth, browserLocalPersistence);
-                await signInWithEmailAndPassword(auth, email, pass);
-            } catch (e) { alert("Acceso denegado."); }
-        };
-
-        document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
-
-        onAuthStateChanged(auth, (user) => {
-            listenToGlobalStyle();
-            if (user) {
-                const cleanEmail = user.email.trim().toLowerCase();
-                const isAdmin = cleanEmail === ADMIN_EMAIL.toLowerCase();
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('nav-bar').style.display = 'flex';
-                document.getElementById('app-content').style.display = 'flex';
-                if(isAdmin) {
-                    document.getElementById('admin-panel').style.display = 'block';
-                    document.getElementById('user-display').innerText = "ADMINISTRADOR";
-                    cargarPsicologasAdmin();
-                } else {
-                    document.getElementById('user-display').innerText = `Sesión: ${cleanEmail}`;
-                }
-                initCalendar(cleanEmail, isAdmin);
-            } else {
-                document.getElementById('login-screen').style.display = 'flex';
-            }
-        });
-
-        function cargarPsicologasAdmin() {
-            onSnapshot(collection(db, "psicologas"), (snap) => {
-                const select = document.getElementById('modal-psicologa-select');
-                const list = document.getElementById('docs-list');
-                select.innerHTML = ""; list.innerHTML = "";
-                let i = 0;
-                snap.forEach(d => {
-                    const data = d.data();
-                    const color = data.color || palette[i % palette.length];
-                    select.innerHTML += `<option value="${data.email}" data-color="${color}">${data.name}</option>`;
-                    const div = document.createElement('div');
-                    div.className = 'psicologa-item';
-                    div.style.background = color;
-                    div.innerHTML = `<span>${data.name}</span><button class="btn-delete-user" data-id="${d.id}">✕</button>`;
-                    list.appendChild(div);
-                    i++;
-                });
-                document.querySelectorAll('.btn-delete-user').forEach(btn => {
-                    btn.onclick = (e) => deleteDoc(doc(db, "psicologas", e.target.getAttribute('data-id')));
-                });
-            });
-        }
-
-        document.getElementById('add-doc-btn').onclick = async () => {
-            const email = document.getElementById('new-doc-email').value.trim().toLowerCase();
-            const name = document.getElementById('new-doc-name').value;
-            if(email && name) {
-                const color = palette[Math.floor(Math.random() * palette.length)];
-                await addDoc(collection(db, "psicologas"), { email, name, color });
-                document.getElementById('new-doc-email').value = ""; document.getElementById('new-doc-name').value = "";
-            }
-        };
-
-        function initCalendar(userEmail, isAdmin) {
-            const calendarEl = document.getElementById('calendar');
-            const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'timeGridWeek', locale: 'es', allDaySlot: false, selectable: true,
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' },
-                select: (info) => {
-                    selectedTimeInfo = info;
-                    if(isAdmin) document.getElementById('assign-modal').style.display = 'flex';
-                    else { const p = prompt("Nombre Paciente:"); if(p) guardarCita(p, userEmail, '#a5c941'); }
-                },
-                eventClick: (info) => { if(confirm("¿Eliminar cita?")) deleteDoc(doc(db, "citas", info.event.id)); }
-            });
-            calendar.render();
-            
-            const q = isAdmin ? collection(db, "citas") : query(collection(db, "citas"), where("user", "==", userEmail));
-            onSnapshot(q, (snap) => {
-                calendar.removeAllEvents();
-                currentEvents = [];
-                snap.forEach(d => {
-                    const data = d.data();
-                    calendar.addEvent({ id: d.id, ...data });
-                    currentEvents.push(data);
-                });
-            });
-        }
-
-        async function guardarCita(p, email, color) {
-            const start = new Date(selectedTimeInfo.start);
-            const end = new Date(start.getTime() + 3600000);
-            await addDoc(collection(db, "citas"), { 
-                title: p, start: start.toISOString(), end: end.toISOString(), 
-                user: email.trim().toLowerCase(), color: color 
-            });
-            document.getElementById('assign-modal').style.display = 'none';
-        }
-
-        document.getElementById('confirm-assign').onclick = () => {
-            const p = document.getElementById('modal-patient-name').value;
-            const sel = document.getElementById('modal-psicologa-select');
-            if(p && sel.value) guardarCita(p, sel.value, sel.options[sel.selectedIndex].getAttribute('data-color'));
-        };
-        document.getElementById('cancel-assign').onclick = () => document.getElementById('assign-modal').style.display = 'none';
-    </script>
-</body>
-</html>
+            if (currentEvents.length === 0) return alert("No hay citas.");
+            let csv = "Paciente,Fecha Inicio,Fecha Fin,Correo Psicologa\n";
+            currentEvents.forEach(e => csv += `"${e.title}","${e.start}","${e.end}","${e.user}"\n`);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-
