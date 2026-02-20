@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Resiliencia Guate - Gestión Privada</title>
+    <title>Resiliencia Guate - Agenda Profesional</title>
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css' rel='stylesheet' />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -14,10 +14,12 @@
         #app-content { display: none; grid-template-columns: 300px 1fr; gap: 20px; padding: 20px; }
         .side-panel { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; }
         .calendar-card { background: white; border-radius: 12px; padding: 20px; color: #333; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border-radius: 6px; border: 1px solid #ccc; }
         .btn-action { width: 100%; background: var(--brand-green); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-        .psicologa-tag { font-size: 11px; padding: 4px; border-radius: 4px; margin-bottom: 5px; display: block; color: white; }
+        .psicologa-tag { font-size: 11px; padding: 4px; border-radius: 4px; margin-bottom: 5px; display: block; color: white; text-align: center; }
+        .logo-container { display: flex; align-items: center; gap: 10px; }
+        .logo-placeholder { width: 35px; height: 35px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--brand-green); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -33,13 +35,16 @@
     </div>
 
     <div class="top-nav" id="nav-bar">
-        <h1 id="user-display" style="font-size:16px; margin:0; color:white;">Portal</h1>
+        <div class="logo-container">
+            <div class="logo-placeholder">RG</div>
+            <h1 id="user-display" style="font-size:16px; margin:0; color:white;">Portal</h1>
+        </div>
         <button class="btn-logout" id="logout-btn">Cerrar Sesión</button>
     </div>
 
     <div id="app-content">
         <div class="side-panel" id="admin-panel" style="display:none;">
-            <h3>Equipo de Psicólogas</h3>
+            <h3>Gestión de Psicólogas</h3>
             <input type="email" id="new-doc-email" placeholder="Correo">
             <input type="text" id="new-doc-name" placeholder="Nombre">
             <button class="btn-action" id="add-doc-btn">Registrar Nueva</button>
@@ -68,12 +73,12 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
+        let listaPsicologas = [];
 
-        // Función para generar colores fijos basados en el nombre
         const stringToColor = (str) => {
             let hash = 0;
             for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
-            return `hsl(${hash % 360}, 60%, 45%)`;
+            return `hsl(${hash % 360}, 65%, 40%)`;
         };
 
         document.getElementById('login-btn').onclick = () => {
@@ -89,54 +94,86 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = isAdmin ? 'grid' : 'block';
-                document.getElementById('user-display').innerText = isAdmin ? "ADMIN: Control Total" : `PSICÓLOGA: ${user.email}`;
+                document.getElementById('user-display').innerText = isAdmin ? "ADMIN: Resiliencia Guate" : `PSICÓLOGA: ${user.email}`;
                 
-                if(isAdmin) {
-                    document.getElementById('admin-panel').style.display = 'block';
-                    cargarEquipo();
-                }
-                initCalendar(user.email, isAdmin);
+                if(isAdmin) { document.getElementById('admin-panel').style.display = 'block'; }
+                
+                // Cargar lista de psicólogas para el selector de Admin
+                onSnapshot(collection(db, "psicologas"), (snap) => {
+                    listaPsicologas = [];
+                    const listDiv = document.getElementById('docs-list');
+                    if(listDiv) listDiv.innerHTML = "";
+                    snap.forEach(d => {
+                        listaPsicologas.push({id: d.id, ...d.data()});
+                        if(listDiv) {
+                            const color = stringToColor(d.data().email);
+                            listDiv.innerHTML += `<div class="psicologa-tag" style="background:${color}">${d.data().name}</div>`;
+                        }
+                    });
+                    initCalendar(user.email, isAdmin);
+                });
             }
         });
 
-        function cargarEquipo() {
-            onSnapshot(collection(db, "psicologas"), (snap) => {
-                const list = document.getElementById('docs-list');
-                list.innerHTML = "";
-                snap.forEach(d => {
-                    const color = stringToColor(d.data().email);
-                    list.innerHTML += `<div class="psicologa-tag" style="background:${color}">${d.data().name}</div>`;
-                });
-            });
-        }
+        // Registrar Nueva Psicóloga
+        document.getElementById('add-doc-btn').onclick = async () => {
+            const email = document.getElementById('new-doc-email').value;
+            const name = document.getElementById('new-doc-name').value;
+            if(email && name) {
+                await addDoc(collection(db, "psicologas"), { email, name });
+                document.getElementById('new-doc-email').value = "";
+                document.getElementById('new-doc-name').value = "";
+            }
+        };
 
-        function initCalendar(email, isAdmin) {
+        function initCalendar(userEmail, isAdmin) {
             const calendarEl = document.getElementById('calendar');
+            calendarEl.innerHTML = ""; // Limpiar antes de reiniciar
+            
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'timeGridWeek',
                 locale: 'es',
+                slotDuration: '01:00:00', // Las ranuras visuales son de 1h
+                snapDuration: '01:00:00',
                 selectable: true,
+                allDaySlot: false,
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' },
                 select: async (info) => {
                     const patient = prompt("Nombre del Paciente:");
-                    if(patient) {
-                        await addDoc(collection(db, "citas"), {
-                            title: isAdmin ? `(Admin) ${patient}` : patient,
-                            start: info.startStr, end: info.endStr,
-                            user: email,
-                            color: stringToColor(email) // Cada psicóloga tiene su color
-                        });
+                    if(!patient) return;
+
+                    let targetUser = userEmail;
+                    if(isAdmin) {
+                        let opciones = "Escribe el número de la psicóloga:\n";
+                        listaPsicologas.forEach((p, i) => opciones += `${i+1}. ${p.name}\n`);
+                        const choice = prompt(opciones);
+                        if(choice && listaPsicologas[choice-1]) {
+                            targetUser = listaPsicologas[choice-1].email;
+                        } else {
+                            alert("Asignación cancelada o inválida"); return;
+                        }
                     }
+
+                    // Forzar duración de 1 hora
+                    let startTime = new Date(info.start);
+                    let endTime = new Date(startTime.getTime() + (60 * 60 * 1000));
+
+                    await addDoc(collection(db, "citas"), {
+                        title: patient,
+                        start: startTime.toISOString(),
+                        end: endTime.toISOString(),
+                        user: targetUser,
+                        color: stringToColor(targetUser)
+                    });
+                    calendar.unselect();
                 },
                 eventClick: async (info) => {
-                    if(confirm("¿Eliminar cita?")) await deleteDoc(doc(db, "citas", info.event.id));
+                    if(confirm(`¿Eliminar cita de ${info.event.title}?`)) await deleteDoc(doc(db, "citas", info.event.id));
                 }
             });
             calendar.render();
 
-            // EL FILTRO MÁGICO:
-            const q = isAdmin ? collection(db, "citas") : query(collection(db, "citas"), where("user", "==", email));
-            
+            const q = isAdmin ? collection(db, "citas") : query(collection(db, "citas"), where("user", "==", userEmail));
             onSnapshot(q, (snap) => {
                 calendar.removeAllEvents();
                 snap.forEach(d => calendar.addEvent({ id: d.id, ...d.data() }));
