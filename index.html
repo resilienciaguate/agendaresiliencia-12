@@ -1,0 +1,109 @@
+<style>
+    :root { 
+        --brand-green: #a5c941; 
+        --brand-white: #ffffff;
+        --brand-dark: #292929;
+        --error: #ff4d4d;
+    }
+
+    body { 
+        font-family: 'Montserrat', sans-serif; 
+        background-color: var(--brand-dark); 
+        margin: 0; 
+        color: var(--brand-white);
+    }
+
+    /* Pantalla de Inicio con tus colores específicos */
+    #login-screen { 
+        position: fixed; 
+        inset: 0; 
+        background-color: var(--brand-dark); 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        z-index: 2000; 
+    }
+
+    .login-box { 
+        background: var(--brand-white); 
+        padding: 50px 40px; 
+        border-radius: 20px; 
+        width: 350px; 
+        text-align: center; 
+        box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    }
+
+    .login-box h2 { 
+        color: var(--brand-dark); 
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+
+    .login-box p {
+        color: #666;
+        font-size: 12px;
+        margin-bottom: 30px;
+        letter-spacing: 1px;
+    }
+
+    /* Inputs Estilizados */
+    .login-box input { 
+        width: 100%; 
+        padding: 14px; 
+        margin: 10px 0; 
+        border-radius: 10px; 
+        border: 2px solid #eee; 
+        background: #f9f9f9; 
+        font-family: inherit;
+        box-sizing: border-box;
+        transition: 0.3s;
+    }
+
+    .login-box input:focus {
+        border-color: var(--brand-green);
+        outline: none;
+        background: white;
+    }
+
+    /* Botón con tu verde específico */
+    .btn-login { 
+        width: 100%; 
+        background-color: var(--brand-green); 
+        color: var(--brand-white); 
+        border: none; 
+        padding: 16px; 
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-weight: 700; 
+        font-size: 15px;
+        margin-top: 20px;
+        transition: transform 0.2s, opacity 0.2s;
+        text-transform: uppercase;
+    }
+
+    .btn-login:hover { 
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+
+    /* Ajuste para el error */
+    #error-msg {
+        color: var(--error);
+        font-size: 13px;
+        margin-top: 15px;
+        font-weight: 500;
+    }
+</style>
+
+<div id="login-screen">
+    <div class="login-box">
+        <h2>Resiliencia Guate</h2>
+        <p>ACCESO AL PORTAL CLÍNICO</p>
+        
+        <input type="email" id="email" placeholder="Correo Electrónico">
+        <input type="password" id="password" placeholder="Contraseña">
+        
+        <button class="btn-login" id="login-btn">Entrar al Sistema</button>
+        <div id="error-msg" style="display:none;">⚠️ Credenciales no válidas</div>
+    </div>
+</div>
