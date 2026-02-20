@@ -23,7 +23,7 @@
         #app-content { display: none; flex-direction: column; padding: 10px; gap: 15px; flex: 1; }
         @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 320px; position: sticky; top: 80px; } }
 
-        .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
         .psicologa-item { padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: #000 !important; font-weight: 600; font-size: 12px; }
@@ -34,9 +34,15 @@
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; color: #333; }
         
+        /* Icono Tuerca y Panel Config */
+        .config-icon { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 20px; opacity: 0.6; transition: 0.3s; }
+        .config-icon:hover { opacity: 1; transform: rotate(90deg); }
+        #config-drawer { display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.08); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); animation: fadeIn 0.3s; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
         .fc .fc-button { font-size: 0.85em !important; text-transform: capitalize !important; color: #000 !important; font-weight: 600 !important; }
         .fc .fc-button-primary { background-color: var(--brand-color) !important; border-color: rgba(0,0,0,0.1) !important; }
-        
         .fc-col-header-cell-cushion { text-transform: capitalize; padding: 5px 0 !important; color: #333; }
     </style>
 </head>
@@ -62,14 +68,13 @@
 
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
+            <div class="config-icon" onclick="toggleConfig()">⚙️</div>
+            
             <div id="admin-tools">
                 <h3 style="margin-top:0">Panel Admin</h3>
-                <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
-                <input type="email" id="new-doc-email" placeholder="Correo">
-                <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
                 
-                <div style="margin-top:20px; padding:15px; background:rgba(255,255,255,0.05); border-radius:10px; border:1px solid rgba(255,255,255,0.1);">
-                    <strong style="font-size:11px; display:block; margin-bottom:10px; opacity:0.8;">APARIENCIA</strong>
+                <div id="config-drawer">
+                    <strong style="font-size:11px; display:block; margin-bottom:10px; color:var(--brand-color);">APARIENCIA</strong>
                     <label style="font-size:10px;">Logo:</label>
                     <input type="file" id="logo-upload" accept="image/*" style="font-size:10px; background:none; border:none; color:white;">
                     <label style="font-size:10px;">Ancho Logo:</label>
@@ -80,6 +85,13 @@
                     </div>
                     <button class="btn-action" id="save-style-btn" style="background:white; color:black !important; margin-top:15px; padding:8px; font-size:12px;">Sincronizar</button>
                 </div>
+
+                <div id="team-tools" style="margin-top:10px;">
+                    <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
+                    <input type="email" id="new-doc-email" placeholder="Correo">
+                    <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
+                </div>
+
                 <hr style="opacity:0.2; margin:15px 0;">
                 <h3 style="font-size:16px;">Equipo y Citas Totales</h3>
                 <div id="docs-list"></div>
@@ -121,6 +133,12 @@
         const db = getFirestore(app);
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
         let doctorColors = {};
+
+        // Función para abrir/cerrar configuración
+        window.toggleConfig = () => {
+            const drawer = document.getElementById('config-drawer');
+            drawer.style.display = drawer.style.display === 'block' ? 'none' : 'block';
+        };
 
         document.getElementById('login-btn').onclick = async () => {
             try {
@@ -164,9 +182,18 @@
             const data = { color: document.getElementById('brand-color-picker').value, textColor: document.getElementById('text-color-picker').value, logoWidth: document.getElementById('logo-size').value };
             if(file) {
                 const reader = new FileReader();
-                reader.onloadend = async () => { data.logoB64 = reader.result; await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); alert("Sincronizado"); };
+                reader.onloadend = async () => { 
+                    data.logoB64 = reader.result; 
+                    await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); 
+                    alert("Estilo sincronizado");
+                    toggleConfig();
+                };
                 reader.readAsDataURL(file);
-            } else { await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); alert("Colores actualizados"); }
+            } else { 
+                await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); 
+                alert("Colores actualizados");
+                toggleConfig();
+            }
         };
 
         function cargarEquipo(isAdmin, userEmail) {
@@ -210,8 +237,7 @@
                 locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
                 longPressDelay: 0, eventLongPressDelay: 0, selectMirror: true,
                 dayHeaderFormat: { weekday: 'short', day: 'numeric' },
-                slotMinTime: "07:00:00",
-                slotMaxTime: "21:00:00",
+                slotMinTime: "07:00:00", slotMaxTime: "21:00:00",
                 headerToolbar: { left: 'prev,next', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                 buttonText: { month: 'Mes', week: 'Semana', day: 'Día' },
                 select: async (info) => {
@@ -225,7 +251,7 @@
                             await addDoc(collection(db, "citas"), { title: p, phone: t || "", start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: doctorColors[email.toLowerCase()] || '#a5c941' }); 
                             if(t) {
                                 const f = new Date(info.startStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-                                const msg = encodeURIComponent(`*Cita Agendada* \n\nHola ${p}, tu cita en *RESILIENCIA* ha sido programada para el ${f}.`);
+                                const msg = encodeURIComponent(`*Cita Agendada* ✅\n\nHola ${p}, tu cita en *RESILIENCIA* ha sido programada para el ${f}.`);
                                 window.open(`https://wa.me/${t}?text=${msg}`, '_blank');
                             }
                         }
