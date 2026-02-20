@@ -2,74 +2,96 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Resiliencia Guate - Gestión Completa</title>
+    <title>Resiliencia Guate - Gestión Profesional</title>
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css' rel='stylesheet' />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --brand-green: #a5c941; --brand-white: #ffffff; --brand-dark: #292929; }
-        body { font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); margin: 0; color: var(--brand-white); }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); margin: 0; color: var(--brand-white); min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Login */
         #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 5000; }
         .login-box { background: var(--brand-white); padding: 40px; border-radius: 20px; width: 320px; text-align: center; color: #333; }
-        .top-nav { background-color: var(--brand-green); padding: 10px 30px; display: none; justify-content: space-between; align-items: center; }
-        #app-content { display: none; grid-template-columns: 320px 1fr; gap: 20px; padding: 20px; }
-        .side-panel { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; }
-        .calendar-card { background: white; border-radius: 12px; padding: 20px; color: #333; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
-        .btn-action { width: 100%; background: var(--brand-green); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
         
-        /* Gestión de Psicólogas Listado */
-        .psicologa-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; color: white; }
-        .btn-delete-user { background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        .btn-delete-user:hover { background: #e74c3c; }
+        /* Navbar */
+        .top-nav { background-color: var(--brand-green); padding: 12px 30px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-circle { width: 35px; height: 35px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--brand-green); font-weight: bold; }
+
+        /* Contenedor Principal */
+        #app-content { display: none; padding: 20px; gap: 20px; flex: 1; }
+        /* Grid para Admin (Panel + Calendario) */
+        .admin-layout { display: grid; grid-template-columns: 320px 1fr; width: 100%; }
+        /* Layout para Psicóloga (Solo Calendario) */
+        .user-layout { display: block; width: 100%; }
+
+        .side-panel { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); align-self: start; }
+        .calendar-card { background: white; border-radius: 12px; padding: 20px; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; }
+
+        /* Estilos de inputs y botones */
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-family: inherit; }
+        .btn-action { width: 100%; background: var(--brand-green); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .btn-action:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+
+        /* Lista de Psicólogas */
+        .psicologa-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; font-weight: 500; }
+        .btn-delete-user { background: rgba(255,255,255,0.3); border: none; color: white; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .btn-delete-user:hover { background: #ff4d4d; }
 
         /* Modal */
-        #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 4000; align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 350px; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 4000; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 350px; color: #333; }
+
+        /* Ajuste Calendario */
+        .fc { max-height: 80vh; }
+        .fc-toolbar-title { font-size: 1.2em !important; font-weight: 600; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <h2>Resiliencia Guate</h2>
+            <h2 style="margin:0 0 10px 0; color:var(--brand-dark)">Resiliencia Guate</h2>
+            <p style="font-size:13px; color:#666; margin-bottom:20px">Portal de Gestión de Citas</p>
             <input type="email" id="email" placeholder="Correo electrónico">
             <input type="password" id="password" placeholder="Contraseña">
-            <button class="btn-action" id="login-btn">Entrar</button>
+            <button class="btn-action" id="login-btn">Entrar al Sistema</button>
         </div>
     </div>
 
     <div id="assign-modal">
         <div class="modal-content">
-            <h3 style="margin-top:0">Nueva Cita (1 Hora)</h3>
-            <label>Paciente:</label>
-            <input type="text" id="modal-patient-name" placeholder="Nombre completo">
-            <label>Asignar a:</label>
+            <h3 style="margin-top:0">Agendar Cita (1 Hora)</h3>
+            <label style="font-size:12px; font-weight:600">Nombre del Paciente:</label>
+            <input type="text" id="modal-patient-name" placeholder="Ej. Juan Pérez">
+            <label style="font-size:12px; font-weight:600">Asignar a Psicóloga:</label>
             <select id="modal-psicologa-select"></select>
             <div style="display:flex; gap:10px; margin-top:20px;">
-                <button class="btn-action" id="confirm-assign">Agendar</button>
-                <button class="btn-action" style="background:#999" id="cancel-assign">Cerrar</button>
+                <button class="btn-action" id="confirm-assign">Guardar</button>
+                <button class="btn-action" style="background:#999" id="cancel-assign">Cancelar</button>
             </div>
         </div>
     </div>
 
     <div class="top-nav" id="nav-bar">
-        <div style="display:flex; align-items:center; gap:10px">
-            <div style="width:35px; height:35px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--brand-green); font-weight:bold;">RG</div>
+        <div class="logo-area">
+            <div class="logo-circle">RG</div>
             <h1 id="user-display" style="font-size:16px; margin:0; color:white;">Portal</h1>
         </div>
-        <button class="btn-logout" id="logout-btn">Salir</button>
+        <button class="btn-logout" id="logout-btn">Cerrar Sesión</button>
     </div>
 
     <div id="app-content">
         <div class="side-panel" id="admin-panel" style="display:none;">
-            <h3>Equipo de Psicólogas</h3>
-            <input type="text" id="new-doc-name" placeholder="Nombre">
-            <input type="email" id="new-doc-email" placeholder="Correo">
-            <button class="btn-action" id="add-doc-btn">Registrar</button>
-            <div id="docs-list" style="margin-top:20px;"></div>
-            <hr style="opacity:0.2; margin:20px 0">
-            <p style="font-size:11px; opacity:0.7">🔔 Alertas activas: 15 min antes.</p>
+            <h3 style="margin-top:0; font-size:16px">Registrar Psicóloga</h3>
+            <input type="text" id="new-doc-name" placeholder="Nombre completo">
+            <input type="email" id="new-doc-email" placeholder="Correo electrónico">
+            <button class="btn-action" id="add-doc-btn">Añadir al Equipo</button>
+            
+            <h3 style="margin-top:25px; font-size:16px">Equipo Actual</h3>
+            <div id="docs-list"></div>
+            <p style="font-size:10px; opacity:0.6; margin-top:20px">🔔 Recordatorios: 15 min antes.</p>
         </div>
         <div class="calendar-card">
             <div id='calendar'></div>
@@ -98,10 +120,10 @@
         let selectedTimeInfo = null;
         let notifiedEvents = new Set();
 
-        const getRandomColor = () => `hsl(${Math.floor(Math.random() * 360)}, 70%, 40%)`;
+        const getRandomColor = () => `hsl(${Math.floor(Math.random() * 360)}, 65%, 45%)`;
 
         document.getElementById('login-btn').onclick = () => {
-            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(e => alert("Error de acceso"));
+            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(() => alert("Credenciales incorrectas"));
         };
         document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
 
@@ -110,14 +132,24 @@
                 const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
-                document.getElementById('app-content').style.display = isAdmin ? 'grid' : 'block';
-                document.getElementById('user-display').innerText = isAdmin ? "ADMIN" : user.email;
-                if(isAdmin) cargarPsicologasAdmin();
+                document.getElementById('app-content').style.display = 'grid';
+                
+                // Aplicar clase de layout según rol
+                const content = document.getElementById('app-content');
+                if(isAdmin) {
+                    content.className = 'admin-layout';
+                    document.getElementById('admin-panel').style.display = 'block';
+                    document.getElementById('user-display').innerText = "ADMINISTRACIÓN";
+                    cargarPsicologasAdmin();
+                } else {
+                    content.className = 'user-layout';
+                    document.getElementById('admin-panel').style.display = 'none';
+                    document.getElementById('user-display').innerText = `PSICÓLOGA: ${user.email}`;
+                }
                 initCalendar(user.email, isAdmin);
             }
         });
 
-        // CARGAR Y GESTIONAR EQUIPO
         function cargarPsicologasAdmin() {
             onSnapshot(collection(db, "psicologas"), (snap) => {
                 const select = document.getElementById('modal-psicologa-select');
@@ -126,28 +158,16 @@
                 snap.forEach(d => {
                     const data = d.data();
                     const id = d.id;
-                    
-                    // Llenar selector de citas
                     select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
-                    
-                    // Crear elemento en la lista lateral con botón de borrar
                     const div = document.createElement('div');
                     div.className = 'psicologa-item';
                     div.style.background = data.color;
-                    div.innerHTML = `
-                        <span>${data.name}</span>
-                        <button class="btn-delete-user" data-id="${id}" title="Eliminar Psicóloga">✕</button>
-                    `;
+                    div.innerHTML = `<span>${data.name}</span><button class="btn-delete-user" data-id="${id}">✕</button>`;
                     list.appendChild(div);
                 });
-
-                // Asignar eventos de borrado
                 document.querySelectorAll('.btn-delete-user').forEach(btn => {
                     btn.onclick = async (e) => {
-                        const docId = e.target.getAttribute('data-id');
-                        if(confirm("¿Estás segura de eliminar a esta psicóloga del equipo?")) {
-                            await deleteDoc(doc(db, "psicologas", docId));
-                        }
+                        if(confirm("¿Eliminar psicóloga?")) await deleteDoc(doc(db, "psicologas", e.target.getAttribute('data-id')));
                     };
                 });
             });
@@ -170,19 +190,17 @@
                 select: (info) => {
                     selectedTimeInfo = info;
                     if(isAdmin) { document.getElementById('assign-modal').style.display = 'flex'; }
-                    else { const p = prompt("Paciente:"); if(p) guardarCita(p, userEmail, getRandomColor()); }
+                    else { const p = prompt("Nombre del Paciente:"); if(p) guardarCita(p, userEmail, getRandomColor()); }
                 },
                 eventClick: async (info) => { if(confirm("¿Eliminar cita?")) await deleteDoc(doc(db, "citas", info.event.id)); }
             });
             calendar.render();
-
             const q = isAdmin ? collection(db, "citas") : query(collection(db, "citas"), where("user", "==", userEmail));
             onSnapshot(q, (snap) => {
                 calendar.removeAllEvents();
                 snap.forEach(d => {
-                    const data = d.data();
-                    calendar.addEvent({ id: d.id, ...data });
-                    verificarAlerta(data, d.id);
+                    calendar.addEvent({ id: d.id, ...d.data() });
+                    verificarAlerta(d.data(), d.id);
                 });
             });
         }
@@ -198,23 +216,16 @@
         document.getElementById('confirm-assign').onclick = () => {
             const p = document.getElementById('modal-patient-name').value;
             const sel = document.getElementById('modal-psicologa-select');
-            if(!sel.value) { alert("Registra psicólogas primero"); return; }
-            const email = sel.value;
-            const color = sel.options[sel.selectedIndex].getAttribute('data-color');
-            if(p) guardarCita(p, email, color);
+            if(p && sel.value) guardarCita(p, sel.value, sel.options[sel.selectedIndex].getAttribute('data-color'));
         };
-
-        document.getElementById('cancel-assign').onclick = () => {
-            document.getElementById('assign-modal').style.display = 'none';
-        };
+        document.getElementById('cancel-assign').onclick = () => document.getElementById('assign-modal').style.display = 'none';
 
         function verificarAlerta(cita, id) {
-            const tiempoAviso = 15;
             const ahora = new Date();
             const inicioCita = new Date(cita.start);
             const diferencia = (inicioCita - ahora) / (1000 * 60);
-            if (diferencia > 0 && diferencia <= tiempoAviso && !notifiedEvents.has(id)) {
-                alert(`🔔 RECORDATORIO: Cita con ${cita.title} en ${Math.round(diferencia)} minutos.`);
+            if (diferencia > 0 && diferencia <= 15 && !notifiedEvents.has(id)) {
+                alert(`🔔 Cita con ${cita.title} en 15 min.`);
                 notifiedEvents.add(id);
             }
         }
