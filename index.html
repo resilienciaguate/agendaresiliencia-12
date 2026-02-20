@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Resiliencia Guate - Gestión Profesional</title>
+    <title>Resiliencia Guate - Sistema Inteligente</title>
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css' rel='stylesheet' />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --brand-green: #a5c941; --brand-white: #ffffff; --brand-dark: #292929; }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); margin: 0; color: var(--brand-white); }
-        #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 3000; }
+        #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 5000; }
         .login-box { background: var(--brand-white); padding: 40px; border-radius: 20px; width: 320px; text-align: center; color: #333; }
         .top-nav { background-color: var(--brand-green); padding: 10px 30px; display: none; justify-content: space-between; align-items: center; }
         #app-content { display: none; grid-template-columns: 300px 1fr; gap: 20px; padding: 20px; }
@@ -18,33 +18,32 @@
         .btn-action { width: 100%; background: var(--brand-green); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
         
-        /* Modal de Asignación */
-        #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 4000; align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 350px; color: #333; }
+        /* Modal */
+        #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 4000; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 350px; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <h2 style="margin-bottom:20px">Resiliencia Guate</h2>
+            <h2>Resiliencia Guate</h2>
             <input type="email" id="email" placeholder="Correo electrónico">
             <input type="password" id="password" placeholder="Contraseña">
             <button class="btn-action" id="login-btn">Entrar</button>
-            <p id="error-msg" style="color:red; display:none; font-size:12px; margin-top:10px;">⚠️ Datos incorrectos</p>
         </div>
     </div>
 
     <div id="assign-modal">
         <div class="modal-content">
-            <h3 style="margin-top:0">Asignar Nueva Cita</h3>
+            <h3 style="margin-top:0">Nueva Cita (1 Hora)</h3>
             <label>Paciente:</label>
             <input type="text" id="modal-patient-name" placeholder="Nombre completo">
-            <label>Asignar a Psicóloga:</label>
+            <label>Asignar a:</label>
             <select id="modal-psicologa-select"></select>
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <button class="btn-action" id="confirm-assign">Guardar Cita</button>
-                <button class="btn-action" style="background:#999" id="cancel-assign">Cancelar</button>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn-action" id="confirm-assign">Agendar</button>
+                <button class="btn-action" style="background:#999" id="cancel-assign">Cerrar</button>
             </div>
         </div>
     </div>
@@ -54,16 +53,18 @@
             <div style="width:35px; height:35px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--brand-green); font-weight:bold;">RG</div>
             <h1 id="user-display" style="font-size:16px; margin:0; color:white;">Portal</h1>
         </div>
-        <button class="btn-logout" id="logout-btn">Cerrar Sesión</button>
+        <button class="btn-logout" id="logout-btn">Salir</button>
     </div>
 
     <div id="app-content">
         <div class="side-panel" id="admin-panel" style="display:none;">
-            <h3>Gestión de Psicólogas</h3>
-            <input type="email" id="new-doc-email" placeholder="Correo">
+            <h3>Equipo</h3>
             <input type="text" id="new-doc-name" placeholder="Nombre">
+            <input type="email" id="new-doc-email" placeholder="Correo">
             <button class="btn-action" id="add-doc-btn">Registrar</button>
             <div id="docs-list" style="margin-top:20px;"></div>
+            <hr style="opacity:0.2; margin:20px 0">
+            <p style="font-size:11px; opacity:0.7">🔔 Alertas activas: 15 min antes de cada cita.</p>
         </div>
         <div class="calendar-card">
             <div id='calendar'></div>
@@ -91,17 +92,16 @@
         
         let selectedTimeInfo = null;
         let psicologasData = [];
+        let notifiedEvents = new Set(); // Para no repetir alertas
 
-        const stringToColor = (str) => {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
-            return `hsl(${hash % 360}, 65%, 40%)`;
+        // COLORES ALEATORIOS DINÁMICOS
+        const getRandomColor = () => {
+            const h = Math.floor(Math.random() * 360);
+            return `hsl(${h}, 70%, 45%)`;
         };
 
-        // LOGIN / LOGOUT
         document.getElementById('login-btn').onclick = () => {
-            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
-                .catch(() => document.getElementById('error-msg').style.display = 'block');
+            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(e => alert("Error: " + e.message));
         };
         document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
 
@@ -111,29 +111,21 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = isAdmin ? 'grid' : 'block';
-                document.getElementById('user-display').innerText = isAdmin ? "ADMIN: Resiliencia Guate" : `PSICÓLOGA: ${user.email}`;
-                
-                if(isAdmin) {
-                    document.getElementById('admin-panel').style.display = 'block';
-                    cargarPsicologasAdmin();
-                }
+                document.getElementById('user-display').innerText = isAdmin ? "ADMIN" : user.email;
+                if(isAdmin) cargarPsicologasAdmin();
                 initCalendar(user.email, isAdmin);
             }
         });
 
         function cargarPsicologasAdmin() {
             onSnapshot(collection(db, "psicologas"), (snap) => {
-                psicologasData = [];
                 const select = document.getElementById('modal-psicologa-select');
                 const list = document.getElementById('docs-list');
-                select.innerHTML = "";
-                list.innerHTML = "";
-                
+                select.innerHTML = ""; list.innerHTML = "";
                 snap.forEach(d => {
                     const data = d.data();
-                    psicologasData.push(data);
-                    select.innerHTML += `<option value="${data.email}">${data.name}</option>`;
-                    list.innerHTML += `<div style="background:${stringToColor(data.email)}; color:white; padding:5px; border-radius:5px; margin-bottom:5px; font-size:12px; text-align:center">${data.name}</div>`;
+                    select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
+                    list.innerHTML += `<div style="background:${data.color}; padding:8px; border-radius:6px; margin-bottom:5px; font-size:12px;">${data.name}</div>`;
                 });
             });
         }
@@ -141,67 +133,66 @@
         document.getElementById('add-doc-btn').onclick = async () => {
             const email = document.getElementById('new-doc-email').value;
             const name = document.getElementById('new-doc-name').value;
-            if(email && name) await addDoc(collection(db, "psicologas"), { email, name });
+            if(email && name) {
+                await addDoc(collection(db, "psicologas"), { email, name, color: getRandomColor() });
+                document.getElementById('new-doc-email').value = ""; document.getElementById('new-doc-name').value = "";
+            }
         };
 
         function initCalendar(userEmail, isAdmin) {
             const calendarEl = document.getElementById('calendar');
             const calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'timeGridWeek',
-                locale: 'es',
-                slotDuration: '01:00:00',
-                allDaySlot: false,
-                selectable: true,
+                initialView: 'timeGridWeek', locale: 'es', allDaySlot: false, selectable: true,
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' },
                 select: (info) => {
                     selectedTimeInfo = info;
-                    if(isAdmin) {
-                        document.getElementById('assign-modal').style.display = 'flex';
-                    } else {
-                        const patient = prompt("Nombre del Paciente:");
-                        if(patient) guardarCita(patient, userEmail);
-                    }
+                    if(isAdmin) { document.getElementById('assign-modal').style.display = 'flex'; }
+                    else { const p = prompt("Paciente:"); if(p) guardarCita(p, userEmail, getRandomColor()); }
                 },
-                eventClick: async (info) => {
-                    if(confirm(`¿Eliminar cita de ${info.event.title}?`)) await deleteDoc(doc(db, "citas", info.event.id));
-                }
+                eventClick: async (info) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "citas", info.event.id)); }
             });
             calendar.render();
 
             const q = isAdmin ? collection(db, "citas") : query(collection(db, "citas"), where("user", "==", userEmail));
             onSnapshot(q, (snap) => {
                 calendar.removeAllEvents();
-                snap.forEach(d => calendar.addEvent({ id: d.id, ...d.data() }));
+                snap.forEach(d => {
+                    const data = d.data();
+                    calendar.addEvent({ id: d.id, ...data });
+                    verificarAlerta(data, d.id);
+                });
             });
         }
 
-        async function guardarCita(paciente, emailAsignado) {
+        async function guardarCita(paciente, email, color) {
             let start = new Date(selectedTimeInfo.start);
-            let end = new Date(start.getTime() + (60 * 60 * 1000)); // Siempre 1 hora
-            await addDoc(collection(db, "citas"), {
-                title: paciente,
-                start: start.toISOString(),
-                end: end.toISOString(),
-                user: emailAsignado,
-                color: stringToColor(emailAsignado)
-            });
+            let end = new Date(start.getTime() + (60 * 60 * 1000));
+            await addDoc(collection(db, "citas"), { title: paciente, start: start.toISOString(), end: end.toISOString(), user: email, color: color });
             document.getElementById('assign-modal').style.display = 'none';
         }
 
         document.getElementById('confirm-assign').onclick = () => {
-            const paciente = document.getElementById('modal-patient-name').value;
-            const email = document.getElementById('modal-psicologa-select').value;
-            if(paciente) {
-                guardarCita(paciente, email);
-                document.getElementById('modal-patient-name').value = "";
-            } else {
-                alert("Escribe el nombre del paciente");
-            }
+            const p = document.getElementById('modal-patient-name').value;
+            const sel = document.getElementById('modal-psicologa-select');
+            const email = sel.value;
+            const color = sel.options[sel.selectedIndex].getAttribute('data-color');
+            if(p) guardarCita(p, email, color);
         };
 
-        document.getElementById('cancel-assign').onclick = () => {
-            document.getElementById('assign-modal').style.display = 'none';
-        };
+        document.getElementById('cancel-assign').onclick = () => document.getElementById('assign-modal').style.display = 'none';
+
+        // SISTEMA DE AVISOS (Configurable: 15 minutos)
+        function verificarAlerta(cita, id) {
+            const tiempoAviso = 15; // MINUTOS ANTES
+            const ahora = new Date();
+            const inicioCita = new Date(cita.start);
+            const diferencia = (inicioCita - ahora) / (1000 * 60);
+
+            if (diferencia > 0 && diferencia <= tiempoAviso && !notifiedEvents.has(id)) {
+                alert(`🔔 RECORDATORIO: Cita con ${cita.title} en ${Math.round(diferencia)} minutos.`);
+                notifiedEvents.add(id);
+            }
+        }
     </script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 </body>
