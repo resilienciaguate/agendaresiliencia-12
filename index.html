@@ -3,39 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resiliencia Guate - Portal Administrativo</title>
+    <title>Resiliencia Guate - Portal Central</title>
     
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     
     <style>
-        :root { 
-            --brand-color: #a5c941; 
-            --brand-dark: #292929; 
-            --header-text-color: #ffffff; /* Color de fuente por defecto */
-        }
+        :root { --brand-color: #a5c941; --brand-dark: #292929; --header-text-color: #ffffff; }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); margin: 0; color: white; height: 100vh; display: flex; flex-direction: column; }
         
         #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-box { background: white; padding: 40px; border-radius: 20px; width: 320px; text-align: center; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
 
-        .top-nav { background-color: var(--brand-color); padding: 10px 30px; display: none; justify-content: space-between; align-items: center; min-height: 70px; transition: background 0.3s; }
-        
+        .top-nav { background-color: var(--brand-color); padding: 10px 30px; display: none; justify-content: space-between; align-items: center; min-height: 70px; }
         #logo-container { display: flex; align-items: center; gap: 15px; }
         #app-logo { max-height: 100px; width: auto; display: none; }
         #default-logo { width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--brand-color); font-weight: bold; }
-
-        /* Estilo para el texto dinámico de la cabecera */
-        #user-display { font-size: 16px; margin: 0; color: var(--header-text-color) !important; transition: color 0.3s; }
+        #user-display { font-size: 16px; margin: 0; color: var(--header-text-color) !important; }
 
         #app-content { display: none; padding: 20px; gap: 20px; flex: 1; overflow: hidden; }
-        
         .side-panel { width: 300px; min-width: 300px; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); overflow-y: auto; }
         .calendar-card { flex-grow: 1; background: white; border-radius: 15px; padding: 20px; color: #333; overflow: hidden; position: relative; }
 
         input, select { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
-        .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: filter 0.2s; }
-        .btn-action:hover { filter: brightness(1.1); }
+        .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
         .btn-logout { background: #e74c3c; color: white; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; }
         
         .psicologa-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; color: white; font-weight: bold; }
@@ -43,14 +34,10 @@
 
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 8000; align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 30px; border-radius: 15px; width: 350px; color: #333; }
-        
         .fc { height: 100% !important; max-height: 75vh; }
 
         .aesthetic-section { margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
         .label-small { font-size: 10px; text-transform: uppercase; opacity: 0.7; margin-bottom: 4px; display: block; }
-        
-        .export-section { margin-top: 15px; }
-        .btn-export { background: #27ae60; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -58,10 +45,10 @@
     <div id="login-screen">
         <div class="login-box">
             <h2 style="margin-top:0">Resiliencia Guate</h2>
-            <input type="email" id="email" placeholder="Correo">
+            <input type="email" id="email" placeholder="Correo electrónico">
             <input type="password" id="password" placeholder="Contraseña">
-            <button class="btn-action" id="login-btn">Entrar</button>
-            <p id="error-txt" style="color:red; font-size:12px; display:none; margin-top:10px"></p>
+            <button class="btn-action" id="login-btn">Entrar al Portal</button>
+            <p id="error-txt" style="color:red; font-size:12px; display:none; margin-top:15px; font-weight: bold;"></p>
         </div>
     </div>
 
@@ -71,19 +58,19 @@
             <img id="app-logo" src="" alt="Logo">
             <h1 id="user-display">Portal</h1>
         </div>
-        <button class="btn-logout" id="logout-btn">Salir</button>
+        <button class="btn-logout" id="logout-btn">Cerrar Sesión</button>
     </div>
 
     <div id="app-content">
         <div class="side-panel" id="admin-panel" style="display:none;">
             <h3 style="margin-top:0; font-size:16px;">Gestión de Equipo</h3>
-            <input type="text" id="new-doc-name" placeholder="Nombre">
-            <input type="email" id="new-doc-email" placeholder="Correo de login">
-            <button class="btn-action" id="add-doc-btn">Registrar Psicóloga</button>
+            <input type="text" id="new-doc-name" placeholder="Nombre de Psicóloga">
+            <input type="email" id="new-doc-email" placeholder="Correo exacto">
+            <button class="btn-action" id="add-doc-btn">Registrar</button>
             
             <div class="aesthetic-section">
-                <h3 style="margin:0 0 10px 0; font-size: 14px; color: var(--brand-color);">Personalización Global</h3>
-                <span class="label-small">Imagen del Logo</span>
+                <h3 style="margin:0 0 10px 0; font-size: 14px;">Estética Institucional</h3>
+                <span class="label-small">Logo de la Clínica</span>
                 <input type="file" id="logo-upload" accept="image/*" style="font-size: 10px; color: white;">
                 
                 <span class="label-small">Ancho del Logo</span>
@@ -91,7 +78,7 @@
 
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
                     <div style="flex: 1;">
-                        <span class="label-small">Color Fondo</span>
+                        <span class="label-small">Fondo Barra</span>
                         <input type="color" id="brand-color-picker" value="#a5c941" style="height:35px; cursor:pointer;">
                     </div>
                     <div style="flex: 1;">
@@ -100,12 +87,10 @@
                     </div>
                 </div>
                 
-                <button class="btn-action" id="save-style-btn" style="background: white; color: #333; margin-top: 15px; padding: 8px; font-size: 11px;">Guardar y Sincronizar</button>
+                <button class="btn-action" id="save-style-btn" style="background: white; color: #333; margin-top: 15px; padding: 8px; font-size: 11px;">Guardar Cambios</button>
             </div>
 
-            <div class="export-section">
-                <button class="btn-action btn-export" id="export-excel-btn">Descargar Agenda (Excel)</button>
-            </div>
+            <button class="btn-action" id="export-excel-btn" style="background: #27ae60; margin-top: 15px; font-size: 12px;">Descargar Agenda Excel</button>
 
             <h3 style="margin-top:20px; font-size:16px;">Equipo Activo</h3>
             <div id="docs-list"></div>
@@ -116,7 +101,7 @@
     <div id="assign-modal">
         <div class="modal-content">
             <h3>Nueva Cita</h3>
-            <input type="text" id="modal-patient-name" placeholder="Nombre Paciente">
+            <input type="text" id="modal-patient-name" placeholder="Nombre del Paciente">
             <select id="modal-psicologa-select"></select>
             <div style="display:flex; gap:10px; margin-top:20px;">
                 <button class="btn-action" id="confirm-assign">Agendar</button>
@@ -128,7 +113,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, query, where, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA",
@@ -147,6 +132,59 @@
 
         let selectedTimeInfo = null;
         let currentEvents = [];
+
+        // --- MANEJO DE LOGIN MEJORADO ---
+        document.getElementById('login-btn').onclick = async () => {
+            const emailInput = document.getElementById('email').value.trim().toLowerCase();
+            const passInput = document.getElementById('password').value;
+            const errorTxt = document.getElementById('error-txt');
+            
+            errorTxt.style.display = 'none';
+
+            if(!emailInput || !passInput) {
+                errorTxt.innerText = "Por favor completa todos los campos.";
+                errorTxt.style.display = 'block';
+                return;
+            }
+
+            try {
+                await setPersistence(auth, browserLocalPersistence);
+                await signInWithEmailAndPassword(auth, emailInput, passInput);
+            } catch (e) {
+                console.error(e);
+                errorTxt.innerText = "Acceso denegado. Revisa tu correo y contraseña.";
+                errorTxt.style.display = 'block';
+            }
+        };
+
+        document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
+
+        // --- ESTADO DE LA SESIÓN ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const cleanEmail = user.email.trim().toLowerCase();
+                const isAdmin = cleanEmail === ADMIN_EMAIL.toLowerCase();
+                
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('nav-bar').style.display = 'flex';
+                document.getElementById('app-content').style.display = 'flex';
+                
+                if(isAdmin) {
+                    document.getElementById('admin-panel').style.display = 'block';
+                    document.getElementById('user-display').innerText = "MODO ADMINISTRADOR";
+                    cargarPsicologasAdmin();
+                } else {
+                    document.getElementById('user-display').innerText = `Sesión: ${cleanEmail}`;
+                }
+                
+                listenToGlobalStyle();
+                initCalendar(cleanEmail, isAdmin);
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('nav-bar').style.display = 'none';
+                document.getElementById('app-content').style.display = 'none';
+            }
+        });
 
         // --- PERSONALIZACIÓN ---
         function listenToGlobalStyle() {
@@ -177,37 +215,111 @@
             const color = document.getElementById('brand-color-picker').value;
             const textColor = document.getElementById('text-color-picker').value;
             
-            btn.innerText = "Sincronizando...";
+            btn.innerText = "Guardando...";
             btn.disabled = true;
 
-            let configData = { 
-                logoWidth: width, 
-                color: color, 
-                textColor: textColor 
-            };
-
-            const updateDB = async (data) => {
-                await setDoc(doc(db, "configuracion", "apariencia"), data, { merge: true });
-                btn.innerText = "Guardar y Sincronizar";
-                btn.disabled = false;
-                alert("Apariencia global actualizada.");
-            };
+            let configData = { logoWidth: width, color: color, textColor: textColor };
 
             if (file) {
                 const reader = new FileReader();
-                reader.onloadend = () => {
+                reader.onloadend = async () => {
                     configData.logoB64 = reader.result;
-                    updateDB(configData);
+                    await setDoc(doc(db, "configuracion", "apariencia"), configData, { merge: true });
+                    btn.innerText = "Guardar Cambios";
+                    btn.disabled = false;
+                    alert("Estética actualizada globalmente.");
                 };
                 reader.readAsDataURL(file);
             } else {
-                updateDB(configData);
+                await setDoc(doc(db, "configuracion", "apariencia"), configData, { merge: true });
+                btn.innerText = "Guardar Cambios";
+                btn.disabled = false;
+                alert("Colores actualizados.");
             }
         };
+
+        // --- AGENDA Y CALENDARIO ---
+        function initCalendar(userEmail, isAdmin) {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek', locale: 'es', allDaySlot: false, selectable: true,
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'timeGridWeek,timeGridDay' },
+                select: (info) => {
+                    selectedTimeInfo = info;
+                    if(isAdmin) document.getElementById('assign-modal').style.display = 'flex';
+                    else { const p = prompt("Nombre Paciente:"); if(p) guardarCita(p, userEmail, '#a5c941'); }
+                },
+                eventClick: (info) => { if(confirm("¿Eliminar cita?")) deleteDoc(doc(db, "citas", info.event.id)); }
+            });
+            calendar.render();
+            const q = isAdmin ? collection(db, "citas") : query(collection(db, "citas"), where("user", "==", userEmail));
+            onSnapshot(q, (snap) => {
+                calendar.removeAllEvents();
+                currentEvents = [];
+                snap.forEach(d => {
+                    const data = d.data();
+                    calendar.addEvent({ id: d.id, ...data });
+                    currentEvents.push(data);
+                });
+            });
+        }
+
+        async function guardarCita(p, email, color) {
+            const start = new Date(selectedTimeInfo.start);
+            const end = new Date(start.getTime() + 3600000);
+            await addDoc(collection(db, "citas"), { title: p, start: start.toISOString(), end: end.toISOString(), user: email.trim().toLowerCase(), color: color });
+            document.getElementById('assign-modal').style.display = 'none';
+        }
+
+        // --- EQUIPO ADMIN ---
+        function cargarPsicologasAdmin() {
+            onSnapshot(collection(db, "psicologas"), (snap) => {
+                const select = document.getElementById('modal-psicologa-select');
+                const list = document.getElementById('docs-list');
+                select.innerHTML = ""; list.innerHTML = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
+                    const div = document.createElement('div');
+                    div.className = 'psicologa-item';
+                    div.style.background = data.color;
+                    div.innerHTML = `<span>${data.name}</span><button class="btn-delete-user" data-id="${d.id}">✕</button>`;
+                    list.appendChild(div);
+                });
+                document.querySelectorAll('.btn-delete-user').forEach(btn => {
+                    btn.onclick = (e) => deleteDoc(doc(db, "psicologas", e.target.getAttribute('data-id')));
+                });
+            });
+        }
+
+        document.getElementById('add-doc-btn').onclick = async () => {
+            const email = document.getElementById('new-doc-email').value.trim().toLowerCase();
+            const name = document.getElementById('new-doc-name').value;
+            if(email && name) {
+                const color = palette[Math.floor(Math.random() * palette.length)];
+                await addDoc(collection(db, "psicologas"), { email, name, color });
+                document.getElementById('new-doc-email').value = ""; document.getElementById('new-doc-name').value = "";
+            }
+        };
+
+        document.getElementById('confirm-assign').onclick = () => {
+            const p = document.getElementById('modal-patient-name').value;
+            const sel = document.getElementById('modal-psicologa-select');
+            if(p && sel.value) guardarCita(p, sel.value, sel.options[sel.selectedIndex].getAttribute('data-color'));
+        };
+        document.getElementById('cancel-assign').onclick = () => document.getElementById('assign-modal').style.display = 'none';
 
         // --- EXPORTAR ---
         document.getElementById('export-excel-btn').onclick = () => {
             if (currentEvents.length === 0) return alert("No hay citas.");
             let csv = "Paciente,Fecha Inicio,Fecha Fin,Correo Psicologa\n";
             currentEvents.forEach(e => csv += `"${e.title}","${e.start}","${e.end}","${e.user}"\n`);
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "agenda_resiliencia.csv";
+            link.click();
+        };
+    </script>
+</body>
+</html>
