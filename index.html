@@ -18,6 +18,10 @@
         .login-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; color: #333; }
 
         .top-nav { background-color: var(--brand-color); padding: 10px 15px; display: none; justify-content: space-between; align-items: center; min-height: 60px; position: sticky; top: 0; z-index: 999; }
+        
+        /* Contenedor de foto de perfil central */
+        .profile-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; }
+        #user-photo { width: 45px; height: 45px; border-radius: 50%; border: 2px solid white; object-fit: cover; display: none; background: #eee; }
 
         #app-content { display: none; flex-direction: column; padding: 10px; gap: 15px; flex: 1; }
         @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 300px; position: sticky; top: 80px; } }
@@ -32,12 +36,8 @@
         .btn-action { width: 100%; background: var(--brand-color); color: #000 !important; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 5px; }
         
         #pdf-template { display: none; color: #000; background: #fff; width: 1050px; padding: 15px; }
-        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 5px; }
-        #pdf-date-display { font-weight: 600; margin: 2px 0; font-size: 20px; color: #000; text-transform: uppercase; }
-        
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; color: #333; }
-        .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -60,6 +60,11 @@
                 <span id="user-display" style="font-size:12px; font-weight: 600; color:var(--header-text-color);">Cargando...</span>
             </div>
         </div>
+
+        <div class="profile-center">
+            <img id="user-photo" src="" alt="Perfil">
+        </div>
+
         <button onclick="location.reload()" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px;">Salir</button>
     </div>
 
@@ -70,15 +75,21 @@
                 <div onclick="toggleConfig()" style="cursor:pointer; font-size:20px;">⚙️</div>
             </div>
             <h3 style="margin-top:0">Panel</h3>
-            <div id="config-drawer" style="display:none; margin-bottom: 15px;">
+            
+            <div id="config-drawer" style="display:none; margin-bottom: 15px; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px;">
+                <label style="font-size: 10px;">Logo Clínica:</label>
                 <input type="file" id="logo-upload">
+                <label style="font-size: 10px;">Foto Perfil:</label>
+                <input type="file" id="photo-upload">
+                <label style="font-size: 10px;">Ancho Logo:</label>
                 <input type="range" id="logo-size" min="40" max="250" value="100">
                 <div style="display:flex; gap:10px;">
                     <input type="color" id="brand-color-picker" value="#a5c941">
                     <input type="color" id="text-color-picker" value="#ffffff">
                 </div>
-                <button class="btn-action" id="save-style-btn" style="background:#eee;">Guardar</button>
+                <button class="btn-action" id="save-style-btn" style="background:#eee;">Guardar Cambios</button>
             </div>
+
             <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
             <input type="email" id="new-doc-email" placeholder="Correo">
             <button class="btn-action" id="add-doc-btn">Añadir</button>
@@ -98,7 +109,7 @@
             <h3>Gestión de Cita</h3>
             <input type="text" id="edit-name" placeholder="Nombre del Paciente">
             <input type="tel" id="edit-phone" placeholder="WhatsApp">
-            <div class="actions-grid">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
                 <button class="btn-action" style="background:#25d366; color:white!important;" id="btn-recordar">WhatsApp</button>
                 <button class="btn-action" id="btn-modificar">Guardar</button>
                 <button class="btn-action" style="background:#e74c3c; color:white!important;" id="btn-eliminar">Eliminar</button>
@@ -118,27 +129,10 @@
         </div>
     </div>
 
-    <div id="pdf-template">
-        <div class="pdf-header">
-            <div>
-                <h1 style="margin:0; color:var(--brand-color); font-size: 24px;">RESILIENCIA</h1>
-                <p id="pdf-date-display"></p>
-            </div>
-            <img id="pdf-logo" src="" style="max-height:45px; display:none;">
-        </div>
-        <div id="pdf-calendar-snap"></div>
-        <div style="margin-top:10px; display:flex; justify-content:center;">
-            <table style="width:40%; border-collapse:collapse; border: 1px solid #000; font-size: 10px;">
-                <thead><tr style="background:#f2f2f2;"><th>Psicóloga</th><th>Citas</th></tr></thead>
-                <tbody id="pdf-table-body" style="text-align:center;"></tbody>
-            </table>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA",
@@ -178,10 +172,12 @@
                     if(d.textColor) document.documentElement.style.setProperty('--header-text-color', d.textColor);
                     if(d.logoB64) {
                         const img = document.getElementById('app-logo');
-                        const pdfImg = document.getElementById('pdf-logo');
                         img.src = d.logoB64; img.style.display = 'block'; img.style.width = d.logoWidth + 'px';
-                        pdfImg.src = d.logoB64; pdfImg.style.display = 'block';
                         document.getElementById('default-logo').style.display = 'none';
+                    }
+                    if(d.profilePhotoB64) {
+                        const pImg = document.getElementById('user-photo');
+                        pImg.src = d.profilePhotoB64; pImg.style.display = 'block';
                     }
                 }
             });
@@ -238,16 +234,16 @@
                 height: 'auto',
                 slotMinTime: '07:00:00',
                 slotMaxTime: '21:00:00',
-                scrollTime: '07:00:00', // Auto-scroll a las 7am
-                allDaySlot: false,      // QUITAR BARRA DE TODO EL DÍA
-                dayHeaderFormat: { weekday: 'short', day: 'numeric' }, // FORMATO SIN MES (ej: mié 25)
+                scrollTime: '07:00:00',
+                allDaySlot: false,
+                dayHeaderFormat: { weekday: 'short', day: 'numeric' },
                 buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                 datesSet: () => {
                     const titleEl = document.querySelector('.fc-toolbar-title');
                     if (titleEl) {
-                        const viewDate = calendar.getDate();
-                        titleEl.innerText = `${viewDate.toLocaleString('es-ES', { month: 'long' }).toUpperCase()} ${viewDate.getFullYear()}`;
+                        const v = calendar.getDate();
+                        titleEl.innerText = `${v.toLocaleString('es-ES', { month: 'long' }).toUpperCase()} ${v.getFullYear()}`;
                     }
                 },
                 select: (info) => {
@@ -268,36 +264,45 @@
             calendar.render(); window.calendarObj = calendar;
         }
 
+        document.getElementById('save-style-btn').onclick = async () => {
+            const logoFile = document.getElementById('logo-upload').files[0];
+            const photoFile = document.getElementById('photo-upload').files[0];
+            
+            // Obtener datos actuales para no sobreescribir lo que no cambiamos
+            const docRef = doc(db, "configuracion", "apariencia");
+            const docSnap = await getDoc(docRef);
+            let data = docSnap.exists() ? docSnap.data() : {};
+
+            data.color = document.getElementById('brand-color-picker').value;
+            data.textColor = document.getElementById('text-color-picker').value;
+            data.logoWidth = document.getElementById('logo-size').value;
+
+            const toBase64 = file => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+
+            if (logoFile) data.logoB64 = await toBase64(logoFile);
+            if (photoFile) data.profilePhotoB64 = await toBase64(photoFile);
+
+            await setDoc(docRef, data);
+            alert("Estilo y fotos actualizados correctamente");
+            window.toggleConfig();
+        };
+
+        // ... El resto de funciones (p-save, recordar, eliminar, etc) se mantienen igual ...
         document.getElementById('p-save').onclick = async () => {
             const name = document.getElementById('p-name').value;
             const phone = document.getElementById('p-phone').value;
             const sel = document.getElementById('p-select');
             if(!name || !phone) return;
-            const licdaNombre = sel.options[sel.selectedIndex].text;
-
             await addDoc(collection(db, "citas"), { title: name, phone: phone, start: window.selectedTime.startStr, end: window.selectedTime.endStr, user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color });
-
             const fechaObj = new Date(window.selectedTime.start);
-            const mensaje = `Hola ${name} tu cita a sido agendada exitosamente el ${fechaObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} a las ${fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} con la Licda. ${licdaNombre}`;
+            const mensaje = `Hola ${name} tu cita a sido agendada exitosamente el ${fechaObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} a las ${fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} con la Licda. ${sel.options[sel.selectedIndex].text}`;
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`);
             document.getElementById('assign-modal').style.display = 'none';
-        };
-
-        window.generarReportePDF = async () => {
-            let name = prompt("Nombre PDF:", "Agenda_Resiliencia");
-            if(!name) return;
-            const temp = document.getElementById('pdf-template');
-            const body = document.getElementById('pdf-table-body');
-            body.innerHTML = "";
-            equipoGlobal.forEach(p => { body.innerHTML += `<tr style="border: 1px solid #000;"><td style="padding:3px;">${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`; });
-            document.getElementById('pdf-date-display').innerText = document.querySelector('.fc-toolbar-title').innerText;
-            const container = document.getElementById('pdf-calendar-snap');
-            container.innerHTML = ""; 
-            const calClone = document.getElementById('calendar').cloneNode(true);
-            calClone.style.width = "1000px"; container.appendChild(calClone);
-            temp.style.display = 'block';
-            await html2pdf().set({ margin: 5, filename: name + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, width: 1050 }, jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }, pagebreak: { mode: 'avoid-all' } }).from(temp).save();
-            temp.style.display = 'none';
         };
 
         document.getElementById('btn-recordar').onclick = () => {
@@ -311,15 +316,6 @@
         document.getElementById('btn-eliminar').onclick = async () => { if(confirm("¿Eliminar?")) { await deleteDoc(doc(db, "citas", currentEvent.id)); document.getElementById('action-modal').style.display = 'none'; } };
         document.getElementById('btn-modificar').onclick = async () => { await updateDoc(doc(db, "citas", currentEvent.id), { title: document.getElementById('edit-name').value, phone: document.getElementById('edit-phone').value }); document.getElementById('action-modal').style.display = 'none'; };
         document.getElementById('p-cancel').onclick = () => document.getElementById('assign-modal').style.display = 'none';
-        document.getElementById('save-style-btn').onclick = async () => {
-            const file = document.getElementById('logo-upload').files[0];
-            const data = { color: document.getElementById('brand-color-picker').value, textColor: document.getElementById('text-color-picker').value, logoWidth: document.getElementById('logo-size').value };
-            if(file) {
-                const reader = new FileReader();
-                reader.onloadend = async () => { data.logoB64 = reader.result; await setDoc(doc(db, "configuracion", "apariencia"), data); alert("Guardado"); };
-                reader.readAsDataURL(file);
-            } else { await setDoc(doc(db, "configuracion", "apariencia"), data); alert("Guardado"); }
-        };
         document.getElementById('add-doc-btn').onclick = async () => {
             const colors = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6'];
             await addDoc(collection(db, "psicologas"), { name: document.getElementById('new-doc-name').value, email: document.getElementById('new-doc-email').value.toLowerCase(), color: colors[Math.floor(Math.random()*colors.length)] });
