@@ -12,34 +12,13 @@
         :root { --brand-color: #a5c941; --brand-dark: #292929; }
         html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; overflow-x: hidden; }
         
-        /* LOGIN UI - CORRECCIÓN LOGO */
+        /* LOGIN UI */
         #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-box { background: white; padding: 35px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
-        /* Contenedor del logo sin la letra R por defecto */
-        .login-logo-circle { 
-            width: 110px; 
-            height: 110px; 
-            margin: 0 auto 20px auto; 
-            background: #fdfdfd; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            overflow: hidden; 
-            border: 3px solid var(--brand-color); 
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
-        }
-        
-        /* La imagen ahora es la única protagonista */
-        #login-logo-img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            display: none; /* Se activa solo cuando Firebase entrega el logo */
-        }
+        .login-logo-circle { width: 110px; height: 110px; margin: 0 auto 20px auto; background: #fdfdfd; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 3px solid var(--brand-color); }
+        #login-logo-img { width: 100%; height: 100%; object-fit: cover; display: none; }
 
-        /* Estilos de la App */
+        /* NAV & APP */
         .top-nav { background-color: var(--brand-color); padding: 8px 15px; display: none; justify-content: space-between; align-items: center; min-height: 95px; position: sticky; top: 0; z-index: 999; }
         .profile-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; width: 220px; }
         #user-photo { width: 60px; height: 60px; border-radius: 50%; border: 3px solid white; object-fit: cover; }
@@ -60,12 +39,9 @@
 
     <div id="login-screen">
         <div class="login-box">
-            <div class="login-logo-circle">
-                <img id="login-logo-img" src="" alt="Logo Personalizado">
-            </div>
-            <h2 style="font-size: 18px; margin-bottom: 20px; font-weight: 600;">Agenda RESILIENCIA 2026</h2>
-            <input type="email" id="email" placeholder="Correo electrónico">
-            <input type="password" id="password" placeholder="Contraseña">
+            <div class="login-logo-circle"><img id="login-logo-img" src="" alt="Logo"></div>
+            <h2 style="font-size: 18px; margin-bottom: 20px;">Agenda RESILIENCIA 2026</h2>
+            <input type="email" id="email" placeholder="Correo"><input type="password" id="password" placeholder="Contraseña">
             <button class="btn-action" id="login-btn">Iniciar Sesión</button>
         </div>
     </div>
@@ -89,23 +65,35 @@
         <div class="side-panel" id="side-panel-ui" style="display:none;">
             <div style="display:flex; justify-content: space-between; align-items: center;"><h3>Admin</h3><div onclick="toggleAdminConfig()" style="cursor:pointer; font-size:20px;">🎨⚙️</div></div>
             <div id="admin-config-drawer" style="display:none; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; margin: 10px 0;">
-                <input type="file" id="admin-logo-upload" accept="image/*">
-                <input type="color" id="brand-color-picker" value="#a5c941">
-                <button class="btn-action" id="save-admin-style">Guardar Clínica</button>
+                <input type="file" id="admin-logo-upload" accept="image/*"><input type="color" id="brand-color-picker" value="#a5c941"><button class="btn-action" id="save-admin-style">Guardar Clínica</button>
             </div>
-            <hr style="opacity:0.1">
-            <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
-            <input type="email" id="new-doc-email" placeholder="Correo">
-            <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
-            <h4 style="margin:20px 0 5px 0">Citas del Mes</h4>
-            <input type="month" id="report-month">
-            <div id="docs-list"></div>
+            <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga"><input type="email" id="new-doc-email" placeholder="Correo"><button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
+            <h4 style="margin:20px 0 5px 0">Citas del Mes</h4><input type="month" id="report-month"><div id="docs-list"></div>
         </div>
         <div class="calendar-card"><div id='calendar'></div></div>
     </div>
 
-    <div id="modal-cita" class="modal-overlay"><div class="modal-box"><h3>Nueva Cita</h3><select id="select-psicologa-cita"></select><input type="text" id="px-nombre" placeholder="Nombre Paciente"><input type="number" id="px-whatsapp" placeholder="WhatsApp"><button class="btn-action" id="btn-guardar-cita">Guardar</button><button class="btn-action" style="background:#ccc;" onclick="cerrarModalCita()">Cancelar</button></div></div>
-    <div id="modal-gestion" class="modal-overlay"><div class="modal-box"><h3 id="gestion-titulo">Gestión</h3><button class="btn-action" id="btn-recordatorio-wa">📱 WhatsApp</button><button class="btn-action" id="btn-editar-cita" style="background:#f1f1f1;">✏️ Editar</button><button class="btn-action" id="btn-eliminar-cita" style="background:#ffcccc; color:red;">🗑️ Eliminar</button><button class="btn-action" style="background:#ccc; margin-top:10px;" onclick="cerrarModalGestion()">Cerrar</button></div></div>
+    <div id="modal-cita" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Nueva Cita</h3>
+            <select id="select-psicologa-cita"></select>
+            <input type="text" id="px-nombre" placeholder="Nombre Paciente">
+            <input type="number" id="px-whatsapp" placeholder="WhatsApp (502...)">
+            <button class="btn-action" id="btn-guardar-cita">Guardar y Enviar WhatsApp</button>
+            <button class="btn-action" style="background:#ccc;" onclick="cerrarModalCita()">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modal-gestion" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="gestion-titulo">Gestión de Cita</h3>
+            <button class="btn-action" id="btn-recordatorio-wa" style="background:#25D366; color:white;">📱 Recordatorio WhatsApp</button>
+            <button class="btn-action" id="btn-editar-cita" style="background:#f1f1f1;">✏️ Editar Nombre</button>
+            <button class="btn-action" id="btn-eliminar-cita" style="background:#ffcccc; color:red;">🗑️ Eliminar Cita</button>
+            <button class="btn-action" style="background:#ccc; margin-top:10px;" onclick="cerrarModalGestion()">Cerrar</button>
+        </div>
+    </div>
+
     <div id="user-config-modal" class="modal-overlay"><div class="modal-box"><h3>Mi Perfil</h3><input type="text" id="user-custom-name" placeholder="Nombre"><input type="file" id="user-photo-upload"><button class="btn-action" id="save-profile-btn">Guardar</button><button class="btn-action" style="background:#ccc; margin-top:10px;" onclick="toggleUserConfig()">Cerrar</button></div></div>
 
     <script type="module">
@@ -121,21 +109,16 @@
         
         let equipoGlobal = [], citasGlobal = [], tempSelection = null, citaSeleccionada = null;
 
-        // --- CARGA DE APARIENCIA SUPER PRIORITARIA ---
+        // --- APARIENCIA GLOBAL ---
         onSnapshot(doc(db, "configuracion", "apariencia"), (s) => {
             if(s.exists()){
                 const d = s.data();
                 if(d.color) document.documentElement.style.setProperty('--brand-color', d.color);
                 if(d.logoB64) {
-                    // Mostrar logo en Login
-                    const logImg = document.getElementById('login-logo-img');
-                    logImg.src = d.logoB64;
-                    logImg.style.display = 'block';
-                    
-                    // Mostrar logo en barra superior
-                    const appLog = document.getElementById('app-logo');
-                    appLog.src = d.logoB64;
-                    appLog.style.display = 'block';
+                    document.getElementById('login-logo-img').src = d.logoB64;
+                    document.getElementById('login-logo-img').style.display = 'block';
+                    document.getElementById('app-logo').src = d.logoB64;
+                    document.getElementById('app-logo').style.display = 'block';
                     document.getElementById('default-logo').style.display = 'none';
                 }
             }
@@ -164,7 +147,20 @@
             onSnapshot(collection(db, "citas"), (snap) => { citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()})); actualizarCalendario(isAdmin); recalcularAdmin(isAdmin); });
         }
 
-        // Calendario 7am-20hrs
+        // --- LÓGICA DE WHATSAPP ---
+        function enviarMensajeWA(nombrePx, telefono, fechaStr, psicologaNombre, esRecordatorio = false) {
+            if(!telefono) return;
+            const fecha = new Date(fechaStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+            let msg = "";
+            if(esRecordatorio) {
+                msg = `Hola ${nombrePx}, te saludamos de RESILIENCIA para recordarte tu cita el día ${fecha} con Licda. ${psicologaNombre}. ¡Te esperamos!`;
+            } else {
+                msg = `Hola ${nombrePx}, tu cita en RESILIENCIA ha sido agendada para el día ${fecha} con Licda. ${psicologaNombre}. ¡Gracias por tu confianza!`;
+            }
+            window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // --- CALENDARIO 7AM - 20HRS ---
         function actualizarCalendario(isAdmin) {
             if(!window.calendarObj) {
                 window.calendarObj = new FullCalendar.Calendar(document.getElementById('calendar'), {
@@ -180,7 +176,6 @@
                     },
                     eventClick: (info) => {
                         citaSeleccionada = citasGlobal.find(c => c.id === info.event.id);
-                        if (!citaSeleccionada) return;
                         document.getElementById('gestion-titulo').innerText = "Cita: " + citaSeleccionada.title;
                         document.getElementById('modal-gestion').style.display = 'flex';
                     }
@@ -191,42 +186,59 @@
             citasGlobal.forEach(c => { if(isAdmin || c.user === auth.currentUser.email.toLowerCase()) window.calendarObj.addEvent({ id: c.id, title: c.title, start: c.start, end: c.end, color: c.color }); });
         }
 
-        // Botones y Admin
-        document.getElementById('save-admin-style').onclick = async () => {
-            const logo = document.getElementById('admin-logo-upload').files[0];
-            let upd = { color: document.getElementById('brand-color-picker').value };
-            if(logo) { const r = new FileReader(); r.readAsDataURL(logo); r.onload = async (e) => { upd.logoB64 = e.target.result; await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Logo y color actualizados globalmente."); }; }
-            else { await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Color actualizado."); }
+        // --- BOTONES ACCIÓN ---
+        document.getElementById('btn-guardar-cita').onclick = async () => {
+            const nombre = document.getElementById('px-nombre').value;
+            const tel = document.getElementById('px-whatsapp').value;
+            const emailPsi = document.getElementById('select-psicologa-cita').value;
+            if(!nombre || !emailPsi) return alert("Faltan datos");
+            
+            const psi = equipoGlobal.find(p => p.email.toLowerCase() === emailPsi);
+            await addDoc(collection(db, "citas"), { title: nombre, tel: tel, start: tempSelection.startStr, end: tempSelection.endStr, user: emailPsi, color: psi.color });
+            
+            if(tel) enviarMensajeWA(nombre, tel, tempSelection.startStr, psi.name, false);
+            cerrarModalCita();
         };
 
-        function actualizarSelectorPsicologas() {
-            const select = document.getElementById('select-psicologa-cita');
-            select.innerHTML = '<option value="">-- Seleccionar Psicóloga --</option>';
-            equipoGlobal.forEach(p => { select.innerHTML += `<option value="${p.email.toLowerCase()}">${p.name}</option>`; });
-            if(auth.currentUser) {
-                const miEmail = auth.currentUser.email.toLowerCase();
-                if(equipoGlobal.some(p => p.email.toLowerCase() === miEmail)) select.value = miEmail;
-            }
-        }
+        document.getElementById('btn-recordatorio-wa').onclick = () => {
+            if(!citaSeleccionada.tel) return alert("Esta cita no tiene número de teléfono.");
+            const psi = equipoGlobal.find(p => p.email.toLowerCase() === citaSeleccionada.user.toLowerCase());
+            enviarMensajeWA(citaSeleccionada.title, citaSeleccionada.tel, citaSeleccionada.start, psi ? psi.name : "", true);
+        };
 
-        function recalcularAdmin(isAdmin) {
-            if(!isAdmin) return;
-            const mesSel = document.getElementById('report-month').value;
-            const counts = {};
-            citasGlobal.forEach(c => { if(c.start.startsWith(mesSel)) counts[c.user] = (counts[c.user] || 0) + 1; });
-            const list = document.getElementById('docs-list'); list.innerHTML = "";
-            equipoGlobal.forEach(p => {
-                const mail = p.email.toLowerCase();
-                list.innerHTML += `<div style="background:${p.color}; padding:8px; border-radius:6px; margin-bottom:5px; color:black; font-size:11px; font-weight:600; display:flex; justify-content:space-between;"><span>${p.name}</span><span>(${counts[mail] || 0})</span></div>`;
-            });
-        }
+        document.getElementById('btn-editar-cita').onclick = async () => {
+            const nN = prompt("Nuevo nombre del paciente:", citaSeleccionada.title);
+            if (nN) { await setDoc(doc(db, "citas", citaSeleccionada.id), { ...citaSeleccionada, title: nN }, { merge: true }); cerrarModalGestion(); }
+        };
 
+        document.getElementById('btn-eliminar-cita').onclick = async () => {
+            if (confirm("¿Seguro que deseas eliminar esta cita?")) { await deleteDoc(doc(db, "citas", citaSeleccionada.id)); cerrarModalGestion(); }
+        };
+
+        // Auxiliares
         window.cerrarModalCita = () => { document.getElementById('modal-cita').style.display = 'none'; window.calendarObj.unselect(); };
         window.cerrarModalGestion = () => { document.getElementById('modal-gestion').style.display = 'none'; };
         window.toggleAdminConfig = () => { const d = document.getElementById('admin-config-drawer'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; };
         window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
-        document.getElementById('report-month').value = new Date().toISOString().substring(0, 7);
-        document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch(e) { alert("Error de credenciales"); } };
+        document.getElementById('save-admin-style').onclick = async () => {
+            const logo = document.getElementById('admin-logo-upload').files[0];
+            let upd = { color: document.getElementById('brand-color-picker').value };
+            if(logo) { const r = new FileReader(); r.readAsDataURL(logo); r.onload = async (e) => { upd.logoB64 = e.target.result; await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Estilo global actualizado."); }; }
+            else { await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Color actualizado."); }
+        };
+        function actualizarSelectorPsicologas() {
+            const select = document.getElementById('select-psicologa-cita');
+            select.innerHTML = equipoGlobal.map(p => `<option value="${p.email.toLowerCase()}">${p.name}</option>`).join('');
+            if(auth.currentUser) select.value = auth.currentUser.email.toLowerCase();
+        }
+        function recalcularAdmin(isAdmin) {
+            if(!isAdmin) return;
+            const mesSel = document.getElementById('report-month').value || new Date().toISOString().substring(0, 7);
+            const counts = {};
+            citasGlobal.forEach(c => { if(c.start.startsWith(mesSel)) counts[c.user] = (counts[c.user] || 0) + 1; });
+            document.getElementById('docs-list').innerHTML = equipoGlobal.map(p => `<div style="background:${p.color}; padding:8px; border-radius:6px; margin-bottom:5px; color:black; font-size:11px; font-weight:600; display:flex; justify-content:space-between;"><span>${p.name}</span><span>(${counts[p.email.toLowerCase()] || 0})</span></div>`).join('');
+        }
+        document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch(e) { alert("Error"); } };
         document.getElementById('logout-btn').onclick = async () => { await signOut(auth); location.reload(); };
         document.getElementById('add-doc-btn').onclick = async () => { const n = document.getElementById('new-doc-name').value; const e = document.getElementById('new-doc-email').value.toLowerCase(); if(n && e) await addDoc(collection(db, "psicologas"), { name: n, email: e, color: '#'+Math.floor(Math.random()*16777215).toString(16) }); };
     </script>
