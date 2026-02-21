@@ -88,9 +88,21 @@
         <div class="modal-box">
             <h3 id="gestion-titulo">Gestión de Cita</h3>
             <button class="btn-action" id="btn-recordatorio-wa" style="background:#25D366; color:white;">📱 Recordatorio WhatsApp</button>
-            <button class="btn-action" id="btn-editar-cita" style="background:#f1f1f1;">✏️ Editar Nombre</button>
+            <button class="btn-action" id="btn-abrir-editar" style="background:#f1f1f1;">✏️ Editar Datos</button>
             <button class="btn-action" id="btn-eliminar-cita" style="background:#ffcccc; color:red;">🗑️ Eliminar Cita</button>
             <button class="btn-action" style="background:#ccc; margin-top:10px;" onclick="cerrarModalGestion()">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="modal-editar" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Editar Paciente</h3>
+            <label style="font-size: 12px; color: #666;">Nombre Completo:</label>
+            <input type="text" id="edit-px-nombre">
+            <label style="font-size: 12px; color: #666;">WhatsApp:</label>
+            <input type="number" id="edit-px-whatsapp">
+            <button class="btn-action" id="btn-confirmar-edicion">Actualizar Datos</button>
+            <button class="btn-action" style="background:#ccc;" onclick="cerrarModalEditar()">Cancelar</button>
         </div>
     </div>
 
@@ -99,7 +111,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA", authDomain: "agendaresiliencia-12.firebaseapp.com", projectId: "agendaresiliencia-12", storageBucket: "agendaresiliencia-12.firebasestorage.app", appId: "1:1068233469888:web:f958c72f406ac8698da225" };
         const app = initializeApp(firebaseConfig);
@@ -159,7 +171,6 @@
             window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // --- CALENDARIO 7AM - 20HRS ---
         function actualizarCalendario(isAdmin) {
             if(!window.calendarObj) {
                 window.calendarObj = new FullCalendar.Calendar(document.getElementById('calendar'), {
@@ -185,7 +196,6 @@
             citasGlobal.forEach(c => { if(isAdmin || c.user === auth.currentUser.email.toLowerCase()) window.calendarObj.addEvent({ id: c.id, title: c.title, start: c.start, end: c.end, color: c.color }); });
         }
 
-        // --- CONTEO DE CITAS REFORZADO ---
         function recalcularAdmin(isAdmin) {
             if(!isAdmin) return;
             const mesSel = document.getElementById('report-month').value;
@@ -199,36 +209,50 @@
         }
         document.getElementById('report-month').onchange = () => recalcularAdmin(true);
 
-        // --- ACCIONES ---
         document.getElementById('btn-guardar-cita').onclick = async () => {
             const nombre = document.getElementById('px-nombre').value;
             const tel = document.getElementById('px-whatsapp').value;
             const emailPsi = document.getElementById('select-psicologa-cita').value;
             if(!nombre || !emailPsi) return alert("Faltan datos");
             const psi = equipoGlobal.find(p => p.email.toLowerCase() === emailPsi);
-            await addDoc(collection(db, "citas"), { title: nombre, tel: tel, start: tempSelection.startStr, end: tempSelection.endStr, user: emailPsi, color: psi.color });
+            await addDoc(collection(db, "citas"), { title: nombre, tel: tel || "", start: tempSelection.startStr, end: tempSelection.endStr, user: emailPsi, color: psi.color });
             if(tel) enviarMensajeWA(nombre, tel, tempSelection.startStr, psi.name, false);
             cerrarModalCita();
         };
 
         document.getElementById('btn-recordatorio-wa').onclick = () => {
-            if(!citaSeleccionada.tel) return alert("Sin número.");
+            if(!citaSeleccionada.tel) return alert("No hay teléfono registrado.");
             const psi = equipoGlobal.find(p => p.email.toLowerCase() === citaSeleccionada.user.toLowerCase());
             enviarMensajeWA(citaSeleccionada.title, citaSeleccionada.tel, citaSeleccionada.start, psi ? psi.name : "", true);
         };
 
-        document.getElementById('btn-editar-cita').onclick = async () => {
-            const nN = prompt("Nuevo nombre:", citaSeleccionada.title);
-            if (nN) { await setDoc(doc(db, "citas", citaSeleccionada.id), { ...citaSeleccionada, title: nN }, { merge: true }); cerrarModalGestion(); }
+        // --- LÓGICA DE EDICIÓN CON VENTANA ---
+        document.getElementById('btn-abrir-editar').onclick = () => {
+            document.getElementById('edit-px-nombre').value = citaSeleccionada.title;
+            document.getElementById('edit-px-whatsapp').value = citaSeleccionada.tel || "";
+            document.getElementById('modal-gestion').style.display = 'none';
+            document.getElementById('modal-editar').style.display = 'flex';
+        };
+
+        document.getElementById('btn-confirmar-edicion').onclick = async () => {
+            const nN = document.getElementById('edit-px-nombre').value;
+            const nT = document.getElementById('edit-px-whatsapp').value;
+            if(!nN) return alert("El nombre es obligatorio");
+
+            await updateDoc(doc(db, "citas", citaSeleccionada.id), { 
+                title: nN, 
+                tel: nT 
+            });
+            cerrarModalEditar();
         };
 
         document.getElementById('btn-eliminar-cita').onclick = async () => {
             if (confirm("¿Eliminar?")) { await deleteDoc(doc(db, "citas", citaSeleccionada.id)); cerrarModalGestion(); }
         };
 
-        // UI Aux
         window.cerrarModalCita = () => { document.getElementById('modal-cita').style.display = 'none'; window.calendarObj.unselect(); };
         window.cerrarModalGestion = () => { document.getElementById('modal-gestion').style.display = 'none'; };
+        window.cerrarModalEditar = () => { document.getElementById('modal-editar').style.display = 'none'; };
         window.toggleAdminConfig = () => { const d = document.getElementById('admin-config-drawer'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; };
         window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
         
