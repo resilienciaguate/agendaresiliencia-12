@@ -12,7 +12,7 @@
         :root { --brand-color: #a5c941; --brand-dark: #292929; }
         html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; overflow-x: hidden; }
         
-        /* Asegurar visibilidad de botones del calendario */
+        /* Visibilidad de botones */
         .fc-toolbar-title { text-transform: capitalize !important; color: #333 !important; font-size: 1.1em !important; }
         .fc .fc-button-primary { background-color: var(--brand-color) !important; border: none !important; color: black !important; text-transform: capitalize !important; font-weight: 600 !important; }
         .fc .fc-button-active { background-color: #8fb332 !important; }
@@ -26,7 +26,7 @@
         .login-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; color: #333; }
         
         #app-content { display: none; flex-direction: column; padding: 10px; gap: 15px; flex: 1; }
-        @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 280px; } }
+        @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 280px; position: sticky; top: 110px; height: fit-content; } }
 
         .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow-x: auto; }
@@ -63,9 +63,9 @@
 
     <div id="modal-cita" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modal-fecha-label" style="margin-top:0; font-size:14px; color:var(--brand-color);">Nueva Cita</h3>
+            <h3 style="margin-top:0; font-size:14px; color:var(--brand-color);">Nueva Cita</h3>
             <input type="text" id="px-nombre" placeholder="Nombre del Paciente">
-            <input type="number" id="px-whatsapp" placeholder="WhatsApp (ej: 502...)">
+            <input type="number" id="px-whatsapp" placeholder="WhatsApp (502...)">
             <button class="btn-action" id="btn-guardar-cita">Guardar y Confirmar</button>
             <button class="btn-action" style="background:#ccc; margin-top:10px;" onclick="cerrarModalCita()">Cancelar</button>
         </div>
@@ -82,12 +82,13 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const ADMIN_EMAIL = "resilienciaguate@gmail.com";
         
         let equipoGlobal = [], citasGlobal = [], tempSelection = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                const isAdmin = user.email.toLowerCase() === "resilienciaguate@gmail.com";
+                const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL;
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'flex';
@@ -99,41 +100,45 @@
         function iniciarEscuchas(isAdmin, userEmail) {
             onSnapshot(doc(db, "perfiles", userEmail), (s) => { if(s.exists()){ const d = s.data(); if(d.photo) { document.getElementById('user-photo').src = d.photo; document.getElementById('user-photo').style.display = 'block'; } document.getElementById('display-profile-name').innerText = d.displayName || ""; } });
             onSnapshot(doc(db, "configuracion", "apariencia"), (s) => { if(s.exists()){ const d = s.data(); if(d.color) document.documentElement.style.setProperty('--brand-color', d.color); if(d.logoB64) { const img = document.getElementById('app-logo'); img.src = d.logoB64; img.style.display = 'block'; img.style.width = '100px'; document.getElementById('default-logo').style.display = 'none'; } } });
-            onSnapshot(collection(db, "psicologas"), (snap) => { equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()})); });
-            onSnapshot(collection(db, "citas"), (snap) => { citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()})); actualizarCalendario(isAdmin); });
+            
+            // Escucha Psicólogas y Citas para el Conteo
+            onSnapshot(collection(db, "psicologas"), (snap) => { equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()})); recalcularAdmin(isAdmin); });
+            onSnapshot(collection(db, "citas"), (snap) => { citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()})); actualizarCalendario(isAdmin); recalcularAdmin(isAdmin); });
+        }
+
+        function recalcularAdmin(isAdmin) {
+            if(!isAdmin) return;
+            const mesSel = document.getElementById('report-month').value;
+            const counts = {};
+            citasGlobal.forEach(c => { if(c.start.startsWith(mesSel)) counts[c.user] = (counts[c.user] || 0) + 1; });
+            const list = document.getElementById('docs-list'); list.innerHTML = "";
+            equipoGlobal.forEach(p => {
+                const mail = p.email.toLowerCase();
+                list.innerHTML += `<div style="background:${p.color}; padding:8px; border-radius:6px; margin-bottom:5px; color:black; font-size:11px; font-weight:600; display:flex; justify-content:space-between;">
+                    <span>${p.name}</span><span>(${counts[mail] || 0})</span>
+                </div>`;
+            });
         }
 
         function actualizarCalendario(isAdmin) {
             if(!window.calendarObj) {
                 window.calendarObj = new FullCalendar.Calendar(document.getElementById('calendar'), {
-                    initialView: 'dayGridMonth', locale: 'es', firstDay: 1, 
-                    navLinks: true,
-                    // ESTO MANDA DE MES A SEMANA AL HACER CLIC EN EL DIA
-                    dateClick: function(info) {
-                        if (window.calendarObj.view.type === 'dayGridMonth') {
-                            window.calendarObj.changeView('timeGridWeek', info.dateStr);
-                        }
-                    },
+                    initialView: 'dayGridMonth', locale: 'es', firstDay: 1, navLinks: true,
+                    dateClick: (info) => { if (window.calendarObj.view.type === 'dayGridMonth') window.calendarObj.changeView('timeGridWeek', info.dateStr); },
                     buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
                     headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                     slotMinTime: '07:00:00', slotMaxTime: '20:00:00', allDaySlot: false, selectable: true,
                     titleFormat: (d) => { const m = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']; return m[d.date.month] + ' ' + d.date.year; },
                     select: (info) => {
-                        // BLOQUEO EN MES
-                        if(window.calendarObj.view.type === 'dayGridMonth') {
-                            window.calendarObj.unselect();
-                            window.calendarObj.changeView('timeGridWeek', info.startStr);
-                            return;
-                        }
+                        if(window.calendarObj.view.type === 'dayGridMonth') { window.calendarObj.unselect(); window.calendarObj.changeView('timeGridWeek', info.startStr); return; }
                         tempSelection = info;
                         document.getElementById('modal-cita').style.display = 'flex';
-                        document.getElementById('px-nombre').focus();
                     },
                     eventClick: async (info) => {
                         const cita = citasGlobal.find(c => c.id === info.event.id);
                         const op = prompt("1. Recordatorio WhatsApp\n2. Borrar Cita\nElija 1 o 2:");
-                        if(op === "1" && cita.tel) window.open(`https://wa.me/${cita.tel}?text=Recordatorio: Tu cita es hoy a las ${new Date(cita.start).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`);
-                        else if(op === "2" && confirm("¿Borrar cita?")) await deleteDoc(doc(db, "citas", info.event.id));
+                        if(op === "1" && cita.tel) window.open(`https://wa.me/${cita.tel}?text=Recordatorio: Tu cita es hoy a las ${new Date(cita.start).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`);
+                        else if(op === "2" && confirm("¿Borrar?")) await deleteDoc(doc(db, "citas", info.event.id));
                     }
                 });
                 window.calendarObj.render();
@@ -146,28 +151,26 @@
             const nombre = document.getElementById('px-nombre').value;
             const whatsapp = document.getElementById('px-whatsapp').value;
             if(!nombre) return alert("Falta nombre");
-            
             const color = equipoGlobal.find(p => p.email.toLowerCase() === auth.currentUser.email.toLowerCase())?.color || '#a5c941';
-            await addDoc(collection(db, "citas"), {
-                title: nombre, tel: whatsapp, start: tempSelection.startStr, end: tempSelection.endStr,
-                user: auth.currentUser.email.toLowerCase(), color: color
-            });
-
-            if(whatsapp) window.open(`https://wa.me/${whatsapp}?text=Hola ${nombre}, te confirmo tu cita para el ${new Date(tempSelection.startStr).toLocaleString()}`);
+            await addDoc(collection(db, "citas"), { title: nombre, tel: whatsapp, start: tempSelection.startStr, end: tempSelection.endStr, user: auth.currentUser.email.toLowerCase(), color: color });
+            if(whatsapp) window.open(`https://wa.me/${whatsapp}?text=Confirmación: Cita el ${new Date(tempSelection.startStr).toLocaleString()}`);
             cerrarModalCita();
         };
 
-        window.cerrarModalCita = () => {
-            document.getElementById('modal-cita').style.display = 'none';
-            document.getElementById('px-nombre').value = "";
-            document.getElementById('px-whatsapp').value = "";
-            window.calendarObj.unselect();
-        };
-
+        window.cerrarModalCita = () => { document.getElementById('modal-cita').style.display = 'none'; document.getElementById('px-nombre').value = ""; document.getElementById('px-whatsapp').value = ""; window.calendarObj.unselect(); };
         window.toggleAdminConfig = () => { const d = document.getElementById('admin-config-drawer'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; };
+        document.getElementById('report-month').value = new Date().toISOString().substring(0, 7);
+        document.getElementById('report-month').onchange = () => recalcularAdmin(true);
         document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch(e) { alert("Error"); } };
         document.getElementById('logout-btn').onclick = async () => { await signOut(auth); location.reload(); };
         window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
+        document.getElementById('add-doc-btn').onclick = async () => { const n = document.getElementById('new-doc-name').value; const e = document.getElementById('new-doc-email').value.toLowerCase(); if(n && e) await addDoc(collection(db, "psicologas"), { name: n, email: e, color: '#'+Math.floor(Math.random()*16777215).toString(16) }); };
+        document.getElementById('save-admin-style').onclick = async () => {
+            const logo = document.getElementById('admin-logo-upload').files[0];
+            let upd = { color: document.getElementById('brand-color-picker').value };
+            if(logo) { const r = new FileReader(); r.readAsDataURL(logo); r.onload = async (e) => { upd.logoB64 = e.target.result; await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Actualizado"); }; }
+            else { await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Color actualizado"); }
+        };
     </script>
 </body>
 </html>
