@@ -12,7 +12,6 @@
         :root { --brand-color: #a5c941; --brand-dark: #292929; }
         html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; overflow-x: hidden; }
         
-        /* Visibilidad de botones y títulos */
         .fc-toolbar-title { text-transform: capitalize !important; color: #333 !important; font-size: 1.1em !important; }
         .fc .fc-button-primary { background-color: var(--brand-color) !important; border: none !important; color: black !important; text-transform: capitalize !important; font-weight: 600 !important; }
         .fc .fc-button-active { background-color: #8fb332 !important; }
@@ -133,15 +132,15 @@
                         const e = info.event;
                         const cita = citasGlobal.find(c => c.id === e.id);
                         if (!cita) return;
-                        const op = prompt("GESTIÓN DE CITA:\n1. RECORDATORIO\n2. EDITAR\n3. ELIMINAR\n4. CANCELAR");
+                        const op = prompt("GESTIÓN DE CITA:\n1. RECORDATORIO (WhatsApp)\n2. EDITAR\n3. ELIMINAR\n4. CANCELAR");
                         switch(op) {
                             case "1":
                                 if (cita.tel) {
-                                    const psicologaAsignada = equipoGlobal.find(p => p.email.toLowerCase() === cita.user.toLowerCase());
-                                    const nomPsi = psicologaAsignada ? psicologaAsignada.name : "tu psicóloga";
+                                    const psi = equipoGlobal.find(p => p.email.toLowerCase() === cita.user.toLowerCase());
+                                    const nomPsi = psi ? psi.name : "tu psicóloga asignada";
                                     const fH = new Date(cita.start).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-                                    const msg = `Hola ${cita.title} te recordamos que tienes una cita en el día ${fH} con ${nomPsi}. Te esperamos!`;
-                                    window.open(`https://wa.me/${cita.tel}?text=${encodeURIComponent(msg)}`);
+                                    const msgRec = `Hola ${cita.title} te recordamos que tienes una cita en el día ${fH} con ${nomPsi}. Te esperamos!`;
+                                    window.open(`https://wa.me/${cita.tel}?text=${encodeURIComponent(msgRec)}`);
                                 } break;
                             case "2":
                                 const nN = prompt("Nuevo nombre:", cita.title);
@@ -149,7 +148,7 @@
                                 if (nN) await setDoc(doc(db, "citas", e.id), { ...cita, title: nN, tel: nT }, { merge: true });
                                 break;
                             case "3":
-                                if (confirm("¿Borrar cita?")) await deleteDoc(doc(db, "citas", e.id));
+                                if (confirm("¿Borrar cita del sistema?")) await deleteDoc(doc(db, "citas", e.id));
                                 break;
                         }
                     }
@@ -165,12 +164,14 @@
             const whatsapp = document.getElementById('px-whatsapp').value;
             if(!nombre) return alert("Falta nombre");
             const psicologaActual = equipoGlobal.find(p => p.email.toLowerCase() === auth.currentUser.email.toLowerCase());
-            const nomPsi = psicologaActual ? psicologaActual.name : "tu psicóloga";
+            const nomPsi = psicologaActual ? psicologaActual.name : "tu psicóloga asignada";
             const fH = new Date(tempSelection.startStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+            
             await addDoc(collection(db, "citas"), { title: nombre, tel: whatsapp, start: tempSelection.startStr, end: tempSelection.endStr, user: auth.currentUser.email.toLowerCase(), color: psicologaActual?.color || '#a5c941' });
+            
             if(whatsapp) {
-                const msg = `Hola, ${nombre} tu cita en RESILIENCIA ha sido agendada exitosamente el día ${fH} con ${nomPsi}. Te esperamos!`;
-                window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`);
+                const msgConf = `Hola, ${nombre} tu cita en RESILIENCIA ha sido agendada exitosamente el día ${fH} con ${nomPsi}. Te esperamos!`;
+                window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(msgConf)}`);
             }
             cerrarModalCita();
         };
