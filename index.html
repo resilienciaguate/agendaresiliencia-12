@@ -23,12 +23,10 @@
         @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 300px; position: sticky; top: 80px; } }
 
         .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
-        
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow-x: auto; }
         #calendar { min-width: 700px; }
 
-        /* Estilo para el título del mes en la página */
-        .fc .fc-toolbar-title { text-transform: uppercase !important; font-weight: 600; }
+        .fc .fc-toolbar-title { text-transform: uppercase !important; font-weight: 600; color: #333; }
 
         .psicologa-item { padding: 8px; border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; color: #000 !important; font-weight: 600; font-size: 11px; }
         input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; }
@@ -38,16 +36,7 @@
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; color: #333; }
         .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 
-        /* PDF TEMPLATE */
-        #pdf-template { 
-            display: none; 
-            color: #000; 
-            background: #fff; 
-            width: 1300px; 
-            transform: scale(0.65); 
-            transform-origin: top left; 
-            padding: 20px;
-        }
+        #pdf-template { display: none; color: #000; background: #fff; width: 1300px; transform: scale(0.65); transform-origin: top left; padding: 20px; }
         .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 10px; }
         #pdf-date-display { font-weight: 600; margin: 5px 0; font-size: 24px; color: #000; text-transform: uppercase; }
     </style>
@@ -184,10 +173,16 @@
             }
         });
 
-        // FUNCIÓN PARA LIMPIAR EL TÍTULO (Quitar "de" y pasar a MAYÚSCULAS)
-        function formatearTituloMes(texto) {
-            if (!texto) return "";
-            return texto.replace(/\bde\b/gi, '').replace(/\s+/g, ' ').trim().toUpperCase();
+        // LÓGICA DE TÍTULO MEJORADA PARA EVITAR DUPLICADOS Y FORZAR ESPAÑOL
+        function corregirTituloCalendario() {
+            const titleEl = document.querySelector('.fc-toolbar-title');
+            if (titleEl && window.calendarObj) {
+                const viewDate = window.calendarObj.getDate();
+                // Generamos el texto manualmente en español para asegurar control total
+                const mesNombre = viewDate.toLocaleString('es-ES', { month: 'long' }).toUpperCase();
+                const anio = viewDate.getFullYear();
+                titleEl.innerText = `${mesNombre} ${anio}`;
+            }
         }
 
         function iniciarEscuchas(isAdmin) {
@@ -260,10 +255,8 @@
                 selectable: true,
                 height: 'auto',
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
-                // Evento para limpiar el título apenas se renderice
                 datesSet: () => {
-                    const titleEl = document.querySelector('.fc-toolbar-title');
-                    if(titleEl) titleEl.innerText = formatearTituloMes(titleEl.innerText);
+                    corregirTituloCalendario();
                 },
                 eventClick: (info) => {
                     currentEvent = info.event;
@@ -281,6 +274,7 @@
             const pxPhone = document.getElementById('edit-phone').value;
             if(!currentEvent) return;
             const fechaObj = currentEvent.start;
+            // Recordatorio de WhatsApp en ESPAÑOL
             const fechaTexto = fechaObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
             const horaTexto = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
             const mensaje = `Hola ${pxName}, Te recordamos que tienes una cita agendada para el día ${fechaTexto} a las ${horaTexto}, Te esperamos!.`;
@@ -298,7 +292,7 @@
                 body.innerHTML += `<tr style="border: 1px solid #000;"><td style="padding:5px;">${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`; 
             });
 
-            // Título PDF: Obtenemos el título actual del calendario (ya limpio)
+            // Título PDF sincronizado con el título corregido del calendario
             const calendarTitle = document.querySelector('.fc-toolbar-title').innerText;
             document.getElementById('pdf-date-display').innerText = calendarTitle;
 
