@@ -130,7 +130,10 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'flex';
-                if(isAdmin) document.getElementById('side-panel-ui').style.display = 'block';
+                if(isAdmin) {
+                    document.getElementById('side-panel-ui').style.display = 'block';
+                    document.getElementById('report-month').value = new Date().toISOString().substring(0, 7);
+                }
                 iniciarEscuchas(isAdmin, user.email.toLowerCase());
             }
         });
@@ -147,16 +150,12 @@
             onSnapshot(collection(db, "citas"), (snap) => { citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()})); actualizarCalendario(isAdmin); recalcularAdmin(isAdmin); });
         }
 
-        // --- LÓGICA DE WHATSAPP ---
         function enviarMensajeWA(nombrePx, telefono, fechaStr, psicologaNombre, esRecordatorio = false) {
             if(!telefono) return;
             const fecha = new Date(fechaStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-            let msg = "";
-            if(esRecordatorio) {
-                msg = `Hola ${nombrePx}, te saludamos de RESILIENCIA para recordarte tu cita el día ${fecha} con Licda. ${psicologaNombre}. ¡Te esperamos!`;
-            } else {
-                msg = `Hola ${nombrePx}, tu cita en RESILIENCIA ha sido agendada para el día ${fecha} con Licda. ${psicologaNombre}. ¡Gracias por tu confianza!`;
-            }
+            let msg = esRecordatorio ? 
+                `Hola ${nombrePx}, te saludamos de RESILIENCIA para recordarte tu cita el día ${fecha} con Licda. ${psicologaNombre}. ¡Te esperamos!` : 
+                `Hola ${nombrePx}, tu cita en RESILIENCIA ha sido agendada para el día ${fecha} con Licda. ${psicologaNombre}. ¡Gracias por tu confianza!`;
             window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
@@ -186,58 +185,66 @@
             citasGlobal.forEach(c => { if(isAdmin || c.user === auth.currentUser.email.toLowerCase()) window.calendarObj.addEvent({ id: c.id, title: c.title, start: c.start, end: c.end, color: c.color }); });
         }
 
-        // --- BOTONES ACCIÓN ---
+        // --- CONTEO DE CITAS REFORZADO ---
+        function recalcularAdmin(isAdmin) {
+            if(!isAdmin) return;
+            const mesSel = document.getElementById('report-month').value;
+            if(!mesSel) return;
+            const counts = {};
+            citasGlobal.forEach(c => { if(c.start && c.start.startsWith(mesSel)) counts[c.user] = (counts[c.user] || 0) + 1; });
+            document.getElementById('docs-list').innerHTML = equipoGlobal.map(p => {
+                const total = counts[p.email.toLowerCase()] || 0;
+                return `<div style="background:${p.color}; padding:8px; border-radius:6px; margin-bottom:5px; color:black; font-size:11px; font-weight:600; display:flex; justify-content:space-between;"><span>${p.name}</span><span>(${total})</span></div>`;
+            }).join('');
+        }
+        document.getElementById('report-month').onchange = () => recalcularAdmin(true);
+
+        // --- ACCIONES ---
         document.getElementById('btn-guardar-cita').onclick = async () => {
             const nombre = document.getElementById('px-nombre').value;
             const tel = document.getElementById('px-whatsapp').value;
             const emailPsi = document.getElementById('select-psicologa-cita').value;
             if(!nombre || !emailPsi) return alert("Faltan datos");
-            
             const psi = equipoGlobal.find(p => p.email.toLowerCase() === emailPsi);
             await addDoc(collection(db, "citas"), { title: nombre, tel: tel, start: tempSelection.startStr, end: tempSelection.endStr, user: emailPsi, color: psi.color });
-            
             if(tel) enviarMensajeWA(nombre, tel, tempSelection.startStr, psi.name, false);
             cerrarModalCita();
         };
 
         document.getElementById('btn-recordatorio-wa').onclick = () => {
-            if(!citaSeleccionada.tel) return alert("Esta cita no tiene número de teléfono.");
+            if(!citaSeleccionada.tel) return alert("Sin número.");
             const psi = equipoGlobal.find(p => p.email.toLowerCase() === citaSeleccionada.user.toLowerCase());
             enviarMensajeWA(citaSeleccionada.title, citaSeleccionada.tel, citaSeleccionada.start, psi ? psi.name : "", true);
         };
 
         document.getElementById('btn-editar-cita').onclick = async () => {
-            const nN = prompt("Nuevo nombre del paciente:", citaSeleccionada.title);
+            const nN = prompt("Nuevo nombre:", citaSeleccionada.title);
             if (nN) { await setDoc(doc(db, "citas", citaSeleccionada.id), { ...citaSeleccionada, title: nN }, { merge: true }); cerrarModalGestion(); }
         };
 
         document.getElementById('btn-eliminar-cita').onclick = async () => {
-            if (confirm("¿Seguro que deseas eliminar esta cita?")) { await deleteDoc(doc(db, "citas", citaSeleccionada.id)); cerrarModalGestion(); }
+            if (confirm("¿Eliminar?")) { await deleteDoc(doc(db, "citas", citaSeleccionada.id)); cerrarModalGestion(); }
         };
 
-        // Auxiliares
+        // UI Aux
         window.cerrarModalCita = () => { document.getElementById('modal-cita').style.display = 'none'; window.calendarObj.unselect(); };
         window.cerrarModalGestion = () => { document.getElementById('modal-gestion').style.display = 'none'; };
         window.toggleAdminConfig = () => { const d = document.getElementById('admin-config-drawer'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; };
         window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
+        
         document.getElementById('save-admin-style').onclick = async () => {
             const logo = document.getElementById('admin-logo-upload').files[0];
             let upd = { color: document.getElementById('brand-color-picker').value };
-            if(logo) { const r = new FileReader(); r.readAsDataURL(logo); r.onload = async (e) => { upd.logoB64 = e.target.result; await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Estilo global actualizado."); }; }
-            else { await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Color actualizado."); }
+            if(logo) { const r = new FileReader(); r.readAsDataURL(logo); r.onload = async (e) => { upd.logoB64 = e.target.result; await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Actualizado"); }; }
+            else { await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Color actualizado"); }
         };
+
         function actualizarSelectorPsicologas() {
             const select = document.getElementById('select-psicologa-cita');
             select.innerHTML = equipoGlobal.map(p => `<option value="${p.email.toLowerCase()}">${p.name}</option>`).join('');
             if(auth.currentUser) select.value = auth.currentUser.email.toLowerCase();
         }
-        function recalcularAdmin(isAdmin) {
-            if(!isAdmin) return;
-            const mesSel = document.getElementById('report-month').value || new Date().toISOString().substring(0, 7);
-            const counts = {};
-            citasGlobal.forEach(c => { if(c.start.startsWith(mesSel)) counts[c.user] = (counts[c.user] || 0) + 1; });
-            document.getElementById('docs-list').innerHTML = equipoGlobal.map(p => `<div style="background:${p.color}; padding:8px; border-radius:6px; margin-bottom:5px; color:black; font-size:11px; font-weight:600; display:flex; justify-content:space-between;"><span>${p.name}</span><span>(${counts[p.email.toLowerCase()] || 0})</span></div>`).join('');
-        }
+
         document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch(e) { alert("Error"); } };
         document.getElementById('logout-btn').onclick = async () => { await signOut(auth); location.reload(); };
         document.getElementById('add-doc-btn').onclick = async () => { const n = document.getElementById('new-doc-name').value; const e = document.getElementById('new-doc-email').value.toLowerCase(); if(n && e) await addDoc(collection(db, "psicologas"), { name: n, email: e, color: '#'+Math.floor(Math.random()*16777215).toString(16) }); };
