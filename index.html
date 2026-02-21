@@ -34,7 +34,6 @@
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; color: #333; }
         
-        /* Icono Tuerca y Panel Config */
         .config-icon { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 20px; opacity: 0.6; transition: 0.3s; }
         .config-icon:hover { opacity: 1; transform: rotate(90deg); }
         #config-drawer { display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.08); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); animation: fadeIn 0.3s; }
@@ -44,6 +43,11 @@
         .fc .fc-button { font-size: 0.85em !important; text-transform: capitalize !important; color: #000 !important; font-weight: 600 !important; }
         .fc .fc-button-primary { background-color: var(--brand-color) !important; border-color: rgba(0,0,0,0.1) !important; }
         .fc-col-header-cell-cushion { text-transform: capitalize; padding: 5px 0 !important; color: #333; }
+
+        /* Estilo para el filtro de mes */
+        .month-filter { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+        .month-filter label { font-size: 10px; display: block; margin-bottom: 5px; opacity: 0.8; }
+        .month-filter select { padding: 5px; font-size: 12px; background: white; }
     </style>
 </head>
 <body>
@@ -93,7 +97,13 @@
                 </div>
 
                 <hr style="opacity:0.2; margin:15px 0;">
-                <h3 style="font-size:16px;">Equipo y Citas Totales</h3>
+                
+                <h3 style="font-size:16px; margin-bottom:5px;">Reporte Mensual</h3>
+                <div class="month-filter">
+                    <label>Filtrar mes de citas:</label>
+                    <input type="month" id="report-month" style="padding:5px; font-size:12px; width:90%;">
+                </div>
+                
                 <div id="docs-list"></div>
             </div>
         </div>
@@ -134,7 +144,11 @@
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
         let doctorColors = {};
 
-        // Función para abrir/cerrar configuración
+        // Establecer mes actual por defecto en el filtro
+        const today = new Date();
+        const currentMonthStr = today.toISOString().substring(0, 7); // "YYYY-MM"
+        document.getElementById('report-month').value = currentMonthStr;
+
         window.toggleConfig = () => {
             const drawer = document.getElementById('config-drawer');
             drawer.style.display = drawer.style.display === 'block' ? 'none' : 'block';
@@ -197,37 +211,56 @@
         };
 
         function cargarEquipo(isAdmin, userEmail) {
-            onSnapshot(collection(db, "citas"), (citasSnap) => {
-                const counts = {};
-                citasSnap.forEach(c => {
-                    const u = c.data().user.toLowerCase();
-                    counts[u] = (counts[u] || 0) + 1;
-                });
+            // Escuchar cambios en el filtro de mes para actualizar conteos
+            document.getElementById('report-month').onchange = () => renderizarLista(isAdmin, userEmail);
 
-                onSnapshot(collection(db, "psicologas"), (snap) => {
-                    const list = document.getElementById('docs-list');
-                    const select = document.getElementById('p-select');
-                    list.innerHTML = ""; select.innerHTML = "";
-                    snap.forEach(d => {
-                        const data = d.data();
-                        const emailLower = data.email.toLowerCase();
-                        doctorColors[emailLower] = data.color;
-                        if(isAdmin) {
-                            const total = counts[emailLower] || 0;
-                            const item = document.createElement('div');
-                            item.className = 'psicologa-item';
-                            item.style.backgroundColor = data.color;
-                            item.innerHTML = `<span>${data.name} (${total})</span>`;
-                            select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
-                            const del = document.createElement('span');
-                            del.innerHTML = "✕"; del.style.cursor="pointer";
-                            del.onclick = () => deleteDoc(doc(db, "psicologas", d.id));
-                            item.appendChild(del);
-                            list.appendChild(item);
-                        }
-                    });
-                    if (!window.calendarObj) initCalendar(userEmail, isAdmin);
+            onSnapshot(collection(db, "citas"), (citasSnap) => {
+                window.todasLasCitas = citasSnap; // Guardar referencia global
+                renderizarLista(isAdmin, userEmail);
+            });
+        }
+
+        function renderizarLista(isAdmin, userEmail) {
+            if(!window.todasLasCitas) return;
+            
+            const selectedMonth = document.getElementById('report-month').value; // "YYYY-MM"
+            const counts = {};
+            
+            window.todasLasCitas.forEach(c => {
+                const data = c.data();
+                const u = data.user.toLowerCase();
+                // Verificar si la cita pertenece al mes seleccionado
+                if(data.start.startsWith(selectedMonth)) {
+                    counts[u] = (counts[u] || 0) + 1;
+                }
+            });
+
+            onSnapshot(collection(db, "psicologas"), (snap) => {
+                const list = document.getElementById('docs-list');
+                const select = document.getElementById('p-select');
+                list.innerHTML = ""; select.innerHTML = "";
+                snap.forEach(d => {
+                    const data = d.data();
+                    const emailLower = data.email.toLowerCase();
+                    doctorColors[emailLower] = data.color;
+                    
+                    if(isAdmin) {
+                        const totalMes = counts[emailLower] || 0;
+                        const item = document.createElement('div');
+                        item.className = 'psicologa-item';
+                        item.style.backgroundColor = data.color;
+                        item.innerHTML = `<span>${data.name} (Mes: ${totalMes})</span>`;
+                        
+                        select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
+                        
+                        const del = document.createElement('span');
+                        del.innerHTML = "✕"; del.style.cursor="pointer";
+                        del.onclick = (e) => { e.stopPropagation(); if(confirm("¿Eliminar psicóloga?")) deleteDoc(doc(db, "psicologas", d.id)); };
+                        item.appendChild(del);
+                        list.appendChild(item);
+                    }
                 });
+                if (!window.calendarObj) initCalendar(userEmail, isAdmin);
             });
         }
 
