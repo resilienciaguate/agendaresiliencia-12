@@ -26,7 +26,8 @@
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow-x: auto; }
         #calendar { min-width: 700px; }
 
-        .fc .fc-toolbar-title { text-transform: uppercase !important; font-weight: 600; color: #333; }
+        /* Forzar Mayúsculas en el título */
+        .fc .fc-toolbar-title { text-transform: uppercase !important; font-weight: 600; color: #333; font-size: 1.5em; }
 
         .psicologa-item { padding: 8px; border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; color: #000 !important; font-weight: 600; font-size: 11px; }
         input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; }
@@ -36,6 +37,7 @@
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; color: #333; }
         .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 
+        /* Estilos PDF */
         #pdf-template { display: none; color: #000; background: #fff; width: 1300px; transform: scale(0.65); transform-origin: top left; padding: 20px; }
         .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 10px; }
         #pdf-date-display { font-weight: 600; margin: 5px 0; font-size: 24px; color: #000; text-transform: uppercase; }
@@ -173,15 +175,14 @@
             }
         });
 
-        // LÓGICA DE TÍTULO MEJORADA PARA EVITAR DUPLICADOS Y FORZAR ESPAÑOL
+        // CORRECCIÓN DEFINITIVA DE TÍTULO: Sin "de" y Forzado Español
         function corregirTituloCalendario() {
             const titleEl = document.querySelector('.fc-toolbar-title');
             if (titleEl && window.calendarObj) {
                 const viewDate = window.calendarObj.getDate();
-                // Generamos el texto manualmente en español para asegurar control total
                 const mesNombre = viewDate.toLocaleString('es-ES', { month: 'long' }).toUpperCase();
                 const anio = viewDate.getFullYear();
-                titleEl.innerText = `${mesNombre} ${anio}`;
+                titleEl.innerText = `${mesNombre} ${anio}`; // Formato: FEBRERO 2026
             }
         }
 
@@ -254,7 +255,17 @@
                 locale: 'es',
                 selectable: true,
                 height: 'auto',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+                buttonText: {
+                    today: 'Hoy',
+                    month: 'Mes',
+                    week: 'Semana',
+                    day: 'Día'
+                },
+                headerToolbar: { 
+                    left: 'prev,next today', 
+                    center: 'title', 
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay' 
+                },
                 datesSet: () => {
                     corregirTituloCalendario();
                 },
@@ -274,7 +285,6 @@
             const pxPhone = document.getElementById('edit-phone').value;
             if(!currentEvent) return;
             const fechaObj = currentEvent.start;
-            // Recordatorio de WhatsApp en ESPAÑOL
             const fechaTexto = fechaObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
             const horaTexto = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
             const mensaje = `Hola ${pxName}, Te recordamos que tienes una cita agendada para el día ${fechaTexto} a las ${horaTexto}, Te esperamos!.`;
@@ -292,7 +302,7 @@
                 body.innerHTML += `<tr style="border: 1px solid #000;"><td style="padding:5px;">${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`; 
             });
 
-            // Título PDF sincronizado con el título corregido del calendario
+            // Sincronizar título del PDF
             const calendarTitle = document.querySelector('.fc-toolbar-title').innerText;
             document.getElementById('pdf-date-display').innerText = calendarTitle;
 
