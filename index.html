@@ -24,18 +24,8 @@
 
         .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
         
-        /* Contenedor del calendario para evitar cortes */
-        .calendar-card { 
-            flex: 1; 
-            background: white; 
-            border-radius: 15px; 
-            padding: 10px; 
-            color: #333; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
-            overflow-x: auto; /* Permite scroll si el ancho es insuficiente */
-        }
-        
-        #calendar { min-width: 700px; } /* Asegura un ancho mínimo para que no se amontone */
+        .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow-x: auto; }
+        #calendar { min-width: 700px; }
 
         .psicologa-item { padding: 8px; border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; color: #000 !important; font-weight: 600; font-size: 11px; }
         input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; }
@@ -43,20 +33,18 @@
         
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; color: #333; }
-        
         .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 
-        /* PDF AJUSTADO PARA EVITAR CORTE DEL SÁBADO */
+        /* PDF TEMPLATE */
         #pdf-template { 
             display: none; 
             color: #000; 
             background: #fff; 
-            width: 1300px; /* Aumentado para asegurar que entre el sábado */
+            width: 1300px; 
             transform: scale(0.65); 
             transform-origin: top left; 
             padding: 20px;
         }
-        
         .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 10px; }
     </style>
 </head>
@@ -117,7 +105,7 @@
         <div class="modal-box">
             <h3>Gestión de Cita</h3>
             <input type="text" id="edit-name" placeholder="Nombre del Paciente">
-            <input type="tel" id="edit-phone" placeholder="WhatsApp (Ej: 50212345678)">
+            <input type="tel" id="edit-phone" placeholder="WhatsApp">
             <div class="actions-grid">
                 <button class="btn-action" style="background:#25d366; color:white!important;" id="btn-recordar">WhatsApp</button>
                 <button class="btn-action" id="btn-modificar">Guardar</button>
@@ -142,7 +130,7 @@
         <div class="pdf-header">
             <div>
                 <h1 style="margin:0; color:var(--brand-color); font-size: 28px;">RESILIENCIA</h1>
-                <p id="pdf-date-display" style="font-weight:600; margin: 5px 0; font-size: 16px;"></p>
+                <p id="pdf-date-display" style="font-weight:600; margin: 5px 0; font-size: 18px; text-transform: uppercase;"></p>
             </div>
             <img id="pdf-logo" src="" style="max-height:60px; display:none;">
         </div>
@@ -286,13 +274,21 @@
         window.generarReportePDF = async () => {
             let name = prompt("Nombre PDF:", "Reporte_Resiliencia");
             if(!name) return;
+            
             const temp = document.getElementById('pdf-template');
             const body = document.getElementById('pdf-table-body');
             body.innerHTML = "";
             equipoGlobal.forEach(p => { 
                 body.innerHTML += `<tr style="border: 1px solid #000;"><td style="padding:5px;">${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`; 
             });
-            document.getElementById('pdf-date-display').innerText = "Agenda Mensual: " + document.getElementById('report-month').value;
+
+            // Lógica de Título: Mes y Año en Mayúsculas sin la palabra "de"
+            const inputMes = document.getElementById('report-month').value;
+            const [year, month] = inputMes.split('-');
+            const date = new Date(year, month - 1);
+            const mesNombre = date.toLocaleString('es-ES', { month: 'long' }).toUpperCase();
+            document.getElementById('pdf-date-display').innerText = `${mesNombre} ${year}`;
+
             const container = document.getElementById('pdf-calendar-snap');
             container.innerHTML = ""; 
             const calClone = document.getElementById('calendar').cloneNode(true);
@@ -303,7 +299,7 @@
                 margin: 5,
                 filename: name + '.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, width: 1300 }, // CAPTURA MÁS ANCHO
+                html2canvas: { scale: 2, useCORS: true, width: 1300 },
                 jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }
             }).from(temp).save();
             temp.style.display = 'none';
