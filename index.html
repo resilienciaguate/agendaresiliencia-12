@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Resiliencia</title>
+    <title>Resiliencia - Portal</title>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -11,49 +11,37 @@
     <style>
         :root { --brand-color: #a5c941; --brand-dark: #292929; --header-text-color: #ffffff; }
         html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; overflow-x: hidden; }
-        body { display: flex; flex-direction: column; overflow-y: auto !important; }
+        body { display: flex; flex-direction: column; }
 
         #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; color: #333; }
 
-        .top-nav { 
-            background-color: var(--brand-color); padding: 10px 15px; display: none; 
-            justify-content: space-between; align-items: center; min-height: 60px;
-            position: sticky; top: 0; z-index: 999;
-        }
+        .top-nav { background-color: var(--brand-color); padding: 10px 15px; display: none; justify-content: space-between; align-items: center; min-height: 60px; position: sticky; top: 0; z-index: 999; }
 
         #app-content { display: none; flex-direction: column; padding: 10px; gap: 15px; flex: 1; }
-        @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 320px; position: sticky; top: 80px; } }
+        @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 300px; position: sticky; top: 80px; } }
 
         .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
-        .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow: hidden; }
 
-        .psicologa-item { padding: 10px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; color: #000 !important; font-weight: 600; font-size: 12px; }
-        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
+        .psicologa-item { padding: 8px; border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; color: #000 !important; font-weight: 600; font-size: 11px; }
+        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; }
         
         .btn-action { width: 100%; background: var(--brand-color); color: #000 !important; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
         
+        .controls { position: absolute; top: 15px; right: 15px; display: flex; gap: 12px; }
+        .control-btn { cursor: pointer; font-size: 18px; opacity: 0.6; transition: 0.3s; }
+        #config-drawer { display: none; margin-top: 10px; padding: 12px; background: rgba(255,255,255,0.08); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* Estilos PDF - Área de Impresión Oculta */
+        #pdf-template { display: none; padding: 40px; color: #000; background: #fff; }
+        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--brand-color); margin-bottom: 20px; padding-bottom: 10px; }
+        .pdf-summary-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .pdf-summary-table th, .pdf-summary-table td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+        .pdf-summary-table th { background: #f2f2f2; }
+
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; color: #333; }
-        
-        /* Iconos de Control */
-        .controls { position: absolute; top: 15px; right: 15px; display: flex; gap: 15px; }
-        .control-btn { cursor: pointer; font-size: 20px; opacity: 0.6; transition: 0.3s; }
-        .control-btn:hover { opacity: 1; }
-
-        #config-drawer { display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.08); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); animation: fadeIn 0.3s; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .fc .fc-button { font-size: 0.85em !important; text-transform: capitalize !important; color: #000 !important; font-weight: 600 !important; }
-        .fc .fc-button-primary { background-color: var(--brand-color) !important; border-color: rgba(0,0,0,0.1) !important; }
-        .fc-col-header-cell-cushion { text-transform: capitalize; padding: 5px 0 !important; color: #333; }
-
-        .month-filter { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px; }
-        .month-filter label { font-size: 10px; display: block; margin-bottom: 5px; opacity: 0.8; }
-        
-        /* Ajuste para PDF */
-        #pdf-area { padding: 10px; background: white; color: black; }
     </style>
 </head>
 <body>
@@ -63,14 +51,14 @@
             <h2 style="margin-top:0">RESILIENCIA</h2>
             <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
-            <button class="btn-action" id="login-btn" style="margin-top:10px">Entrar</button>
+            <button class="btn-action" id="login-btn">Entrar</button>
         </div>
     </div>
 
     <div class="top-nav" id="nav-bar">
         <div style="display:flex; align-items:center; gap:10px;">
             <div id="default-logo" style="width:35px;height:35px;background:white;border-radius:50%;color:var(--brand-color);display:flex;align-items:center;justify-content:center;font-weight:bold;">R</div>
-            <img id="app-logo" src="" style="display:none; max-height:50px; object-fit: contain;">
+            <img id="app-logo" src="" style="display:none; max-height:50px;">
             <h1 id="user-display" style="font-size:12px; margin:0; color:var(--header-text-color);">Portal</h1>
         </div>
         <button onclick="location.reload()" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px;">Salir</button>
@@ -79,56 +67,62 @@
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
             <div class="controls">
-                <div class="control-btn" onclick="exportarPDF()" title="Exportar PDF">🖨️</div>
+                <div class="control-btn" onclick="generarReportePDF()" title="Exportar Reporte Mensual">🖨️</div>
                 <div class="control-btn" onclick="toggleConfig()" title="Configuración">⚙️</div>
             </div>
-            
-            <div id="admin-tools">
-                <h3 style="margin-top:0">Panel Admin</h3>
-                
-                <div id="config-drawer">
-                    <strong style="font-size:11px; display:block; margin-bottom:10px; color:var(--brand-color);">APARIENCIA</strong>
-                    <label style="font-size:10px;">Logo:</label>
-                    <input type="file" id="logo-upload" accept="image/*" style="font-size:10px; background:none; border:none; color:white;">
-                    <label style="font-size:10px;">Ancho Logo:</label>
-                    <input type="range" id="logo-size" min="40" max="250" value="100" style="margin:5px 0;">
-                    <div style="display:flex; gap:10px; margin-top:5px;">
-                        <div style="flex:1"><label style="font-size:9px">Barra</label><input type="color" id="brand-color-picker" value="#a5c941"></div>
-                        <div style="flex:1"><label style="font-size:9px">Texto</label><input type="color" id="text-color-picker" value="#ffffff"></div>
-                    </div>
-                    <button class="btn-action" id="save-style-btn" style="background:white; color:black !important; margin-top:15px; padding:8px; font-size:12px;">Sincronizar</button>
+            <h3 style="margin-top:0">Panel Admin</h3>
+            <div id="config-drawer">
+                <label style="font-size:10px;">Logo:</label>
+                <input type="file" id="logo-upload" accept="image/*">
+                <label style="font-size:10px;">Ancho Logo:</label>
+                <input type="range" id="logo-size" min="40" max="250" value="100">
+                <div style="display:flex; gap:10px;">
+                    <input type="color" id="brand-color-picker" value="#a5c941">
+                    <input type="color" id="text-color-picker" value="#ffffff">
                 </div>
-
-                <div id="team-tools" style="margin-top:10px;">
-                    <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
-                    <input type="email" id="new-doc-email" placeholder="Correo">
-                    <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
-                </div>
-
-                <hr style="opacity:0.2; margin:15px 0;">
-                
-                <h3 style="font-size:16px; margin-bottom:5px;">Reporte Mensual</h3>
-                <div class="month-filter">
-                    <label>Filtrar mes de citas:</label>
-                    <input type="month" id="report-month" style="padding:5px; font-size:12px; width:90%;">
-                </div>
-                
-                <div id="docs-list"></div>
+                <button class="btn-action" id="save-style-btn" style="background:white; margin-top:10px;">Sincronizar</button>
             </div>
+            <div id="team-tools">
+                <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
+                <input type="email" id="new-doc-email" placeholder="Correo">
+                <button class="btn-action" id="add-doc-btn">Añadir</button>
+            </div>
+            <hr style="opacity:0.2; margin:15px 0;">
+            <h3 style="font-size:16px;">Reporte Citas</h3>
+            <input type="month" id="report-month" style="font-size:12px; margin-bottom:10px;">
+            <div id="docs-list"></div>
         </div>
         
-        <div class="calendar-card" id="export-area">
+        <div class="calendar-card">
             <div id='calendar'></div>
+        </div>
+    </div>
+
+    <div id="pdf-template">
+        <div class="pdf-header">
+            <div>
+                <h1 style="margin:0; color:var(--brand-color);">RESILIENCIA</h1>
+                <p id="pdf-date-display" style="margin:0; font-size:14px;"></p>
+            </div>
+            <img id="pdf-logo" src="" style="max-height:60px; display:none;">
+        </div>
+        <div id="pdf-calendar-snap" style="width:100%; min-height:400px;"></div>
+        <div style="margin-top:30px;">
+            <h3>Resumen de Productividad Mensual</h3>
+            <table class="pdf-summary-table" id="pdf-table">
+                <thead><tr><th>Psicóloga</th><th>Total Citas</th></tr></thead>
+                <tbody id="pdf-table-body"></tbody>
+            </table>
         </div>
     </div>
 
     <div id="assign-modal">
         <div class="modal-box">
-            <h3 style="margin-top:0">Nueva Cita</h3>
+            <h3>Nueva Cita</h3>
             <input type="text" id="p-name" placeholder="Nombre Paciente">
-            <input type="tel" id="p-phone" placeholder="WhatsApp (ej: 50212345678)">
+            <input type="tel" id="p-phone" placeholder="WhatsApp">
             <select id="p-select"></select>
-            <button class="btn-action" id="p-save" style="margin-top:10px">Guardar Cita</button>
+            <button class="btn-action" id="p-save" style="margin-top:10px">Guardar</button>
             <button class="btn-action" id="p-cancel" style="background:#999 !important; color:white !important; margin-top:8px;">Cancelar</button>
         </div>
     </div>
@@ -152,36 +146,56 @@
         const db = getFirestore(app);
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
         let doctorColors = {};
+        let countsGlobal = {};
+        let equipoGlobal = [];
 
-        const today = new Date();
-        const currentMonthStr = today.toISOString().substring(0, 7);
-        document.getElementById('report-month').value = currentMonthStr;
+        document.getElementById('report-month').value = new Date().toISOString().substring(0, 7);
 
         window.toggleConfig = () => {
             const drawer = document.getElementById('config-drawer');
             drawer.style.display = drawer.style.display === 'block' ? 'none' : 'block';
         };
 
-        // Función para Exportar a PDF
-        window.exportarPDF = () => {
-            const element = document.getElementById('app-content');
-            const opt = {
-                margin:       [10, 10],
-                filename:     `Reporte_Resiliencia_${document.getElementById('report-month').value}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-            };
+        window.generarReportePDF = async () => {
+            const template = document.getElementById('pdf-template');
+            const tableBody = document.getElementById('pdf-table-body');
+            const monthVal = document.getElementById('report-month').value;
             
-            alert("Generando PDF... por favor espera un momento.");
-            html2pdf().set(opt).from(element).save();
+            // Llenar datos de la tabla
+            tableBody.innerHTML = "";
+            equipoGlobal.forEach(doc => {
+                const row = `<tr><td>${doc.name}</td><td>${countsGlobal[doc.email.toLowerCase()] || 0}</td></tr>`;
+                tableBody.innerHTML += row;
+            });
+
+            document.getElementById('pdf-date-display').innerText = `Reporte de Citas: ${monthVal}`;
+            const logoImg = document.getElementById('app-logo').src;
+            if(logoImg) {
+                const pdfLogo = document.getElementById('pdf-logo');
+                pdfLogo.src = logoImg; pdfLogo.style.display = 'block';
+            }
+
+            // Clonar el calendario para el PDF
+            const calClone = document.getElementById('calendar').cloneNode(true);
+            const container = document.getElementById('pdf-calendar-snap');
+            container.innerHTML = "";
+            container.appendChild(calClone);
+
+            template.style.display = 'block';
+            const opt = {
+                margin: 10,
+                filename: `Resumen_Resiliencia_${monthVal}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+            };
+
+            await html2pdf().set(opt).from(template).toPdf().get('pdf').save();
+            template.style.display = 'none';
         };
 
         document.getElementById('login-btn').onclick = async () => {
-            try {
-                await setPersistence(auth, browserLocalPersistence);
-                await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-            } catch (err) { alert("Acceso denegado"); }
+            try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (err) { alert("Error de acceso"); }
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -190,7 +204,6 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'flex';
-                document.getElementById('user-display').innerText = user.email.toUpperCase();
                 if(isAdmin) document.getElementById('side-panel-ui').style.display = 'block';
                 cargarEquipo(isAdmin, user.email);
                 escucharEstetica();
@@ -219,62 +232,50 @@
             const data = { color: document.getElementById('brand-color-picker').value, textColor: document.getElementById('text-color-picker').value, logoWidth: document.getElementById('logo-size').value };
             if(file) {
                 const reader = new FileReader();
-                reader.onloadend = async () => { 
-                    data.logoB64 = reader.result; 
-                    await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); 
-                    alert("Estilo sincronizado");
-                    toggleConfig();
-                };
+                reader.onloadend = async () => { data.logoB64 = reader.result; await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); alert("Sincronizado"); };
                 reader.readAsDataURL(file);
-            } else { 
-                await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); 
-                alert("Colores actualizados");
-                toggleConfig();
-            }
+            } else { await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); alert("Actualizado"); }
         };
 
         function cargarEquipo(isAdmin, userEmail) {
-            document.getElementById('report-month').onchange = () => renderizarLista(isAdmin, userEmail);
+            document.getElementById('report-month').onchange = () => renderizarLista(isAdmin);
             onSnapshot(collection(db, "citas"), (citasSnap) => {
-                window.todasLasCitas = citasSnap;
-                renderizarLista(isAdmin, userEmail);
+                window.citasCache = citasSnap;
+                renderizarLista(isAdmin);
             });
         }
 
-        function renderizarLista(isAdmin, userEmail) {
-            if(!window.todasLasCitas) return;
-            const selectedMonth = document.getElementById('report-month').value;
-            const counts = {};
-            window.todasLasCitas.forEach(c => {
-                const data = c.data();
-                if(data.start.startsWith(selectedMonth)) {
-                    counts[data.user.toLowerCase()] = (counts[data.user.toLowerCase()] || 0) + 1;
-                }
+        function renderizarLista(isAdmin) {
+            if(!window.citasCache) return;
+            const month = document.getElementById('report-month').value;
+            countsGlobal = {};
+            window.citasCache.forEach(c => {
+                const d = c.data();
+                if(d.start.startsWith(month)) countsGlobal[d.user.toLowerCase()] = (countsGlobal[d.user.toLowerCase()] || 0) + 1;
             });
 
             onSnapshot(collection(db, "psicologas"), (snap) => {
                 const list = document.getElementById('docs-list');
                 const select = document.getElementById('p-select');
-                list.innerHTML = ""; select.innerHTML = "";
+                list.innerHTML = ""; select.innerHTML = ""; equipoGlobal = [];
                 snap.forEach(d => {
                     const data = d.data();
-                    const emailLower = data.email.toLowerCase();
-                    doctorColors[emailLower] = data.color;
+                    const email = data.email.toLowerCase();
+                    equipoGlobal.push(data);
+                    doctorColors[email] = data.color;
                     if(isAdmin) {
-                        const totalMes = counts[emailLower] || 0;
                         const item = document.createElement('div');
                         item.className = 'psicologa-item';
                         item.style.backgroundColor = data.color;
-                        item.innerHTML = `<span>${data.name} (Mes: ${totalMes})</span>`;
+                        item.innerHTML = `<span>${data.name} (Mes: ${countsGlobal[email] || 0})</span>`;
                         select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
                         const del = document.createElement('span');
-                        del.innerHTML = "✕"; del.style.cursor="pointer";
-                        del.onclick = (e) => { e.stopPropagation(); if(confirm("¿Eliminar psicóloga?")) deleteDoc(doc(db, "psicologas", d.id)); };
+                        del.innerHTML = "✕"; del.onclick = () => deleteDoc(doc(db, "psicologas", d.id));
                         item.appendChild(del);
                         list.appendChild(item);
                     }
                 });
-                if (!window.calendarObj) initCalendar(userEmail, isAdmin);
+                if (!window.calendarObj) initCalendar(auth.currentUser.email, isAdmin);
             });
         }
 
@@ -282,75 +283,39 @@
             const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
                 initialView: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek',
                 locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
-                longPressDelay: 0, eventLongPressDelay: 0, selectMirror: true,
-                dayHeaderFormat: { weekday: 'short', day: 'numeric' },
                 slotMinTime: "07:00:00", slotMaxTime: "21:00:00",
                 headerToolbar: { left: 'prev,next', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
-                buttonText: { month: 'Mes', week: 'Semana', day: 'Día' },
                 select: async (info) => {
-                    if(isAdmin) { 
-                        window.selectedInfo = info; 
-                        document.getElementById('assign-modal').style.display = 'flex'; 
-                    } else { 
-                        const p = prompt("Nombre Paciente:");
-                        const t = prompt("Teléfono WhatsApp (ej: 50212345678):");
-                        if(p) {
-                            await addDoc(collection(db, "citas"), { title: p, phone: t || "", start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: doctorColors[email.toLowerCase()] || '#a5c941' }); 
-                            if(t) {
-                                const f = new Date(info.startStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-                                const msg = encodeURIComponent(`*Cita Agendada* ✅\n\nHola ${p}, tu cita en *RESILIENCIA* ha sido programada para el ${f}.`);
-                                window.open(`https://wa.me/${t}?text=${msg}`, '_blank');
-                            }
-                        }
+                    if(isAdmin) { window.selectedInfo = info; document.getElementById('assign-modal').style.display = 'flex'; }
+                    else {
+                        const p = prompt("Paciente:"); const t = prompt("WhatsApp:");
+                        if(p) { await addDoc(collection(db, "citas"), { title: p, phone: t || "", start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: doctorColors[email.toLowerCase()] || '#a5c941' }); }
                     }
                 },
                 eventClick: (info) => {
-                    const cita = info.event.extendedProps;
-                    const nombre = info.event.title;
-                    const telefono = cita.phone || "";
-                    const fecha = info.event.start.toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-                    const menu = confirm(`Cita: ${nombre}\n\n¿Qué deseas hacer?\n\nOK: Enviar Recordatorio WhatsApp\nCANCELAR: Eliminar Cita`);
-                    if(menu) {
-                        const msg = encodeURIComponent(`Hola ${nombre}, te saluda RESILIENCIA. Te recordamos tu cita el día ${fecha}. ¡Te esperamos!`);
-                        window.open(`https://wa.me/${telefono}?text=${msg}`, '_blank');
-                    } else {
-                        if(confirm("¿Eliminar cita?")) deleteDoc(doc(db, "citas", info.event.id));
-                    }
+                    const t = info.event.extendedProps.phone;
+                    if(confirm(`Cita: ${info.event.title}\nOK: Recordatorio WA\nCancelar: Eliminar`)) {
+                        const msg = encodeURIComponent(`Hola ${info.event.title}, te recordamos tu cita en RESILIENCIA el ${info.event.start.toLocaleString()}.`);
+                        window.open(`https://wa.me/${t}?text=${msg}`);
+                    } else { deleteDoc(doc(db, "citas", info.event.id)); }
                 }
             });
-            calendar.render();
-            window.calendarObj = calendar;
-            const q = isAdmin ? collection(db, "citas") : query(collection(db, "citas"), where("user", "==", email.toLowerCase()));
-            onSnapshot(q, (snap) => {
+            calendar.render(); window.calendarObj = calendar;
+            onSnapshot(isAdmin ? collection(db, "citas") : query(collection(db, "citas"), where("user", "==", email.toLowerCase())), (snap) => {
                 calendar.removeAllEvents();
-                snap.forEach(d => { 
-                    const c = d.data(); 
-                    calendar.addEvent({ id: d.id, title: c.title, start: c.start, end: c.end, color: doctorColors[c.user.toLowerCase()] || c.color, extendedProps: { phone: c.phone } }); 
-                });
+                snap.forEach(d => { const c = d.data(); calendar.addEvent({ id: d.id, title: c.title, start: c.start, end: c.end, color: doctorColors[c.user.toLowerCase()] || c.color, extendedProps: { phone: c.phone } }); });
             });
 
             document.getElementById('p-save').onclick = async () => {
-                const name = document.getElementById('p-name').value;
-                const phone = document.getElementById('p-phone').value;
                 const sel = document.getElementById('p-select');
-                if(name && window.selectedInfo) {
-                    await addDoc(collection(db, "citas"), { title: name, phone: phone, start: window.selectedInfo.startStr, end: window.selectedInfo.endStr, user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color });
-                    if(phone) {
-                        const f = new Date(window.selectedInfo.startStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-                        const msg = encodeURIComponent(`*Cita Agendada* ✅\n\nHola ${name}, tu cita en *RESILIENCIA* ha sido programada para el ${f}.`);
-                        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
-                    }
-                    document.getElementById('assign-modal').style.display = 'none'; 
-                    document.getElementById('p-name').value = ""; document.getElementById('p-phone').value = "";
-                }
+                await addDoc(collection(db, "citas"), { title: document.getElementById('p-name').value, phone: document.getElementById('p-phone').value, start: window.selectedInfo.startStr, end: window.selectedInfo.endStr, user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color });
+                document.getElementById('assign-modal').style.display = 'none';
             };
         }
         document.getElementById('p-cancel').onclick = () => document.getElementById('assign-modal').style.display = 'none';
         document.getElementById('add-doc-btn').onclick = async () => {
-            const n = document.getElementById('new-doc-name').value;
-            const e = document.getElementById('new-doc-email').value.trim().toLowerCase();
             const palette = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4'];
-            if(n && e) { await addDoc(collection(db, "psicologas"), { name: n, email: e, color: palette[Math.floor(Math.random()*palette.length)] }); document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = ""; }
+            await addDoc(collection(db, "psicologas"), { name: document.getElementById('new-doc-name').value, email: document.getElementById('new-doc-email').value.trim().toLowerCase(), color: palette[Math.floor(Math.random()*palette.length)] });
         };
     </script>
 </body>
