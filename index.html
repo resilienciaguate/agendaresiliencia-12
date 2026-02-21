@@ -33,11 +33,11 @@
         .control-btn { cursor: pointer; font-size: 18px; opacity: 0.6; transition: 0.3s; }
         #config-drawer { display: none; margin-top: 10px; padding: 12px; background: rgba(255,255,255,0.08); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
 
-        /* Estilos PDF - Área de Impresión Oculta */
-        #pdf-template { display: none; padding: 40px; color: #000; background: #fff; }
-        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--brand-color); margin-bottom: 20px; padding-bottom: 10px; }
-        .pdf-summary-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .pdf-summary-table th, .pdf-summary-table td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+        /* Estilos PDF (Ajustado para Horizontal) */
+        #pdf-template { display: none; padding: 20px; color: #000; background: #fff; width: 1000px; } /* Ancho simulado para captura */
+        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--brand-color); margin-bottom: 15px; padding-bottom: 10px; }
+        .pdf-summary-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .pdf-summary-table th, .pdf-summary-table td { border: 1px solid #ccc; padding: 6px; text-align: left; font-size: 11px; }
         .pdf-summary-table th { background: #f2f2f2; }
 
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
@@ -67,7 +67,7 @@
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
             <div class="controls">
-                <div class="control-btn" onclick="generarReportePDF()" title="Exportar Reporte Mensual">🖨️</div>
+                <div class="control-btn" onclick="generarReportePDF()" title="Exportar Reporte Horizontal">🖨️</div>
                 <div class="control-btn" onclick="toggleConfig()" title="Configuración">⚙️</div>
             </div>
             <h3 style="margin-top:0">Panel Admin</h3>
@@ -101,16 +101,16 @@
     <div id="pdf-template">
         <div class="pdf-header">
             <div>
-                <h1 style="margin:0; color:var(--brand-color);">RESILIENCIA</h1>
-                <p id="pdf-date-display" style="margin:0; font-size:14px;"></p>
+                <h1 style="margin:0; color:var(--brand-color); font-size: 24px;">RESILIENCIA</h1>
+                <p id="pdf-date-display" style="margin:0; font-size:14px; font-weight:600;"></p>
             </div>
-            <img id="pdf-logo" src="" style="max-height:60px; display:none;">
+            <img id="pdf-logo" src="" style="max-height:50px; display:none;">
         </div>
-        <div id="pdf-calendar-snap" style="width:100%; min-height:400px;"></div>
-        <div style="margin-top:30px;">
-            <h3>Resumen de Productividad Mensual</h3>
+        <div id="pdf-calendar-snap" style="width:100%; border: 1px solid #eee;"></div>
+        <div style="margin-top:15px;">
+            <h4 style="margin-bottom:5px;">Resumen de Citas por Psicóloga</h4>
             <table class="pdf-summary-table" id="pdf-table">
-                <thead><tr><th>Psicóloga</th><th>Total Citas</th></tr></thead>
+                <thead><tr><th>Psicóloga</th><th>Total Citas Agendadas</th></tr></thead>
                 <tbody id="pdf-table-body"></tbody>
             </table>
         </div>
@@ -161,21 +161,20 @@
             const tableBody = document.getElementById('pdf-table-body');
             const monthVal = document.getElementById('report-month').value;
             
-            // Llenar datos de la tabla
             tableBody.innerHTML = "";
             equipoGlobal.forEach(doc => {
                 const row = `<tr><td>${doc.name}</td><td>${countsGlobal[doc.email.toLowerCase()] || 0}</td></tr>`;
                 tableBody.innerHTML += row;
             });
 
-            document.getElementById('pdf-date-display').innerText = `Reporte de Citas: ${monthVal}`;
+            document.getElementById('pdf-date-display').innerText = `REPORTE MENSUAL: ${monthVal}`;
             const logoImg = document.getElementById('app-logo').src;
             if(logoImg) {
                 const pdfLogo = document.getElementById('pdf-logo');
                 pdfLogo.src = logoImg; pdfLogo.style.display = 'block';
             }
 
-            // Clonar el calendario para el PDF
+            // Capturar el calendario
             const calClone = document.getElementById('calendar').cloneNode(true);
             const container = document.getElementById('pdf-calendar-snap');
             container.innerHTML = "";
@@ -183,14 +182,14 @@
 
             template.style.display = 'block';
             const opt = {
-                margin: 10,
-                filename: `Resumen_Resiliencia_${monthVal}.pdf`,
+                margin: 8,
+                filename: `Resiliencia_Reporte_${monthVal}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' } // Configurado a HORIZONTAL
             };
 
-            await html2pdf().set(opt).from(template).toPdf().get('pdf').save();
+            await html2pdf().set(opt).from(template).save();
             template.style.display = 'none';
         };
 
@@ -270,7 +269,7 @@
                         item.innerHTML = `<span>${data.name} (Mes: ${countsGlobal[email] || 0})</span>`;
                         select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
                         const del = document.createElement('span');
-                        del.innerHTML = "✕"; del.onclick = () => deleteDoc(doc(db, "psicologas", d.id));
+                        del.innerHTML = "✕"; del.onclick = () => { if(confirm("¿Eliminar psicóloga?")) deleteDoc(doc(db, "psicologas", d.id)); };
                         item.appendChild(del);
                         list.appendChild(item);
                     }
@@ -310,12 +309,14 @@
                 const sel = document.getElementById('p-select');
                 await addDoc(collection(db, "citas"), { title: document.getElementById('p-name').value, phone: document.getElementById('p-phone').value, start: window.selectedInfo.startStr, end: window.selectedInfo.endStr, user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color });
                 document.getElementById('assign-modal').style.display = 'none';
+                document.getElementById('p-name').value = ""; document.getElementById('p-phone').value = "";
             };
         }
         document.getElementById('p-cancel').onclick = () => document.getElementById('assign-modal').style.display = 'none';
         document.getElementById('add-doc-btn').onclick = async () => {
             const palette = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4'];
             await addDoc(collection(db, "psicologas"), { name: document.getElementById('new-doc-name').value, email: document.getElementById('new-doc-email').value.trim().toLowerCase(), color: palette[Math.floor(Math.random()*palette.length)] });
+            document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
         };
     </script>
 </body>
