@@ -23,7 +23,19 @@
         @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 300px; position: sticky; top: 80px; } }
 
         .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
-        .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow: hidden; }
+        
+        /* Contenedor del calendario para evitar cortes */
+        .calendar-card { 
+            flex: 1; 
+            background: white; 
+            border-radius: 15px; 
+            padding: 10px; 
+            color: #333; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+            overflow-x: auto; /* Permite scroll si el ancho es insuficiente */
+        }
+        
+        #calendar { min-width: 700px; } /* Asegura un ancho mínimo para que no se amontone */
 
         .psicologa-item { padding: 8px; border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; color: #000 !important; font-weight: 600; font-size: 11px; }
         input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; }
@@ -34,12 +46,18 @@
         
         .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 
-        /* PDF ZOOM 68% */
-        #pdf-template { display: none; color: #000; background: #fff; width: 1200px; transform: scale(0.68); transform-origin: top left; overflow: hidden; }
-        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--brand-color); margin-bottom: 5px; padding: 15px; }
-        .pdf-table-container { width: 100%; display: flex; justify-content: center; margin-top: 10px; }
-        .pdf-summary-table { width: 40%; border-collapse: collapse; } 
-        .pdf-summary-table th, .pdf-summary-table td { border: 1px solid #000; padding: 5px; text-align: left; font-size: 12px; }
+        /* PDF AJUSTADO PARA EVITAR CORTE DEL SÁBADO */
+        #pdf-template { 
+            display: none; 
+            color: #000; 
+            background: #fff; 
+            width: 1300px; /* Aumentado para asegurar que entre el sábado */
+            transform: scale(0.65); 
+            transform-origin: top left; 
+            padding: 20px;
+        }
+        
+        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -123,16 +141,16 @@
     <div id="pdf-template">
         <div class="pdf-header">
             <div>
-                <h1 style="margin:0; color:var(--brand-color); font-size: 24px;">RESILIENCIA</h1>
-                <p id="pdf-date-display" style="font-weight:600; margin: 3px 0; font-size: 14px;"></p>
+                <h1 style="margin:0; color:var(--brand-color); font-size: 28px;">RESILIENCIA</h1>
+                <p id="pdf-date-display" style="font-weight:600; margin: 5px 0; font-size: 16px;"></p>
             </div>
-            <img id="pdf-logo" src="" style="max-height:50px; display:none;">
+            <img id="pdf-logo" src="" style="max-height:60px; display:none;">
         </div>
-        <div id="pdf-calendar-snap" style="padding: 0 10px;"></div>
-        <div class="pdf-table-container">
-            <table class="pdf-summary-table">
-                <thead><tr><th>Psicóloga</th><th>Citas</th></tr></thead>
-                <tbody id="pdf-table-body"></tbody>
+        <div id="pdf-calendar-snap"></div>
+        <div style="margin-top:20px; display:flex; justify-content:center;">
+            <table style="width:50%; border-collapse:collapse; border: 1px solid #000;">
+                <thead><tr style="background:#f2f2f2;"><th>Psicóloga</th><th>Citas del Mes</th></tr></thead>
+                <tbody id="pdf-table-body" style="text-align:center;"></tbody>
             </table>
         </div>
     </div>
@@ -209,12 +227,9 @@
                     countsGlobal[mail] = (countsGlobal[mail] || 0) + 1;
                 }
             });
-
             const list = document.getElementById('docs-list');
             const sel = document.getElementById('p-select');
-            list.innerHTML = ""; 
-            if(isAdmin) sel.innerHTML = "";
-
+            list.innerHTML = ""; if(isAdmin) sel.innerHTML = "";
             equipoGlobal.forEach(p => {
                 const mail = p.email.toLowerCase();
                 const total = countsGlobal[mail] || 0;
@@ -233,10 +248,7 @@
             window.calendarObj.removeAllEvents();
             citasGlobal.forEach(c => {
                 if(isAdmin || c.user === auth.currentUser.email.toLowerCase()) {
-                    window.calendarObj.addEvent({ 
-                        id: c.id, title: c.title, start: c.start, end: c.end, 
-                        color: c.color, extendedProps: { phone: c.phone } 
-                    });
+                    window.calendarObj.addEvent({ id: c.id, title: c.title, start: c.start, end: c.end, color: c.color, extendedProps: { phone: c.phone } });
                 }
             });
         }
@@ -255,34 +267,22 @@
                     document.getElementById('edit-phone').value = currentEvent.extendedProps.phone || "";
                     document.getElementById('action-modal').style.display = 'flex';
                 },
-                select: (info) => { 
-                    window.selectedTime = info; 
-                    document.getElementById('assign-modal').style.display = 'flex'; 
-                }
+                select: (info) => { window.selectedTime = info; document.getElementById('assign-modal').style.display = 'flex'; }
             });
-            calendar.render(); 
-            window.calendarObj = calendar;
+            calendar.render(); window.calendarObj = calendar;
         }
 
-        // --- WHATSAPP PERSONALIZADO ---
         document.getElementById('btn-recordar').onclick = () => {
             const pxName = document.getElementById('edit-name').value;
             const pxPhone = document.getElementById('edit-phone').value;
-            
             if(!currentEvent) return;
-
-            // Formatear Fecha y Hora
             const fechaObj = currentEvent.start;
-            const opcionesFecha = { weekday: 'long', day: 'numeric', month: 'long' };
-            const fechaTexto = fechaObj.toLocaleDateString('es-ES', opcionesFecha);
+            const fechaTexto = fechaObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
             const horaTexto = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-
             const mensaje = `Hola ${pxName}, Te recordamos que tienes una cita agendada para el día ${fechaTexto} a las ${horaTexto}, Te esperamos!.`;
-            
             window.open(`https://wa.me/${pxPhone}?text=${encodeURIComponent(mensaje)}`);
         };
 
-        // --- PDF ---
         window.generarReportePDF = async () => {
             let name = prompt("Nombre PDF:", "Reporte_Resiliencia");
             if(!name) return;
@@ -290,22 +290,26 @@
             const body = document.getElementById('pdf-table-body');
             body.innerHTML = "";
             equipoGlobal.forEach(p => { 
-                body.innerHTML += `<tr><td>${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`; 
+                body.innerHTML += `<tr style="border: 1px solid #000;"><td style="padding:5px;">${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`; 
             });
-            document.getElementById('pdf-date-display').innerText = "Agenda: " + document.getElementById('report-month').value;
+            document.getElementById('pdf-date-display').innerText = "Agenda Mensual: " + document.getElementById('report-month').value;
             const container = document.getElementById('pdf-calendar-snap');
-            container.innerHTML = ""; container.appendChild(document.getElementById('calendar').cloneNode(true));
+            container.innerHTML = ""; 
+            const calClone = document.getElementById('calendar').cloneNode(true);
+            container.appendChild(calClone);
 
             temp.style.display = 'block';
             await html2pdf().set({
-                margin: 0, filename: name + '.pdf', image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, width: 1200 },
+                margin: 5,
+                filename: name + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, width: 1300 }, // CAPTURA MÁS ANCHO
                 jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }
             }).from(temp).save();
             temp.style.display = 'none';
         };
 
-        // --- OTROS EVENTOS ---
+        // Eventos generales
         document.getElementById('report-month').onchange = () => recalcularYRenderizar(true);
         document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (e) { alert("Error"); } };
         window.toggleConfig = () => { const d = document.getElementById('config-drawer'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; };
