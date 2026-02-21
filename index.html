@@ -6,6 +6,8 @@
     <title>Resiliencia</title>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
         :root { --brand-color: #a5c941; --brand-dark: #292929; --header-text-color: #ffffff; }
         html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; overflow-x: hidden; }
@@ -34,8 +36,11 @@
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; color: #333; }
         
-        .config-icon { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 20px; opacity: 0.6; transition: 0.3s; }
-        .config-icon:hover { opacity: 1; transform: rotate(90deg); }
+        /* Iconos de Control */
+        .controls { position: absolute; top: 15px; right: 15px; display: flex; gap: 15px; }
+        .control-btn { cursor: pointer; font-size: 20px; opacity: 0.6; transition: 0.3s; }
+        .control-btn:hover { opacity: 1; }
+
         #config-drawer { display: none; margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.08); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); animation: fadeIn 0.3s; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -44,10 +49,11 @@
         .fc .fc-button-primary { background-color: var(--brand-color) !important; border-color: rgba(0,0,0,0.1) !important; }
         .fc-col-header-cell-cushion { text-transform: capitalize; padding: 5px 0 !important; color: #333; }
 
-        /* Estilo para el filtro de mes */
         .month-filter { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px; }
         .month-filter label { font-size: 10px; display: block; margin-bottom: 5px; opacity: 0.8; }
-        .month-filter select { padding: 5px; font-size: 12px; background: white; }
+        
+        /* Ajuste para PDF */
+        #pdf-area { padding: 10px; background: white; color: black; }
     </style>
 </head>
 <body>
@@ -72,7 +78,10 @@
 
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
-            <div class="config-icon" onclick="toggleConfig()">⚙️</div>
+            <div class="controls">
+                <div class="control-btn" onclick="exportarPDF()" title="Exportar PDF">🖨️</div>
+                <div class="control-btn" onclick="toggleConfig()" title="Configuración">⚙️</div>
+            </div>
             
             <div id="admin-tools">
                 <h3 style="margin-top:0">Panel Admin</h3>
@@ -108,7 +117,7 @@
             </div>
         </div>
         
-        <div class="calendar-card">
+        <div class="calendar-card" id="export-area">
             <div id='calendar'></div>
         </div>
     </div>
@@ -144,14 +153,28 @@
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
         let doctorColors = {};
 
-        // Establecer mes actual por defecto en el filtro
         const today = new Date();
-        const currentMonthStr = today.toISOString().substring(0, 7); // "YYYY-MM"
+        const currentMonthStr = today.toISOString().substring(0, 7);
         document.getElementById('report-month').value = currentMonthStr;
 
         window.toggleConfig = () => {
             const drawer = document.getElementById('config-drawer');
             drawer.style.display = drawer.style.display === 'block' ? 'none' : 'block';
+        };
+
+        // Función para Exportar a PDF
+        window.exportarPDF = () => {
+            const element = document.getElementById('app-content');
+            const opt = {
+                margin:       [10, 10],
+                filename:     `Reporte_Resiliencia_${document.getElementById('report-month').value}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+            
+            alert("Generando PDF... por favor espera un momento.");
+            html2pdf().set(opt).from(element).save();
         };
 
         document.getElementById('login-btn').onclick = async () => {
@@ -211,27 +234,21 @@
         };
 
         function cargarEquipo(isAdmin, userEmail) {
-            // Escuchar cambios en el filtro de mes para actualizar conteos
             document.getElementById('report-month').onchange = () => renderizarLista(isAdmin, userEmail);
-
             onSnapshot(collection(db, "citas"), (citasSnap) => {
-                window.todasLasCitas = citasSnap; // Guardar referencia global
+                window.todasLasCitas = citasSnap;
                 renderizarLista(isAdmin, userEmail);
             });
         }
 
         function renderizarLista(isAdmin, userEmail) {
             if(!window.todasLasCitas) return;
-            
-            const selectedMonth = document.getElementById('report-month').value; // "YYYY-MM"
+            const selectedMonth = document.getElementById('report-month').value;
             const counts = {};
-            
             window.todasLasCitas.forEach(c => {
                 const data = c.data();
-                const u = data.user.toLowerCase();
-                // Verificar si la cita pertenece al mes seleccionado
                 if(data.start.startsWith(selectedMonth)) {
-                    counts[u] = (counts[u] || 0) + 1;
+                    counts[data.user.toLowerCase()] = (counts[data.user.toLowerCase()] || 0) + 1;
                 }
             });
 
@@ -243,16 +260,13 @@
                     const data = d.data();
                     const emailLower = data.email.toLowerCase();
                     doctorColors[emailLower] = data.color;
-                    
                     if(isAdmin) {
                         const totalMes = counts[emailLower] || 0;
                         const item = document.createElement('div');
                         item.className = 'psicologa-item';
                         item.style.backgroundColor = data.color;
                         item.innerHTML = `<span>${data.name} (Mes: ${totalMes})</span>`;
-                        
                         select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
-                        
                         const del = document.createElement('span');
                         del.innerHTML = "✕"; del.style.cursor="pointer";
                         del.onclick = (e) => { e.stopPropagation(); if(confirm("¿Eliminar psicóloga?")) deleteDoc(doc(db, "psicologas", d.id)); };
@@ -295,9 +309,7 @@
                     const nombre = info.event.title;
                     const telefono = cita.phone || "";
                     const fecha = info.event.start.toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-
                     const menu = confirm(`Cita: ${nombre}\n\n¿Qué deseas hacer?\n\nOK: Enviar Recordatorio WhatsApp\nCANCELAR: Eliminar Cita`);
-                    
                     if(menu) {
                         const msg = encodeURIComponent(`Hola ${nombre}, te saluda RESILIENCIA. Te recordamos tu cita el día ${fecha}. ¡Te esperamos!`);
                         window.open(`https://wa.me/${telefono}?text=${msg}`, '_blank');
@@ -308,7 +320,6 @@
             });
             calendar.render();
             window.calendarObj = calendar;
-            
             const q = isAdmin ? collection(db, "citas") : query(collection(db, "citas"), where("user", "==", email.toLowerCase()));
             onSnapshot(q, (snap) => {
                 calendar.removeAllEvents();
@@ -324,13 +335,11 @@
                 const sel = document.getElementById('p-select');
                 if(name && window.selectedInfo) {
                     await addDoc(collection(db, "citas"), { title: name, phone: phone, start: window.selectedInfo.startStr, end: window.selectedInfo.endStr, user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color });
-                    
                     if(phone) {
                         const f = new Date(window.selectedInfo.startStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
                         const msg = encodeURIComponent(`*Cita Agendada* ✅\n\nHola ${name}, tu cita en *RESILIENCIA* ha sido programada para el ${f}.`);
                         window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
                     }
-
                     document.getElementById('assign-modal').style.display = 'none'; 
                     document.getElementById('p-name').value = ""; document.getElementById('p-phone').value = "";
                 }
