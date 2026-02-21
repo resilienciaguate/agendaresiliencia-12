@@ -34,21 +34,9 @@
         
         .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 
-        /* --- PDF AJUSTADO (75% / 1 Hoja / Sin Blanco) --- */
-        #pdf-template { 
-            display: none; 
-            color: #000; 
-            background: #fff; 
-            width: 1000px; 
-            transform: scale(0.75); 
-            transform-origin: top left;
-            overflow: hidden; 
-        }
-        
-        #pdf-template .fc-timegrid-slot { height: 20px !important; }
+        /* PDF ZOOM 68% */
+        #pdf-template { display: none; color: #000; background: #fff; width: 1200px; transform: scale(0.68); transform-origin: top left; overflow: hidden; }
         #pdf-template .fc-event { font-size: 9px !important; }
-        #pdf-template .fc { border: 1.5px solid #000 !important; }
-
         .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--brand-color); margin-bottom: 5px; padding: 15px; }
         .pdf-table-container { width: 100%; display: flex; justify-content: center; margin-top: 10px; }
         .pdf-summary-table { width: 40%; border-collapse: collapse; } 
@@ -98,7 +86,7 @@
             <input type="email" id="new-doc-email" placeholder="Correo">
             <button class="btn-action" id="add-doc-btn">Añadir</button>
             <hr style="opacity:0.2; margin:15px 0;">
-            <h3>Productividad</h3>
+            <h3>Citas Mensuales</h3>
             <input type="month" id="report-month" style="margin-bottom:10px;">
             <div id="docs-list"></div>
         </div>
@@ -167,34 +155,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
-        let doctorColors = {}, countsGlobal = {}, equipoGlobal = [], currentEvent = null;
+        
+        let equipoGlobal = [];
+        let citasGlobal = [];
+        let countsGlobal = {};
+        let currentEvent = null;
 
         document.getElementById('report-month').value = new Date().toISOString().substring(0, 7);
-
-        window.generarReportePDF = async () => {
-            let name = prompt("Nombre PDF:", "Reporte_Resiliencia");
-            if(!name) return;
-            const temp = document.getElementById('pdf-template');
-            const body = document.getElementById('pdf-table-body');
-            body.innerHTML = "";
-            equipoGlobal.forEach(p => { body.innerHTML += `<tr><td>${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`; });
-            document.getElementById('pdf-date-display').innerText = "Agenda: " + document.getElementById('report-month').value;
-            const calClone = document.getElementById('calendar').cloneNode(true);
-            const container = document.getElementById('pdf-calendar-snap');
-            container.innerHTML = ""; container.appendChild(calClone);
-
-            temp.style.display = 'block';
-            await html2pdf().set({
-                margin: 0,
-                filename: name + '.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, width: 1000 },
-                jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }
-            }).from(temp).save();
-            temp.style.display = 'none';
-        };
-
-        window.toggleConfig = () => { const d = document.getElementById('config-drawer'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; };
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -204,11 +171,12 @@
                 document.getElementById('app-content').style.display = 'flex';
                 document.getElementById('user-display').innerText = user.email;
                 if(isAdmin) document.getElementById('side-panel-ui').style.display = 'block';
-                escucharData(isAdmin, user.email);
+                iniciarEscuchas(isAdmin);
             }
         });
 
-        function escucharData(isAdmin, email) {
+        function iniciarEscuchas(isAdmin) {
+            // 1. Escuchar Apariencia
             onSnapshot(doc(db, "configuracion", "apariencia"), (s) => {
                 if(s.exists()){
                     const d = s.data();
@@ -221,49 +189,73 @@
                     }
                 }
             });
-            onSnapshot(collection(db, "citas"), (snapCitas) => {
-                countsGlobal = {};
-                const currentMonth = document.getElementById('report-month').value;
-                snapCitas.forEach(c => {
-                    const data = c.data();
-                    if(data.start.startsWith(currentMonth)) countsGlobal[data.user.toLowerCase()] = (countsGlobal[data.user.toLowerCase()] || 0) + 1;
-                });
-                renderizarEquipo(isAdmin);
-            });
-        }
 
-        function renderizarEquipo(isAdmin) {
+            // 2. Escuchar Equipo
             onSnapshot(collection(db, "psicologas"), (snap) => {
-                const list = document.getElementById('docs-list');
-                const sel = document.getElementById('p-select');
-                list.innerHTML = ""; sel.innerHTML = ""; equipoGlobal = [];
-                snap.forEach(d => {
-                    const data = d.data();
-                    const mail = data.email.toLowerCase();
-                    equipoGlobal.push(data);
-                    doctorColors[mail] = data.color;
-                    if(isAdmin) {
-                        sel.innerHTML += `<option value="${mail}" data-color="${data.color}">${data.name}</option>`;
-                        list.innerHTML += `<div class="psicologa-item" style="background:${data.color};">
-                            <span>${data.name} (${countsGlobal[mail] || 0})</span>
-                            <span onclick="confirmarBorrar('${d.id}')" style="cursor:pointer">✕</span>
-                        </div>`;
-                    }
-                });
-                if(!window.calendarObj) initCalendar(auth.currentUser.email, isAdmin);
+                equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                recalcularYRenderizar(isAdmin);
+            });
+
+            // 3. Escuchar Citas
+            onSnapshot(collection(db, "citas"), (snap) => {
+                citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                actualizarCalendario(isAdmin);
+                recalcularYRenderizar(isAdmin);
             });
         }
 
-        function initCalendar(email, isAdmin) {
+        // Esta es la función clave que se llama cada vez que cambia el mes o los datos
+        function recalcularYRenderizar(isAdmin) {
+            countsGlobal = {};
+            const mesSeleccionado = document.getElementById('report-month').value; // Formato YYYY-MM
+
+            citasGlobal.forEach(cita => {
+                if(cita.start.startsWith(mesSeleccionado)) {
+                    const mail = cita.user.toLowerCase();
+                    countsGlobal[mail] = (countsGlobal[mail] || 0) + 1;
+                }
+            });
+
+            const list = document.getElementById('docs-list');
+            const sel = document.getElementById('p-select');
+            list.innerHTML = ""; 
+            if(isAdmin) sel.innerHTML = "";
+
+            equipoGlobal.forEach(p => {
+                const mail = p.email.toLowerCase();
+                const total = countsGlobal[mail] || 0;
+                
+                if(isAdmin) {
+                    sel.innerHTML += `<option value="${mail}" data-color="${p.color}">${p.name}</option>`;
+                    list.innerHTML += `<div class="psicologa-item" style="background:${p.color};">
+                        <span>${p.name} <strong>(${total})</strong></span>
+                        <span onclick="confirmarBorrar('${p.id}')" style="cursor:pointer; padding: 0 5px;">✕</span>
+                    </div>`;
+                }
+            });
+        }
+
+        function actualizarCalendario(isAdmin) {
+            if(!window.calendarObj) {
+                initCalendar(isAdmin);
+            }
+            window.calendarObj.removeAllEvents();
+            citasGlobal.forEach(c => {
+                if(isAdmin || c.user === auth.currentUser.email.toLowerCase()) {
+                    window.calendarObj.addEvent({ 
+                        id: c.id, title: c.title, start: c.start, end: c.end, 
+                        color: c.color, extendedProps: { phone: c.phone } 
+                    });
+                }
+            });
+        }
+
+        function initCalendar(isAdmin) {
             const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-                initialView: 'dayGridMonth', // INICIO EN PESTAÑA MES
-                locale: 'es', // IDIOMA ESPAÑOL
-                allDaySlot: false, 
-                selectable: true, 
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                selectable: true,
                 height: 'auto',
-                slotMinTime: "07:00:00", 
-                slotMaxTime: "21:00:00",
-                dayHeaderFormat: { weekday: 'long', day: 'numeric' },
                 buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                 eventClick: (info) => {
@@ -272,33 +264,85 @@
                     document.getElementById('edit-phone').value = currentEvent.extendedProps.phone || "";
                     document.getElementById('action-modal').style.display = 'flex';
                 },
-                select: (info) => { window.selectedTime = info; document.getElementById('assign-modal').style.display = 'flex'; }
+                select: (info) => { 
+                    window.selectedTime = info; 
+                    document.getElementById('assign-modal').style.display = 'flex'; 
+                }
             });
-            calendar.render(); window.calendarObj = calendar;
-            onSnapshot(collection(db, "citas"), (snap) => {
-                calendar.removeAllEvents();
-                snap.forEach(d => {
-                    const c = d.data();
-                    if(isAdmin || c.user === email.toLowerCase()) {
-                        calendar.addEvent({ id: d.id, title: c.title, start: c.start, end: c.end, color: c.color, extendedProps: { phone: c.phone } });
-                    }
-                });
-            });
+            calendar.render(); 
+            window.calendarObj = calendar;
         }
 
-        // LÓGICA DE BOTONES...
-        document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (e) { alert("Error"); } };
+        // --- PDF ---
+        window.generarReportePDF = async () => {
+            let name = prompt("Nombre PDF:", "Reporte_Resiliencia");
+            if(!name) return;
+            const temp = document.getElementById('pdf-template');
+            const body = document.getElementById('pdf-table-body');
+            body.innerHTML = "";
+            equipoGlobal.forEach(p => { 
+                body.innerHTML += `<tr><td>${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`; 
+            });
+            document.getElementById('pdf-date-display').innerText = "Agenda: " + document.getElementById('report-month').value;
+            const container = document.getElementById('pdf-calendar-snap');
+            container.innerHTML = ""; container.appendChild(document.getElementById('calendar').cloneNode(true));
+
+            temp.style.display = 'block';
+            await html2pdf().set({
+                margin: 0, filename: name + '.pdf', image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, width: 1200 },
+                jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }
+            }).from(temp).save();
+            temp.style.display = 'none';
+        };
+
+        // --- EVENTOS DE INTERFAZ ---
+        document.getElementById('report-month').onchange = () => recalcularYRenderizar(true);
+
+        document.getElementById('login-btn').onclick = async () => { 
+            try { 
+                await setPersistence(auth, browserLocalPersistence); 
+                await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); 
+            } catch (e) { alert("Error de acceso"); } 
+        };
+
+        window.toggleConfig = () => { 
+            const d = document.getElementById('config-drawer'); 
+            d.style.display = d.style.display === 'none' ? 'block' : 'none'; 
+        };
+
         document.getElementById('btn-cancelar-modal').onclick = () => document.getElementById('action-modal').style.display = 'none';
-        document.getElementById('btn-eliminar').onclick = async () => { if(confirm("¿Eliminar?")) { await deleteDoc(doc(db, "citas", currentEvent.id)); document.getElementById('action-modal').style.display = 'none'; } };
-        document.getElementById('btn-recordar').onclick = () => { window.open(`https://wa.me/${document.getElementById('edit-phone').value}?text=${encodeURIComponent('Hola, recordatorio de cita en RESILIENCIA para '+document.getElementById('edit-name').value)}`); };
-        document.getElementById('btn-modificar').onclick = async () => { await updateDoc(doc(db, "citas", currentEvent.id), { title: document.getElementById('edit-name').value, phone: document.getElementById('edit-phone').value }); document.getElementById('action-modal').style.display = 'none'; };
+        
+        document.getElementById('btn-eliminar').onclick = async () => { 
+            if(confirm("¿Eliminar?")) { 
+                await deleteDoc(doc(db, "citas", currentEvent.id)); 
+                document.getElementById('action-modal').style.display = 'none'; 
+            } 
+        };
+
+        document.getElementById('btn-recordar').onclick = () => { 
+            window.open(`https://wa.me/${document.getElementById('edit-phone').value}?text=${encodeURIComponent('Hola, recordatorio de cita en RESILIENCIA para '+document.getElementById('edit-name').value)}`); 
+        };
+
+        document.getElementById('btn-modificar').onclick = async () => { 
+            await updateDoc(doc(db, "citas", currentEvent.id), { title: document.getElementById('edit-name').value, phone: document.getElementById('edit-phone').value }); 
+            document.getElementById('action-modal').style.display = 'none'; 
+        };
+
         document.getElementById('p-save').onclick = async () => {
             const sel = document.getElementById('p-select');
-            await addDoc(collection(db, "citas"), { title: document.getElementById('p-name').value, phone: document.getElementById('p-phone').value, start: window.selectedTime.startStr, end: window.selectedTime.endStr, user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color });
+            await addDoc(collection(db, "citas"), { 
+                title: document.getElementById('p-name').value, 
+                phone: document.getElementById('p-phone').value, 
+                start: window.selectedTime.startStr, 
+                end: window.selectedTime.endStr, 
+                user: sel.value.toLowerCase(), 
+                color: sel.options[sel.selectedIndex].dataset.color 
+            });
             document.getElementById('assign-modal').style.display = 'none';
         };
+        
         document.getElementById('p-cancel').onclick = () => document.getElementById('assign-modal').style.display = 'none';
-        document.getElementById('report-month').onchange = () => renderizarEquipo(true);
 
         document.getElementById('save-style-btn').onclick = async () => {
             const file = document.getElementById('logo-upload').files[0];
@@ -312,9 +356,15 @@
 
         document.getElementById('add-doc-btn').onclick = async () => {
             const colors = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6'];
-            await addDoc(collection(db, "psicologas"), { name: document.getElementById('new-doc-name').value, email: document.getElementById('new-doc-email').value.toLowerCase(), color: colors[Math.floor(Math.random()*colors.length)] });
+            await addDoc(collection(db, "psicologas"), { 
+                name: document.getElementById('new-doc-name').value, 
+                email: document.getElementById('new-doc-email').value.toLowerCase(), 
+                color: colors[Math.floor(Math.random()*colors.length)] 
+            });
             document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
         };
+
+        window.confirmarBorrar = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "psicologas", id)); };
     </script>
 </body>
 </html>
