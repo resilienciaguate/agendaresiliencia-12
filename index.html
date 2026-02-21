@@ -33,19 +33,19 @@
         .control-btn { cursor: pointer; font-size: 18px; opacity: 0.6; transition: 0.3s; }
         #config-drawer { display: none; margin-top: 10px; padding: 12px; background: rgba(255,255,255,0.08); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
 
-        /* Estilos PDF */
+        /* ESTILOS PDF - ESCALA 60% */
         #pdf-template { 
             display: none; 
-            padding: 15px; 
+            padding: 10px; 
             color: #000; 
             background: #fff; 
-            width: 1050px; 
-            transform: scale(0.85); 
+            width: 1400px; /* Aumentamos ancho base para que al escalar al 60% cubra la hoja */
+            transform: scale(0.60); 
             transform-origin: top left;
         }
-        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 5px; }
-        .pdf-summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .pdf-summary-table th, .pdf-summary-table td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; font-size: 10px; }
+        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 5px; }
+        .pdf-summary-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .pdf-summary-table th, .pdf-summary-table td { border: 1px solid #bbb; padding: 6px; text-align: left; font-size: 14px; }
         .pdf-summary-table th { background: #f2f2f2; }
 
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
@@ -68,38 +68,36 @@
             <div id="default-logo" style="width:35px;height:35px;background:white;border-radius:50%;color:var(--brand-color);display:flex;align-items:center;justify-content:center;font-weight:bold;">R</div>
             <img id="app-logo" src="" style="display:none; max-height:50px;">
             <div style="display: flex; flex-direction: column;">
-                <span style="font-size: 10px; opacity: 0.8; color: var(--header-text-color);">Sesión iniciada:</span>
-                <span id="user-display" style="font-size:13px; font-weight: 600; color:var(--header-text-color);">Usuario</span>
+                <span style="font-size: 10px; opacity: 0.8; color: var(--header-text-color);">Sesión:</span>
+                <span id="user-display" style="font-size:12px; font-weight: 600; color:var(--header-text-color);">Usuario</span>
             </div>
         </div>
-        <button onclick="location.reload()" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px; font-weight:600;">Cerrar Sesión</button>
+        <button onclick="location.reload()" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px;">Salir</button>
     </div>
 
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
             <div class="controls">
-                <div class="control-btn" onclick="generarReportePDF()" title="Exportar PDF">🖨️</div>
+                <div class="control-btn" onclick="generarReportePDF()" title="Exportar Reporte">🖨️</div>
                 <div class="control-btn" onclick="toggleConfig()" title="Configuración">⚙️</div>
             </div>
-            <h3 style="margin-top:0">Panel Admin</h3>
+            <h3 style="margin-top:0">Admin</h3>
             <div id="config-drawer">
-                <label style="font-size:10px;">Logo:</label>
                 <input type="file" id="logo-upload" accept="image/*">
-                <label style="font-size:10px;">Ancho Logo:</label>
                 <input type="range" id="logo-size" min="40" max="250" value="100">
                 <div style="display:flex; gap:10px;">
                     <input type="color" id="brand-color-picker" value="#a5c941">
                     <input type="color" id="text-color-picker" value="#ffffff">
                 </div>
-                <button class="btn-action" id="save-style-btn" style="background:white; margin-top:10px;">Guardar Cambios</button>
+                <button class="btn-action" id="save-style-btn" style="background:white; margin-top:10px;">Sincronizar</button>
             </div>
             <div id="team-tools">
                 <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
                 <input type="email" id="new-doc-email" placeholder="Correo">
-                <button class="btn-action" id="add-doc-btn">Añadir al Equipo</button>
+                <button class="btn-action" id="add-doc-btn">Añadir</button>
             </div>
             <hr style="opacity:0.2; margin:15px 0;">
-            <h3 style="font-size:16px;">Reporte Mensual</h3>
+            <h3>Reporte</h3>
             <input type="month" id="report-month" style="font-size:12px; margin-bottom:10px;">
             <div id="docs-list"></div>
         </div>
@@ -112,17 +110,17 @@
     <div id="pdf-template">
         <div class="pdf-header">
             <div>
-                <h1 style="margin:0; color:var(--brand-color); font-size: 22px;">RESILIENCIA</h1>
-                <p id="pdf-date-display" style="margin:0; font-size:12px; font-weight:600;"></p>
-                <p id="pdf-user-log" style="margin:0; font-size:10px; color: #666;"></p>
+                <h1 style="margin:0; color:var(--brand-color); font-size: 32px;">RESILIENCIA</h1>
+                <p id="pdf-date-display" style="margin:0; font-size:18px; font-weight:600;"></p>
+                <p id="pdf-user-log" style="margin:0; font-size:14px; color: #444;"></p>
             </div>
-            <img id="pdf-logo" src="" style="max-height:45px; display:none;">
+            <img id="pdf-logo" src="" style="max-height:60px; display:none;">
         </div>
         <div id="pdf-calendar-snap" style="width:100%;"></div>
-        <div style="margin-top:10px;">
-            <h4 style="margin:0 0 5px 0; font-size:12px;">Resumen de Citas por Psicóloga</h4>
+        <div style="margin-top:20px;">
+            <h2 style="margin:0 0 10px 0; font-size:22px; border-bottom: 1px solid #ddd;">Resumen Mensual</h2>
             <table class="pdf-summary-table" id="pdf-table">
-                <thead><tr><th>Psicóloga</th><th>Total Citas Agendadas</th></tr></thead>
+                <thead><tr><th>Psicóloga</th><th>Total Citas</th></tr></thead>
                 <tbody id="pdf-table-body"></tbody>
             </table>
         </div>
@@ -131,10 +129,10 @@
     <div id="assign-modal">
         <div class="modal-box">
             <h3>Nueva Cita</h3>
-            <input type="text" id="p-name" placeholder="Nombre Paciente">
+            <input type="text" id="p-name" placeholder="Paciente">
             <input type="tel" id="p-phone" placeholder="WhatsApp">
             <select id="p-select"></select>
-            <button class="btn-action" id="p-save" style="margin-top:10px">Agendar</button>
+            <button class="btn-action" id="p-save" style="margin-top:10px">Guardar</button>
             <button class="btn-action" id="p-cancel" style="background:#999 !important; color:white !important; margin-top:8px;">Cancelar</button>
         </div>
     </div>
@@ -178,8 +176,8 @@
                 tableBody.innerHTML += `<tr><td>${doc.name}</td><td>${countsGlobal[doc.email.toLowerCase()] || 0}</td></tr>`;
             });
 
-            document.getElementById('pdf-date-display').innerText = `REPORTE MENSUAL: ${monthVal}`;
-            document.getElementById('pdf-user-log').innerText = `Generado por: ${auth.currentUser.email}`;
+            document.getElementById('pdf-date-display').innerText = `PERIODO: ${monthVal}`;
+            document.getElementById('pdf-user-log').innerText = `Usuario: ${auth.currentUser.email}`;
             
             const logoImg = document.getElementById('app-logo').src;
             if(logoImg) {
@@ -196,9 +194,9 @@
             
             const opt = {
                 margin: 5,
-                filename: `Reporte_Resiliencia_${monthVal}.pdf`,
-                image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: { scale: 1.5, useCORS: true },
+                filename: `Reporte_Resiliencia_60pct_${monthVal}.pdf`,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 1.8, useCORS: true },
                 jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }
             };
 
@@ -207,7 +205,7 @@
         };
 
         document.getElementById('login-btn').onclick = async () => {
-            try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (err) { alert("Acceso incorrecto"); }
+            try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (err) { alert("Error"); }
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -216,7 +214,7 @@
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'flex';
-                document.getElementById('user-display').innerText = user.email.toLowerCase(); // AQUÍ SE MUESTRA EL USUARIO
+                document.getElementById('user-display').innerText = user.email.toLowerCase();
                 if(isAdmin) document.getElementById('side-panel-ui').style.display = 'block';
                 cargarEquipo(isAdmin, user.email);
                 escucharEstetica();
@@ -283,7 +281,7 @@
                         item.innerHTML = `<span>${data.name} (Mes: ${countsGlobal[email] || 0})</span>`;
                         select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
                         const del = document.createElement('span');
-                        del.innerHTML = "✕"; del.onclick = () => { if(confirm("¿Eliminar psicóloga?")) deleteDoc(doc(db, "psicologas", d.id)); };
+                        del.innerHTML = "✕"; del.onclick = () => deleteDoc(doc(db, "psicologas", d.id));
                         item.appendChild(del);
                         list.appendChild(item);
                     }
@@ -298,10 +296,12 @@
                 locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
                 slotMinTime: "07:00:00", slotMaxTime: "21:00:00",
                 headerToolbar: { left: 'prev,next', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+                // CORRECCIÓN: SOLO DÍA Y NÚMERO (SIN MES)
+                dayHeaderFormat: { weekday: 'long', day: 'numeric' },
                 select: async (info) => {
                     if(isAdmin) { window.selectedInfo = info; document.getElementById('assign-modal').style.display = 'flex'; }
                     else {
-                        const p = prompt("Nombre Paciente:"); const t = prompt("WhatsApp:");
+                        const p = prompt("Paciente:"); const t = prompt("WhatsApp:");
                         if(p) { await addDoc(collection(db, "citas"), { title: p, phone: t || "", start: info.startStr, end: info.endStr, user: email.toLowerCase(), color: doctorColors[email.toLowerCase()] || '#a5c941' }); }
                     }
                 },
