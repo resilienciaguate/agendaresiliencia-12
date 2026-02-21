@@ -36,7 +36,6 @@
 
         /* PDF ZOOM 68% */
         #pdf-template { display: none; color: #000; background: #fff; width: 1200px; transform: scale(0.68); transform-origin: top left; overflow: hidden; }
-        #pdf-template .fc-event { font-size: 9px !important; }
         .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--brand-color); margin-bottom: 5px; padding: 15px; }
         .pdf-table-container { width: 100%; display: flex; justify-content: center; margin-top: 10px; }
         .pdf-summary-table { width: 40%; border-collapse: collapse; } 
@@ -98,9 +97,9 @@
 
     <div id="action-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3>Cita</h3>
-            <input type="text" id="edit-name">
-            <input type="tel" id="edit-phone">
+            <h3>Gestión de Cita</h3>
+            <input type="text" id="edit-name" placeholder="Nombre del Paciente">
+            <input type="tel" id="edit-phone" placeholder="WhatsApp (Ej: 50212345678)">
             <div class="actions-grid">
                 <button class="btn-action" style="background:#25d366; color:white!important;" id="btn-recordar">WhatsApp</button>
                 <button class="btn-action" id="btn-modificar">Guardar</button>
@@ -112,12 +111,12 @@
 
     <div id="assign-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3>Agendar</h3>
+            <h3>Nueva Cita</h3>
             <input type="text" id="p-name" placeholder="Paciente">
             <input type="tel" id="p-phone" placeholder="WhatsApp">
             <select id="p-select"></select>
-            <button class="btn-action" id="p-save">Guardar</button>
-            <button class="btn-action" style="background:#95a5a6; color:white!important;" id="p-cancel">Cerrar</button>
+            <button class="btn-action" id="p-save">Agendar</button>
+            <button class="btn-action" style="background:#95a5a6; color:white!important;" id="p-cancel">Cancelar</button>
         </div>
     </div>
 
@@ -176,7 +175,6 @@
         });
 
         function iniciarEscuchas(isAdmin) {
-            // 1. Escuchar Apariencia
             onSnapshot(doc(db, "configuracion", "apariencia"), (s) => {
                 if(s.exists()){
                     const d = s.data();
@@ -190,13 +188,11 @@
                 }
             });
 
-            // 2. Escuchar Equipo
             onSnapshot(collection(db, "psicologas"), (snap) => {
                 equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 recalcularYRenderizar(isAdmin);
             });
 
-            // 3. Escuchar Citas
             onSnapshot(collection(db, "citas"), (snap) => {
                 citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 actualizarCalendario(isAdmin);
@@ -204,11 +200,9 @@
             });
         }
 
-        // Esta es la función clave que se llama cada vez que cambia el mes o los datos
         function recalcularYRenderizar(isAdmin) {
             countsGlobal = {};
-            const mesSeleccionado = document.getElementById('report-month').value; // Formato YYYY-MM
-
+            const mesSeleccionado = document.getElementById('report-month').value;
             citasGlobal.forEach(cita => {
                 if(cita.start.startsWith(mesSeleccionado)) {
                     const mail = cita.user.toLowerCase();
@@ -224,7 +218,6 @@
             equipoGlobal.forEach(p => {
                 const mail = p.email.toLowerCase();
                 const total = countsGlobal[mail] || 0;
-                
                 if(isAdmin) {
                     sel.innerHTML += `<option value="${mail}" data-color="${p.color}">${p.name}</option>`;
                     list.innerHTML += `<div class="psicologa-item" style="background:${p.color};">
@@ -236,9 +229,7 @@
         }
 
         function actualizarCalendario(isAdmin) {
-            if(!window.calendarObj) {
-                initCalendar(isAdmin);
-            }
+            if(!window.calendarObj) initCalendar(isAdmin);
             window.calendarObj.removeAllEvents();
             citasGlobal.forEach(c => {
                 if(isAdmin || c.user === auth.currentUser.email.toLowerCase()) {
@@ -273,6 +264,24 @@
             window.calendarObj = calendar;
         }
 
+        // --- WHATSAPP PERSONALIZADO ---
+        document.getElementById('btn-recordar').onclick = () => {
+            const pxName = document.getElementById('edit-name').value;
+            const pxPhone = document.getElementById('edit-phone').value;
+            
+            if(!currentEvent) return;
+
+            // Formatear Fecha y Hora
+            const fechaObj = currentEvent.start;
+            const opcionesFecha = { weekday: 'long', day: 'numeric', month: 'long' };
+            const fechaTexto = fechaObj.toLocaleDateString('es-ES', opcionesFecha);
+            const horaTexto = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+            const mensaje = `Hola ${pxName}, Te recordamos que tienes una cita agendada para el día ${fechaTexto} a las ${horaTexto}, Te esperamos!.`;
+            
+            window.open(`https://wa.me/${pxPhone}?text=${encodeURIComponent(mensaje)}`);
+        };
+
         // --- PDF ---
         window.generarReportePDF = async () => {
             let name = prompt("Nombre PDF:", "Reporte_Resiliencia");
@@ -296,54 +305,19 @@
             temp.style.display = 'none';
         };
 
-        // --- EVENTOS DE INTERFAZ ---
+        // --- OTROS EVENTOS ---
         document.getElementById('report-month').onchange = () => recalcularYRenderizar(true);
-
-        document.getElementById('login-btn').onclick = async () => { 
-            try { 
-                await setPersistence(auth, browserLocalPersistence); 
-                await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); 
-            } catch (e) { alert("Error de acceso"); } 
-        };
-
-        window.toggleConfig = () => { 
-            const d = document.getElementById('config-drawer'); 
-            d.style.display = d.style.display === 'none' ? 'block' : 'none'; 
-        };
-
+        document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (e) { alert("Error"); } };
+        window.toggleConfig = () => { const d = document.getElementById('config-drawer'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; };
         document.getElementById('btn-cancelar-modal').onclick = () => document.getElementById('action-modal').style.display = 'none';
-        
-        document.getElementById('btn-eliminar').onclick = async () => { 
-            if(confirm("¿Eliminar?")) { 
-                await deleteDoc(doc(db, "citas", currentEvent.id)); 
-                document.getElementById('action-modal').style.display = 'none'; 
-            } 
-        };
-
-        document.getElementById('btn-recordar').onclick = () => { 
-            window.open(`https://wa.me/${document.getElementById('edit-phone').value}?text=${encodeURIComponent('Hola, recordatorio de cita en RESILIENCIA para '+document.getElementById('edit-name').value)}`); 
-        };
-
-        document.getElementById('btn-modificar').onclick = async () => { 
-            await updateDoc(doc(db, "citas", currentEvent.id), { title: document.getElementById('edit-name').value, phone: document.getElementById('edit-phone').value }); 
-            document.getElementById('action-modal').style.display = 'none'; 
-        };
-
+        document.getElementById('btn-eliminar').onclick = async () => { if(confirm("¿Eliminar?")) { await deleteDoc(doc(db, "citas", currentEvent.id)); document.getElementById('action-modal').style.display = 'none'; } };
+        document.getElementById('btn-modificar').onclick = async () => { await updateDoc(doc(db, "citas", currentEvent.id), { title: document.getElementById('edit-name').value, phone: document.getElementById('edit-phone').value }); document.getElementById('action-modal').style.display = 'none'; };
         document.getElementById('p-save').onclick = async () => {
             const sel = document.getElementById('p-select');
-            await addDoc(collection(db, "citas"), { 
-                title: document.getElementById('p-name').value, 
-                phone: document.getElementById('p-phone').value, 
-                start: window.selectedTime.startStr, 
-                end: window.selectedTime.endStr, 
-                user: sel.value.toLowerCase(), 
-                color: sel.options[sel.selectedIndex].dataset.color 
-            });
+            await addDoc(collection(db, "citas"), { title: document.getElementById('p-name').value, phone: document.getElementById('p-phone').value, start: window.selectedTime.startStr, end: window.selectedTime.endStr, user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color });
             document.getElementById('assign-modal').style.display = 'none';
         };
-        
         document.getElementById('p-cancel').onclick = () => document.getElementById('assign-modal').style.display = 'none';
-
         document.getElementById('save-style-btn').onclick = async () => {
             const file = document.getElementById('logo-upload').files[0];
             const data = { color: document.getElementById('brand-color-picker').value, textColor: document.getElementById('text-color-picker').value, logoWidth: document.getElementById('logo-size').value };
@@ -353,17 +327,11 @@
                 reader.readAsDataURL(file);
             } else { await setDoc(doc(db, "configuracion", "apariencia"), data); alert("Guardado"); }
         };
-
         document.getElementById('add-doc-btn').onclick = async () => {
             const colors = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6'];
-            await addDoc(collection(db, "psicologas"), { 
-                name: document.getElementById('new-doc-name').value, 
-                email: document.getElementById('new-doc-email').value.toLowerCase(), 
-                color: colors[Math.floor(Math.random()*colors.length)] 
-            });
+            await addDoc(collection(db, "psicologas"), { name: document.getElementById('new-doc-name').value, email: document.getElementById('new-doc-email').value.toLowerCase(), color: colors[Math.floor(Math.random()*colors.length)] });
             document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
         };
-
         window.confirmarBorrar = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "psicologas", id)); };
     </script>
 </body>
