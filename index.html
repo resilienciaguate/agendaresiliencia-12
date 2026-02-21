@@ -27,7 +27,6 @@
         input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; }
         .btn-action { width: 100%; background: var(--brand-color); color: #000 !important; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 5px; }
         
-        /* Modales */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; color: #333; }
         
@@ -36,12 +35,25 @@
         .btn-wa { background: #25d366; color: white !important; }
         .btn-secondary { background: #95a5a6; color: white !important; }
 
-        /* Estilos PDF */
-        #pdf-template { display: none; padding: 15px; color: #000; background: #fff; width: 1350px; transform: scale(0.60); transform-origin: top left; }
-        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 5px; }
-        .pdf-table-container { width: 100%; display: flex; justify-content: center; margin-top: 15px; }
-        .pdf-summary-table { width: 50%; border-collapse: collapse; } 
+        /* --- ESTILOS MEJORADOS PARA EL PDF --- */
+        #pdf-template { 
+            display: none; 
+            padding: 20px; 
+            color: #000; 
+            background: #fff; 
+            width: 1300px; /* Ancho optimizado */
+            transform: scale(0.65); /* Escalado ligeramente mayor para aprovechar la hoja */
+            transform-origin: top left;
+        }
+        /* Forzar bordes en el PDF */
+        #pdf-template .fc { border: 1px solid #ddd !important; }
+        #pdf-template .fc-scrollgrid { border: 1px solid #ddd !important; width: 100% !important; }
+
+        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--brand-color); margin-bottom: 15px; padding-bottom: 5px; }
+        .pdf-table-container { width: 100%; display: flex; justify-content: center; margin-top: 20px; }
+        .pdf-summary-table { width: 45%; border-collapse: collapse; } 
         .pdf-summary-table th, .pdf-summary-table td { border: 1px solid #bbb; padding: 6px 12px; text-align: left; font-size: 15px; }
+        .pdf-summary-table th { background: #f9f9f9; }
     </style>
 </head>
 <body>
@@ -73,7 +85,7 @@
                 <div onclick="generarReportePDF()" style="cursor:pointer; font-size:20px;">🖨️</div>
                 <div onclick="toggleConfig()" style="cursor:pointer; font-size:20px;">⚙️</div>
             </div>
-            <h3 style="margin-top:0">Admin</h3>
+            <h3 style="margin-top:0">Panel</h3>
             <div id="config-drawer" style="display:none; margin-bottom: 15px;">
                 <input type="file" id="logo-upload">
                 <input type="range" id="logo-size" min="40" max="250" value="100">
@@ -81,11 +93,11 @@
                     <input type="color" id="brand-color-picker" value="#a5c941">
                     <input type="color" id="text-color-picker" value="#ffffff">
                 </div>
-                <button class="btn-action" id="save-style-btn" style="background:#eee;">Guardar Estilo</button>
+                <button class="btn-action" id="save-style-btn" style="background:#eee;">Guardar</button>
             </div>
             <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
             <input type="email" id="new-doc-email" placeholder="Correo">
-            <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
+            <button class="btn-action" id="add-doc-btn">Añadir</button>
             <hr style="opacity:0.2; margin:15px 0;">
             <h3>Reporte Mensual</h3>
             <input type="month" id="report-month">
@@ -99,7 +111,7 @@
 
     <div id="action-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0">Opciones de Cita</h3>
+            <h3 style="margin-top:0">Gestión de Cita</h3>
             <label style="font-size: 11px;">Nombre Paciente:</label>
             <input type="text" id="edit-name">
             <label style="font-size: 11px;">WhatsApp:</label>
@@ -116,8 +128,8 @@
 
     <div id="assign-modal" class="modal-overlay">
         <div class="modal-box">
-            <h3>Agendar Cita</h3>
-            <input type="text" id="p-name" placeholder="Nombre Paciente">
+            <h3>Nueva Cita</h3>
+            <input type="text" id="p-name" placeholder="Paciente">
             <input type="tel" id="p-phone" placeholder="WhatsApp">
             <select id="p-select"></select>
             <button class="btn-action" id="p-save">Guardar</button>
@@ -129,15 +141,15 @@
         <div class="pdf-header">
             <div>
                 <h1 style="margin:0; color:var(--brand-color); font-size: 30px;">RESILIENCIA</h1>
-                <p id="pdf-date-display" style="font-weight:600;"></p>
-                <p id="pdf-user-log" style="font-size:14px; color:#555;"></p>
+                <p id="pdf-date-display" style="font-weight:600; margin: 2px 0;"></p>
+                <p id="pdf-user-log" style="font-size:14px; color:#555; margin:0;"></p>
             </div>
             <img id="pdf-logo" src="" style="max-height:60px; display:none;">
         </div>
-        <div id="pdf-calendar-snap"></div>
+        <div id="pdf-calendar-snap" style="width: 100%;"></div>
         <div class="pdf-table-container">
             <table class="pdf-summary-table">
-                <thead><tr><th>Psicóloga</th><th>Citas</th></tr></thead>
+                <thead><tr><th>Psicóloga</th><th>Total Citas</th></tr></thead>
                 <tbody id="pdf-table-body"></tbody>
             </table>
         </div>
@@ -226,16 +238,15 @@
                 initialView: 'timeGridWeek', locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
                 slotMinTime: "07:00:00", slotMaxTime: "21:00:00",
                 dayHeaderFormat: { weekday: 'long', day: 'numeric' },
-                events: [],
-                select: (info) => {
-                    window.selectedTime = info;
-                    document.getElementById('assign-modal').style.display = 'flex';
-                },
                 eventClick: (info) => {
                     currentEvent = info.event;
                     editName.value = currentEvent.title;
                     editPhone.value = currentEvent.extendedProps.phone || "";
                     actionModal.style.display = 'flex';
+                },
+                select: (info) => {
+                    window.selectedTime = info;
+                    document.getElementById('assign-modal').style.display = 'flex';
                 }
             });
             calendar.render(); window.calendarObj = calendar;
@@ -254,51 +265,34 @@
             });
         }
 
-        // ACCIONES DEL MODAL
         document.getElementById('btn-cancelar-modal').onclick = () => actionModal.style.display = 'none';
-        
         document.getElementById('btn-eliminar').onclick = async () => {
-            if(confirm("¿Eliminar definitivamente?")) {
-                await deleteDoc(doc(db, "citas", currentEvent.id));
-                actionModal.style.display = 'none';
-            }
+            if(confirm("¿Eliminar definitivamente?")) { await deleteDoc(doc(db, "citas", currentEvent.id)); actionModal.style.display = 'none'; }
         };
-
         document.getElementById('btn-recordar').onclick = () => {
-            const name = editName.value;
             const phone = editPhone.value;
-            if(!phone) return alert("No hay número registrado");
-            const msg = encodeURIComponent(`Hola ${name}, te recordamos tu cita en RESILIENCIA.`);
-            window.open(`https://wa.me/${phone}?text=${msg}`);
+            if(!phone) return alert("Sin número");
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent('Hola '+editName.value+', recordatorio de cita en RESILIENCIA.')}`);
         };
-
         document.getElementById('btn-modificar').onclick = async () => {
-            await updateDoc(doc(db, "citas", currentEvent.id), {
-                title: editName.value,
-                phone: editPhone.value
-            });
-            alert("Modificado con éxito");
+            await updateDoc(doc(db, "citas", currentEvent.id), { title: editName.value, phone: editPhone.value });
             actionModal.style.display = 'none';
         };
 
-        // NUEVA CITA
         document.getElementById('p-save').onclick = async () => {
             const sel = document.getElementById('p-select');
             await addDoc(collection(db, "citas"), {
-                title: document.getElementById('p-name').value,
-                phone: document.getElementById('p-phone').value,
-                start: window.selectedTime.startStr,
-                end: window.selectedTime.endStr,
-                user: sel.value.toLowerCase(),
-                color: sel.options[sel.selectedIndex].dataset.color
+                title: document.getElementById('p-name').value, phone: document.getElementById('p-phone').value,
+                start: window.selectedTime.startStr, end: window.selectedTime.endStr,
+                user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color
             });
             document.getElementById('assign-modal').style.display = 'none';
         };
         document.getElementById('p-cancel').onclick = () => document.getElementById('assign-modal').style.display = 'none';
 
-        // REPORTE PDF
+        // REPORTE PDF CON MEJORA DE BORDE
         window.generarReportePDF = async () => {
-            let name = prompt("Nombre del archivo:", "Reporte_Resiliencia");
+            let name = prompt("Nombre archivo:", "Reporte_Resiliencia");
             if(!name) return;
             const temp = document.getElementById('pdf-template');
             const body = document.getElementById('pdf-table-body');
@@ -306,23 +300,29 @@
             equipoGlobal.forEach(p => {
                 body.innerHTML += `<tr><td>${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`;
             });
-            document.getElementById('pdf-date-display').innerText = "Reporte: " + document.getElementById('report-month').value;
-            document.getElementById('pdf-user-log').innerText = "Generado por: " + auth.currentUser.email;
+            document.getElementById('pdf-date-display').innerText = "Resumen de Agenda: " + document.getElementById('report-month').value;
+            document.getElementById('pdf-user-log').innerText = "Usuario: " + auth.currentUser.email;
             
             const calClone = document.getElementById('calendar').cloneNode(true);
-            document.getElementById('pdf-calendar-snap').innerHTML = "";
-            document.getElementById('pdf-calendar-snap').appendChild(calClone);
+            const container = document.getElementById('pdf-calendar-snap');
+            container.innerHTML = "";
+            container.appendChild(calClone);
 
             temp.style.display = 'block';
             await html2pdf().set({
-                margin: 5, filename: name + '.pdf', image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 1.8, useCORS: true },
-                jsPDF: { format: 'letter', orientation: 'landscape' }
+                margin: 10, // Margen aumentado para evitar cortes
+                filename: name + '.pdf', 
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { 
+                    scale: 2, // Mayor calidad de captura
+                    useCORS: true,
+                    width: 1300 // Ancho fijo para asegurar que se capture el borde derecho
+                },
+                jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }
             }).from(temp).save();
             temp.style.display = 'none';
         };
 
-        // ESTÉTICA
         document.getElementById('save-style-btn').onclick = async () => {
             const file = document.getElementById('logo-upload').files[0];
             const data = { color: document.getElementById('brand-color-picker').value, textColor: document.getElementById('text-color-picker').value, logoWidth: document.getElementById('logo-size').value };
