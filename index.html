@@ -12,8 +12,9 @@
         :root { --brand-color: #a5c941; --brand-dark: #292929; --header-text-color: #ffffff; }
         html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; overflow-x: hidden; }
         
+        /* Estilos de Texto y Calendario */
         .fc-toolbar-title { text-transform: capitalize !important; color: #333; }
-        .top-nav { background-color: var(--brand-color); padding: 8px 15px; display: none; justify-content: space-between; align-items: center; min-height: 90px; position: sticky; top: 0; z-index: 999; }
+        .top-nav { background-color: var(--brand-color); padding: 8px 15px; display: none; justify-content: space-between; align-items: center; min-height: 95px; position: sticky; top: 0; z-index: 999; }
         
         .profile-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; width: 220px; }
         #user-photo { width: 65px; height: 65px; border-radius: 50%; border: 3px solid white; object-fit: cover; background: #eee; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
@@ -38,7 +39,7 @@
 
     <div id="login-screen">
         <div class="login-box">
-            <h2>RESILIENCIA</h2>
+            <h2 style="color: var(--brand-dark)">RESILIENCIA</h2>
             <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
             <button class="btn-action" id="login-btn">Entrar</button>
@@ -47,7 +48,7 @@
 
     <div class="top-nav" id="nav-bar">
         <div style="display:flex; align-items:center; gap:10px;">
-            <img id="app-logo" src="" style="display:none; max-height:50px;">
+            <img id="app-logo" src="" style="display:none; max-height:55px;">
             <div id="default-logo" style="width:35px;height:35px;background:white;border-radius:50%;color:var(--brand-color);display:flex;align-items:center;justify-content:center;font-weight:bold;">R</div>
         </div>
         <div class="profile-center">
@@ -56,11 +57,20 @@
         </div>
         <div style="display:flex; align-items:center; gap:12px;">
             <div onclick="toggleUserConfig()" style="cursor:pointer; font-size:24px;">👤⚙️</div>
-            <button onclick="location.reload()" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px;">Salir</button>
+            <button id="logout-btn" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px; cursor:pointer;">Salir</button>
         </div>
     </div>
 
-    <div id="user-config-modal" class="modal-overlay"><div class="modal-box"><h3>Mi Perfil</h3><input type="text" id="user-custom-name" placeholder="Ej: Licda. Odett Pineda"><input type="file" id="user-photo-upload" accept="image/*"><button class="btn-action" id="save-profile-btn">Guardar</button><button class="btn-action" style="background:#ccc;" onclick="toggleUserConfig()">Cerrar</button></div></div>
+    <div id="user-config-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Mi Perfil Personal</h3>
+            <input type="text" id="user-custom-name" placeholder="Ej: Licda. Odett Pineda">
+            <input type="file" id="user-photo-upload" accept="image/*">
+            <p id="upload-status" style="font-size: 10px; color: var(--brand-color); display: none;">Procesando foto...</p>
+            <button class="btn-action" id="save-profile-btn">Guardar</button>
+            <button class="btn-action" style="background:#ccc;" onclick="toggleUserConfig()">Cerrar</button>
+        </div>
+    </div>
 
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
@@ -72,11 +82,11 @@
                 <input type="file" id="admin-logo-upload">
                 <input type="range" id="logo-size" min="40" max="250" value="100">
                 <input type="color" id="brand-color-picker" value="#a5c941">
-                <button class="btn-action" id="save-admin-style">Actualizar Clínica</button>
+                <button class="btn-action" id="save-admin-style" style="font-size: 11px;">Actualizar Clínica</button>
             </div>
             <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
             <input type="email" id="new-doc-email" placeholder="Correo">
-            <button class="btn-action" id="add-doc-btn">Añadir</button>
+            <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
             <hr style="opacity:0.2; margin:15px 0;">
             <h4 style="margin:0">Citas del Mes</h4>
             <input type="month" id="report-month" style="margin: 10px 0;">
@@ -87,7 +97,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -106,6 +116,7 @@
         let equipoGlobal = [];
         let citasGlobal = [];
 
+        // PERSISTENCIA: Se asegura de que la sesión no se cierre al refrescar
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -114,6 +125,10 @@
                 document.getElementById('app-content').style.display = 'flex';
                 if(isAdmin) document.getElementById('side-panel-ui').style.display = 'block';
                 iniciarEscuchas(isAdmin, user.email.toLowerCase());
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('nav-bar').style.display = 'none';
+                document.getElementById('app-content').style.display = 'none';
             }
         });
 
@@ -177,7 +192,7 @@
                     slotMaxTime: '20:00:00',
                     allDaySlot: false,
                     selectable: true,
-                    titleFormat: { year: 'numeric', month: 'long' }, // QUITA EL "DE"
+                    titleFormat: { year: 'numeric', month: 'long' },
                     headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                 });
                 window.calendarObj.render();
@@ -190,31 +205,51 @@
             });
         }
 
-        // Lógica de guardado e imagen (resumida por espacio pero funcional)
-        document.getElementById('save-profile-btn').onclick = async () => {
-            const photoFile = document.getElementById('user-photo-upload').files[0];
-            let data = { displayName: document.getElementById('user-custom-name').value };
-            if(photoFile) {
-                const reader = new FileReader();
-                reader.readAsDataURL(photoFile);
-                reader.onload = async (e) => {
-                    data.photo = e.target.result; // Aquí se podría añadir el redimensionador si la foto es muy grande
-                    await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), data, { merge: true });
-                    alert("Perfil guardado");
-                    toggleUserConfig();
+        async function redimensionar(file, size = 300) {
+            return new Promise((res) => {
+                const r = new FileReader(); r.readAsDataURL(file);
+                r.onload = (e) => {
+                    const i = new Image(); i.src = e.target.result;
+                    i.onload = () => {
+                        const c = document.createElement('canvas'); c.width = size; c.height = size;
+                        const ctx = c.getContext('2d');
+                        const m = Math.min(i.width, i.height);
+                        ctx.drawImage(i, (i.width-m)/2, (i.height-m)/2, m, m, 0, 0, size, size);
+                        res(c.toDataURL('image/jpeg', 0.7));
+                    };
                 };
-            } else {
-                await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), data, { merge: true });
-                alert("Nombre guardado");
-                toggleUserConfig();
+            });
+        }
+
+        // ACCIONES DE BOTONES
+        document.getElementById('login-btn').onclick = async () => {
+            try {
+                // Forzar persistencia local (navegador)
+                await setPersistence(auth, browserLocalPersistence);
+                await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+            } catch (e) { alert("Error al entrar"); }
+        };
+
+        document.getElementById('logout-btn').onclick = async () => {
+            if(confirm("¿Seguro que quieres cerrar sesión?")) {
+                await signOut(auth);
+                location.reload();
             }
+        };
+
+        document.getElementById('save-profile-btn').onclick = async () => {
+            const f = document.getElementById('user-photo-upload').files[0];
+            const s = document.getElementById('upload-status');
+            let data = { displayName: document.getElementById('user-custom-name').value };
+            if(f) { s.style.display='block'; data.photo = await redimensionar(f); }
+            await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), data, { merge: true });
+            alert("¡Perfil guardado!"); s.style.display='none'; toggleUserConfig();
         };
 
         window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
         window.toggleAdminConfig = () => { const d = document.getElementById('admin-config-drawer'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; };
         document.getElementById('report-month').value = new Date().toISOString().substring(0, 7);
         document.getElementById('report-month').onchange = () => recalcularAdmin(true);
-        document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (e) { alert("Error"); } };
         document.getElementById('add-doc-btn').onclick = async () => { await addDoc(collection(db, "psicologas"), { name: document.getElementById('new-doc-name').value, email: document.getElementById('new-doc-email').value.toLowerCase(), color: '#'+Math.floor(Math.random()*16777215).toString(16) }); };
     </script>
 </body>
