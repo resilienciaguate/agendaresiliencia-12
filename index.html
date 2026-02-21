@@ -12,14 +12,14 @@
         :root { --brand-color: #a5c941; --brand-dark: #292929; }
         html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; overflow-x: hidden; }
         
-        /* Corrección de encabezados */
-        .fc-toolbar-title { text-transform: capitalize !important; color: #333 !important; font-size: 1.2em !important; }
-        .fc-header-toolbar { padding: 5px !important; }
+        /* Estilo del título para que siempre sea Mayúscula */
+        .fc-toolbar-title { text-transform: capitalize !important; color: #333 !important; }
+        .fc-daygrid-day-number { cursor: pointer; text-decoration: none; padding: 4px !important; }
         
         .top-nav { background-color: var(--brand-color); padding: 8px 15px; display: none; justify-content: space-between; align-items: center; min-height: 95px; position: sticky; top: 0; z-index: 999; }
         .profile-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; width: 220px; }
         #user-photo { width: 65px; height: 65px; border-radius: 50%; border: 3px solid white; object-fit: cover; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-        #display-profile-name { font-size: 13px; font-weight: 600; color: #000000 !important; text-shadow: none !important; margin-top: 4px; text-align: center; width: 100%; }
+        #display-profile-name { font-size: 13px; font-weight: 600; color: #000000 !important; margin-top: 4px; text-align: center; width: 100%; }
 
         #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; color: #333; }
@@ -30,7 +30,7 @@
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow-x: auto; }
         #calendar { min-width: 700px; }
         
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
         .btn-action { width: 100%; background: var(--brand-color); color: #000; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 5px; }
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; color: #333; }
@@ -75,18 +75,7 @@
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
             <h3 style="margin:0">Admin 🎨</h3>
-            <div id="admin-config-drawer" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; margin: 10px 0;">
-                <input type="file" id="admin-logo-upload">
-                <input type="range" id="logo-size" min="40" max="250" value="100">
-                <input type="color" id="brand-color-picker" value="#a5c941">
-                <button class="btn-action" id="save-admin-style" style="font-size: 11px;">Guardar Clínica</button>
-            </div>
-            <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
-            <input type="email" id="new-doc-email" placeholder="Correo">
-            <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
-            <hr style="opacity:0.2;">
-            <h4 style="margin:0">Citas del Mes</h4>
-            <input type="month" id="report-month" style="margin: 5px 0;">
+            <input type="month" id="report-month" style="margin: 10px 0;">
             <div id="docs-list"></div>
         </div>
         <div class="calendar-card"><div id='calendar'></div></div>
@@ -95,7 +84,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, setPersistence, browserLocalPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA",
@@ -178,16 +167,22 @@
                     initialView: 'dayGridMonth',
                     locale: 'es',
                     firstDay: 1,
-                    navLinks: true, // Habilita links en los números de los días
+                    navLinks: true, // Habilita los links en los números de los días
                     navLinkDayClick: function(date, jsEvent) {
+                        // Al hacer clic en el número del día, envía a vista semana
                         window.calendarObj.changeView('timeGridWeek', date);
                     },
+                    // TRADUCCIÓN MANUAL PARA ASEGURAR ESPAÑOL
                     buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
                     slotMinTime: '07:00:00',
                     slotMaxTime: '20:00:00',
                     allDaySlot: false,
                     selectable: true,
-                    titleFormat: { year: 'numeric', month: 'long' },
+                    // ELIMINACIÓN DEL "DE" USANDO UNA FUNCIÓN
+                    titleFormat: function(date) {
+                        const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                        return months[date.date.month] + ' ' + date.date.year;
+                    },
                     headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                 });
                 window.calendarObj.render();
@@ -200,7 +195,6 @@
             });
         }
 
-        // Acciones
         document.getElementById('login-btn').onclick = async () => {
             try {
                 await setPersistence(auth, browserLocalPersistence);
@@ -225,20 +219,13 @@
                 }
             } else {
                 await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), data, { merge: true });
-                alert("Nombre guardado"); toggleUserConfig();
+                alert("Perfil guardado"); toggleUserConfig();
             }
         };
 
         window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
         document.getElementById('report-month').value = new Date().toISOString().substring(0, 7);
         document.getElementById('report-month').onchange = () => recalcularAdmin(true);
-        document.getElementById('add-doc-btn').onclick = async () => { 
-            await addDoc(collection(db, "psicologas"), { 
-                name: document.getElementById('new-doc-name').value, 
-                email: document.getElementById('new-doc-email').value.toLowerCase(), 
-                color: '#'+Math.floor(Math.random()*16777215).toString(16) 
-            }); 
-        };
     </script>
 </body>
 </html>
