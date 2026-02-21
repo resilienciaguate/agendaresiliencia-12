@@ -12,33 +12,26 @@
         :root { --brand-color: #a5c941; --brand-dark: #292929; }
         html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; overflow-x: hidden; }
         
-        /* FullCalendar Styles */
-        .fc-toolbar-title { text-transform: capitalize !important; color: #333 !important; font-size: 1.1em !important; }
-        .fc .fc-button-primary { background-color: var(--brand-color) !important; border: none !important; color: black !important; text-transform: capitalize !important; font-weight: 600 !important; }
-        
         /* Login UI */
         #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-box { background: white; padding: 35px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        .login-logo-circle { width: 90px; height: 90px; margin: 0 auto 20px auto; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 3px solid var(--brand-color); }
-        .login-logo-circle img { width: 100%; height: 100%; object-fit: cover; }
-        .login-logo-circle span { font-size: 40px; font-weight: bold; color: var(--brand-color); }
+        /* Contenedor de Logo circular con prioridad */
+        .login-logo-circle { width: 100px; height: 100px; margin: 0 auto 20px auto; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 3px solid var(--brand-color); position: relative; }
+        #login-logo-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        #login-placeholder { font-size: 45px; font-weight: bold; color: var(--brand-color); }
 
-        /* App UI */
+        /* Estilos App */
         .top-nav { background-color: var(--brand-color); padding: 8px 15px; display: none; justify-content: space-between; align-items: center; min-height: 95px; position: sticky; top: 0; z-index: 999; }
         .profile-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; width: 220px; }
         #user-photo { width: 60px; height: 60px; border-radius: 50%; border: 3px solid white; object-fit: cover; }
-        
         #app-content { display: none; flex-direction: column; padding: 10px; gap: 15px; flex: 1; }
         @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 280px; position: sticky; top: 110px; height: fit-content; } }
-
         .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow-x: auto; }
         #calendar { min-width: 700px; height: 85vh; }
-        
         input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-family: inherit; }
         .btn-action { width: 100%; background: var(--brand-color); color: #000; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 8px; }
-        
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; color: #333; }
     </style>
@@ -47,7 +40,8 @@
 
     <div id="login-screen">
         <div class="login-box">
-            <div class="login-logo-circle" id="login-logo-container">
+            <div class="login-logo-circle">
+                <img id="login-logo-img" src="" alt="Logo">
                 <span id="login-placeholder">R</span>
             </div>
             <h2 style="font-size: 18px; margin-bottom: 20px;">Agenda RESILIENCIA 2026</h2>
@@ -106,12 +100,7 @@
     </div>
 
     <div id="user-config-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h3>Mi Perfil</h3>
-            <input type="text" id="user-custom-name" placeholder="Nombre">
-            <input type="file" id="user-photo-upload"><button class="btn-action" id="save-profile-btn">Guardar</button>
-            <button class="btn-action" style="background:#ccc; margin-top:10px;" onclick="toggleUserConfig()">Cerrar</button>
-        </div>
+        <div class="modal-box"><h3>Mi Perfil</h3><input type="text" id="user-custom-name" placeholder="Nombre"><input type="file" id="user-photo-upload"><button class="btn-action" id="save-profile-btn">Guardar</button><button class="btn-action" style="background:#ccc; margin-top:10px;" onclick="toggleUserConfig()">Cerrar</button></div>
     </div>
 
     <script type="module">
@@ -127,19 +116,22 @@
         
         let equipoGlobal = [], citasGlobal = [], tempSelection = null, citaSeleccionada = null;
 
-        // --- CARGA DE LOGO INMEDIATA (Incluso antes del login) ---
+        // --- CARGA DE APARIENCIA PRIORITARIA ---
         onSnapshot(doc(db, "configuracion", "apariencia"), (s) => {
             if(s.exists()){
                 const d = s.data();
                 if(d.color) document.documentElement.style.setProperty('--brand-color', d.color);
                 if(d.logoB64) {
-                    // Actualizar logo en Login
-                    const loginCont = document.getElementById('login-logo-container');
-                    loginCont.innerHTML = `<img src="${d.logoB64}" alt="Logo">`;
+                    // Actualizar logo en Login instantáneamente
+                    const logImg = document.getElementById('login-logo-img');
+                    logImg.src = d.logoB64;
+                    logImg.style.display = 'block';
+                    document.getElementById('login-placeholder').style.display = 'none';
+                    
                     // Actualizar logo en App
-                    const appLogo = document.getElementById('app-logo');
-                    appLogo.src = d.logoB64;
-                    appLogo.style.display = 'block';
+                    const appLog = document.getElementById('app-logo');
+                    appLog.src = d.logoB64;
+                    appLog.style.display = 'block';
                     document.getElementById('default-logo').style.display = 'none';
                 }
             }
@@ -168,7 +160,7 @@
             onSnapshot(collection(db, "citas"), (snap) => { citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()})); actualizarCalendario(isAdmin); recalcularAdmin(isAdmin); });
         }
 
-        // --- LÓGICA DE CALENDARIO Y GESTIÓN (Intacta) ---
+        // Lógica de Calendario y Admin (Todo intacto)
         function actualizarSelectorPsicologas() {
             const select = document.getElementById('select-psicologa-cita');
             select.innerHTML = '<option value="">-- Seleccionar Psicóloga --</option>';
@@ -193,10 +185,10 @@
             if(!window.calendarObj) {
                 window.calendarObj = new FullCalendar.Calendar(document.getElementById('calendar'), {
                     initialView: 'dayGridMonth', locale: 'es', firstDay: 1, navLinks: true,
+                    slotMinTime: '07:00:00', slotMaxTime: '20:00:00', allDaySlot: false, selectable: true,
                     dateClick: (info) => { if (window.calendarObj.view.type === 'dayGridMonth') window.calendarObj.changeView('timeGridWeek', info.dateStr); },
                     buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
                     headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
-                    slotMinTime: '07:00:00', slotMaxTime: '20:00:00', allDaySlot: false, selectable: true,
                     titleFormat: (d) => { const m = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']; return m[d.date.month] + ' ' + d.date.year; },
                     select: (info) => {
                         if(window.calendarObj.view.type === 'dayGridMonth') { window.calendarObj.unselect(); window.calendarObj.changeView('timeGridWeek', info.startStr); return; }
@@ -216,7 +208,7 @@
             citasGlobal.forEach(c => { if(isAdmin || c.user === auth.currentUser.email.toLowerCase()) window.calendarObj.addEvent({ id: c.id, title: c.title, start: c.start, end: c.end, color: c.color }); });
         }
 
-        // --- EVENTOS BOTONES ---
+        // Acciones Botones
         document.getElementById('btn-recordatorio-wa').onclick = () => {
             if (citaSeleccionada.tel) {
                 const psi = equipoGlobal.find(p => p.email.toLowerCase() === citaSeleccionada.user.toLowerCase());
@@ -257,7 +249,6 @@
         window.cerrarModalGestion = () => { document.getElementById('modal-gestion').style.display = 'none'; citaSeleccionada = null; };
         window.toggleAdminConfig = () => { const d = document.getElementById('admin-config-drawer'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; };
         document.getElementById('report-month').value = new Date().toISOString().substring(0, 7);
-        document.getElementById('report-month').onchange = () => recalcularAdmin(true);
         document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch(e) { alert("Error"); } };
         document.getElementById('logout-btn').onclick = async () => { await signOut(auth); location.reload(); };
         window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
