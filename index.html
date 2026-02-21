@@ -35,8 +35,6 @@
         .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 5px; }
         #pdf-date-display { font-weight: 600; margin: 2px 0; font-size: 20px; color: #000; text-transform: uppercase; }
         
-        #pdf-calendar-snap .fc { font-size: 9px !important; }
-        
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; color: #333; }
         .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
@@ -240,6 +238,9 @@
                 height: 'auto',
                 slotMinTime: '07:00:00',
                 slotMaxTime: '21:00:00',
+                scrollTime: '07:00:00', // Auto-scroll a las 7am
+                allDaySlot: false,      // QUITAR BARRA DE TODO EL DÍA
+                dayHeaderFormat: { weekday: 'short', day: 'numeric' }, // FORMATO SIN MES (ej: mié 25)
                 buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                 datesSet: () => {
@@ -249,13 +250,10 @@
                         titleEl.innerText = `${viewDate.toLocaleString('es-ES', { month: 'long' }).toUpperCase()} ${viewDate.getFullYear()}`;
                     }
                 },
-                // LÓGICA DE SALTO DE VISTA
                 select: (info) => {
                     if (calendar.view.type === 'dayGridMonth') {
-                        // Si está en mes, salta a la semana del día tocado y no abre el modal
                         calendar.changeView('timeGridWeek', info.startStr);
                     } else {
-                        // Si está en semana o día, abre el modal para agendar
                         window.selectedTime = info;
                         document.getElementById('assign-modal').style.display = 'flex';
                     }
