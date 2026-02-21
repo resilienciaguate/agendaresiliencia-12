@@ -27,18 +27,19 @@
         #calendar { min-width: 700px; }
 
         .fc .fc-toolbar-title { text-transform: uppercase !important; font-weight: 600; color: #333; font-size: 1.5em; }
-
         .psicologa-item { padding: 8px; border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; color: #000 !important; font-weight: 600; font-size: 11px; }
         input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; }
         .btn-action { width: 100%; background: var(--brand-color); color: #000 !important; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 5px; }
         
+        #pdf-template { display: none; color: #000; background: #fff; width: 1050px; padding: 15px; }
+        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 5px; }
+        #pdf-date-display { font-weight: 600; margin: 2px 0; font-size: 20px; color: #000; text-transform: uppercase; }
+        
+        #pdf-calendar-snap .fc { font-size: 9px !important; }
+        
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; color: #333; }
         .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-
-        #pdf-template { display: none; color: #000; background: #fff; width: 1300px; transform: scale(0.65); transform-origin: top left; padding: 20px; }
-        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 10px; }
-        #pdf-date-display { font-weight: 600; margin: 5px 0; font-size: 24px; color: #000; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -122,15 +123,15 @@
     <div id="pdf-template">
         <div class="pdf-header">
             <div>
-                <h1 style="margin:0; color:var(--brand-color); font-size: 32px;">RESILIENCIA</h1>
+                <h1 style="margin:0; color:var(--brand-color); font-size: 24px;">RESILIENCIA</h1>
                 <p id="pdf-date-display"></p>
             </div>
-            <img id="pdf-logo" src="" style="max-height:60px; display:none;">
+            <img id="pdf-logo" src="" style="max-height:45px; display:none;">
         </div>
         <div id="pdf-calendar-snap"></div>
-        <div style="margin-top:20px; display:flex; justify-content:center;">
-            <table style="width:50%; border-collapse:collapse; border: 1px solid #000;">
-                <thead><tr style="background:#f2f2f2;"><th>Psicóloga</th><th>Citas del Mes</th></tr></thead>
+        <div style="margin-top:10px; display:flex; justify-content:center;">
+            <table style="width:40%; border-collapse:collapse; border: 1px solid #000; font-size: 10px;">
+                <thead><tr style="background:#f2f2f2;"><th>Psicóloga</th><th>Citas</th></tr></thead>
                 <tbody id="pdf-table-body" style="text-align:center;"></tbody>
             </table>
         </div>
@@ -159,8 +160,6 @@
         let countsGlobal = {};
         let currentEvent = null;
 
-        document.getElementById('report-month').value = new Date().toISOString().substring(0, 7);
-
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -172,16 +171,6 @@
                 iniciarEscuchas(isAdmin);
             }
         });
-
-        function corregirTituloCalendario() {
-            const titleEl = document.querySelector('.fc-toolbar-title');
-            if (titleEl && window.calendarObj) {
-                const viewDate = window.calendarObj.getDate();
-                const mesNombre = viewDate.toLocaleString('es-ES', { month: 'long' }).toUpperCase();
-                const anio = viewDate.getFullYear();
-                titleEl.innerText = `${mesNombre} ${anio}`;
-            }
-        }
 
         function iniciarEscuchas(isAdmin) {
             onSnapshot(doc(db, "configuracion", "apariencia"), (s) => {
@@ -198,12 +187,10 @@
                     }
                 }
             });
-
             onSnapshot(collection(db, "psicologas"), (snap) => {
                 equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 recalcularYRenderizar(isAdmin);
             });
-
             onSnapshot(collection(db, "citas"), (snap) => {
                 citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 actualizarCalendario(isAdmin);
@@ -225,11 +212,10 @@
             list.innerHTML = ""; if(isAdmin) sel.innerHTML = "";
             equipoGlobal.forEach(p => {
                 const mail = p.email.toLowerCase();
-                const total = countsGlobal[mail] || 0;
                 if(isAdmin) {
                     sel.innerHTML += `<option value="${mail}" data-color="${p.color}">${p.name}</option>`;
                     list.innerHTML += `<div class="psicologa-item" style="background:${p.color};">
-                        <span>${p.name} <strong>(${total})</strong></span>
+                        <span>${p.name} <strong>(${countsGlobal[mail] || 0})</strong></span>
                         <span onclick="confirmarBorrar('${p.id}')" style="cursor:pointer; padding: 0 5px;">✕</span>
                     </div>`;
                 }
@@ -252,19 +238,34 @@
                 locale: 'es',
                 selectable: true,
                 height: 'auto',
-                // CONFIGURACIÓN DE HORAS: 7am a 8pm (20hrs)
                 slotMinTime: '07:00:00',
                 slotMaxTime: '21:00:00',
                 buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
-                datesSet: () => { corregirTituloCalendario(); },
+                datesSet: () => {
+                    const titleEl = document.querySelector('.fc-toolbar-title');
+                    if (titleEl) {
+                        const viewDate = calendar.getDate();
+                        titleEl.innerText = `${viewDate.toLocaleString('es-ES', { month: 'long' }).toUpperCase()} ${viewDate.getFullYear()}`;
+                    }
+                },
+                // LÓGICA DE SALTO DE VISTA
+                select: (info) => {
+                    if (calendar.view.type === 'dayGridMonth') {
+                        // Si está en mes, salta a la semana del día tocado y no abre el modal
+                        calendar.changeView('timeGridWeek', info.startStr);
+                    } else {
+                        // Si está en semana o día, abre el modal para agendar
+                        window.selectedTime = info;
+                        document.getElementById('assign-modal').style.display = 'flex';
+                    }
+                },
                 eventClick: (info) => {
                     currentEvent = info.event;
                     document.getElementById('edit-name').value = currentEvent.title;
                     document.getElementById('edit-phone').value = currentEvent.extendedProps.phone || "";
                     document.getElementById('action-modal').style.display = 'flex';
-                },
-                select: (info) => { window.selectedTime = info; document.getElementById('assign-modal').style.display = 'flex'; }
+                }
             });
             calendar.render(); window.calendarObj = calendar;
         }
@@ -273,63 +274,39 @@
             const name = document.getElementById('p-name').value;
             const phone = document.getElementById('p-phone').value;
             const sel = document.getElementById('p-select');
-            
-            if(!name || !phone) { alert("Completa nombre y WhatsApp"); return; }
+            if(!name || !phone) return;
             const licdaNombre = sel.options[sel.selectedIndex].text;
 
-            await addDoc(collection(db, "citas"), { 
-                title: name, 
-                phone: phone, 
-                start: window.selectedTime.startStr, 
-                end: window.selectedTime.endStr, 
-                user: sel.value.toLowerCase(), 
-                color: sel.options[sel.selectedIndex].dataset.color 
-            });
+            await addDoc(collection(db, "citas"), { title: name, phone: phone, start: window.selectedTime.startStr, end: window.selectedTime.endStr, user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color });
 
             const fechaObj = new Date(window.selectedTime.start);
-            const fechaTexto = fechaObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-            const horaTexto = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-            
-            const mensaje = `Hola ${name} tu cita a sido agendada exitosamente el ${fechaTexto} a las ${horaTexto} con la Licda. ${licdaNombre}`;
+            const mensaje = `Hola ${name} tu cita a sido agendada exitosamente el ${fechaObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} a las ${fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} con la Licda. ${licdaNombre}`;
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`);
-
             document.getElementById('assign-modal').style.display = 'none';
-            document.getElementById('p-name').value = "";
-            document.getElementById('p-phone').value = "";
-        };
-
-        document.getElementById('btn-recordar').onclick = () => {
-            const pxName = document.getElementById('edit-name').value;
-            const pxPhone = document.getElementById('edit-phone').value;
-            const fechaObj = currentEvent.start;
-            const fechaTexto = fechaObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-            const horaTexto = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-            const mensaje = `Hola ${pxName}, Te recordamos que tienes una cita agendada para el día ${fechaTexto} a las ${horaTexto}, Te esperamos!.`;
-            window.open(`https://wa.me/${pxPhone}?text=${encodeURIComponent(mensaje)}`);
         };
 
         window.generarReportePDF = async () => {
-            let name = prompt("Nombre PDF:", "Reporte_Resiliencia");
+            let name = prompt("Nombre PDF:", "Agenda_Resiliencia");
             if(!name) return;
             const temp = document.getElementById('pdf-template');
             const body = document.getElementById('pdf-table-body');
             body.innerHTML = "";
-            equipoGlobal.forEach(p => { 
-                body.innerHTML += `<tr style="border: 1px solid #000;"><td style="padding:5px;">${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`; 
-            });
+            equipoGlobal.forEach(p => { body.innerHTML += `<tr style="border: 1px solid #000;"><td style="padding:3px;">${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`; });
             document.getElementById('pdf-date-display').innerText = document.querySelector('.fc-toolbar-title').innerText;
             const container = document.getElementById('pdf-calendar-snap');
             container.innerHTML = ""; 
-            container.appendChild(document.getElementById('calendar').cloneNode(true));
+            const calClone = document.getElementById('calendar').cloneNode(true);
+            calClone.style.width = "1000px"; container.appendChild(calClone);
             temp.style.display = 'block';
-            await html2pdf().set({
-                margin: 5, filename: name + '.pdf', image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, width: 1300 },
-                jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }
-            }).from(temp).save();
+            await html2pdf().set({ margin: 5, filename: name + '.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, width: 1050 }, jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }, pagebreak: { mode: 'avoid-all' } }).from(temp).save();
             temp.style.display = 'none';
         };
 
+        document.getElementById('btn-recordar').onclick = () => {
+            const f = currentEvent.start;
+            const msj = `Hola ${document.getElementById('edit-name').value}, Te recordamos tu cita el ${f.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} a las ${f.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}, Te esperamos!.`;
+            window.open(`https://wa.me/${document.getElementById('edit-phone').value}?text=${encodeURIComponent(msj)}`);
+        };
         document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (e) { alert("Error"); } };
         window.toggleConfig = () => { const d = document.getElementById('config-drawer'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; };
         document.getElementById('btn-cancelar-modal').onclick = () => document.getElementById('action-modal').style.display = 'none';
@@ -348,9 +325,9 @@
         document.getElementById('add-doc-btn').onclick = async () => {
             const colors = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6'];
             await addDoc(collection(db, "psicologas"), { name: document.getElementById('new-doc-name').value, email: document.getElementById('new-doc-email').value.toLowerCase(), color: colors[Math.floor(Math.random()*colors.length)] });
-            document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
         };
         window.confirmarBorrar = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "psicologas", id)); };
+        document.getElementById('report-month').value = new Date().toISOString().substring(0, 7);
         document.getElementById('report-month').onchange = () => recalcularYRenderizar(true);
     </script>
 </body>
