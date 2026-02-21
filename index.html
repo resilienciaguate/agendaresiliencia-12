@@ -12,21 +12,22 @@
         :root { --brand-color: #a5c941; --brand-dark: #292929; }
         html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; overflow-x: hidden; }
         
-        /* FullCalendar Custom Styles */
+        /* FullCalendar Styles */
         .fc-toolbar-title { text-transform: capitalize !important; color: #333 !important; font-size: 1.1em !important; }
         .fc .fc-button-primary { background-color: var(--brand-color) !important; border: none !important; color: black !important; text-transform: capitalize !important; font-weight: 600 !important; }
-        .fc .fc-button-active { background-color: #8fb332 !important; }
         
+        /* Login UI */
+        #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .login-box { background: white; padding: 35px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; color: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        .login-logo-circle { width: 90px; height: 90px; margin: 0 auto 20px auto; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 3px solid var(--brand-color); }
+        .login-logo-circle img { width: 100%; height: 100%; object-fit: cover; }
+        .login-logo-circle span { font-size: 40px; font-weight: bold; color: var(--brand-color); }
+
+        /* App UI */
         .top-nav { background-color: var(--brand-color); padding: 8px 15px; display: none; justify-content: space-between; align-items: center; min-height: 95px; position: sticky; top: 0; z-index: 999; }
         .profile-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; width: 220px; }
         #user-photo { width: 60px; height: 60px; border-radius: 50%; border: 3px solid white; object-fit: cover; }
-        #display-profile-name { font-size: 13px; font-weight: 600; color: #000 !important; margin-top: 4px; text-align: center; }
-
-        /* Estilos Login actualizados */
-        #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .login-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; color: #333; }
-        .login-logo { width: 100px; height: auto; margin-bottom: 15px; }
-        .login-box h2 { font-size: 18px; margin-bottom: 20px; color: var(--brand-dark); }
         
         #app-content { display: none; flex-direction: column; padding: 10px; gap: 15px; flex: 1; }
         @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 280px; position: sticky; top: 110px; height: fit-content; } }
@@ -35,7 +36,7 @@
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow-x: auto; }
         #calendar { min-width: 700px; height: 85vh; }
         
-        input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-family: inherit; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-family: inherit; }
         .btn-action { width: 100%; background: var(--brand-color); color: #000; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 8px; }
         
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
@@ -46,8 +47,10 @@
 
     <div id="login-screen">
         <div class="login-box">
-            <img src="https://via.placeholder.com/100" alt="Logo" class="login-logo" id="login-display-logo">
-            <h2>Agenda RESILIENCIA 2026</h2>
+            <div class="login-logo-circle" id="login-logo-container">
+                <span id="login-placeholder">R</span>
+            </div>
+            <h2 style="font-size: 18px; margin-bottom: 20px;">Agenda RESILIENCIA 2026</h2>
             <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
             <button class="btn-action" id="login-btn">Entrar</button>
@@ -55,9 +58,18 @@
     </div>
 
     <div class="top-nav" id="nav-bar">
-        <div style="display:flex; align-items:center;"><img id="app-logo" src="" style="display:none; max-height:55px;"><div id="default-logo" style="width:35px;height:35px;background:white;border-radius:50%;color:var(--brand-color);display:flex;align-items:center;justify-content:center;font-weight:bold;">R</div></div>
-        <div class="profile-center"><img id="user-photo" src="" alt="Foto"><span id="display-profile-name"></span></div>
-        <div style="display:flex; align-items:center; gap:12px;"><div onclick="toggleUserConfig()" style="cursor:pointer; font-size:24px;">👤⚙️</div><button id="logout-btn" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px;">Salir</button></div>
+        <div style="display:flex; align-items:center;">
+            <img id="app-logo" src="" style="display:none; max-height:55px;">
+            <div id="default-logo" style="width:35px;height:35px;background:white;border-radius:50%;color:var(--brand-color);display:flex;align-items:center;justify-content:center;font-weight:bold;">R</div>
+        </div>
+        <div class="profile-center">
+            <img id="user-photo" src="" alt="Foto" style="display:none;">
+            <span id="display-profile-name" style="color:black; font-size:13px; font-weight:600; margin-top:4px;"></span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div onclick="toggleUserConfig()" style="cursor:pointer; font-size:24px;">👤⚙️</div>
+            <button id="logout-btn" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px;">Salir</button>
+        </div>
     </div>
 
     <div id="app-content">
@@ -69,7 +81,6 @@
             <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga"><input type="email" id="new-doc-email" placeholder="Correo"><button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
             <h4 style="margin:20px 0 5px 0">Citas del Mes</h4><input type="month" id="report-month"><div id="docs-list"></div>
         </div>
-        
         <div class="calendar-card"><div id='calendar'></div></div>
     </div>
 
@@ -94,7 +105,14 @@
         </div>
     </div>
 
-    <div id="user-config-modal" class="modal-overlay"><div class="modal-box"><h3>Mi Perfil</h3><input type="text" id="user-custom-name" placeholder="Nombre"><input type="file" id="user-photo-upload"><button class="btn-action" id="save-profile-btn">Guardar</button><button class="btn-action" style="background:#ccc; margin-top:10px;" onclick="toggleUserConfig()">Cerrar</button></div></div>
+    <div id="user-config-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Mi Perfil</h3>
+            <input type="text" id="user-custom-name" placeholder="Nombre">
+            <input type="file" id="user-photo-upload"><button class="btn-action" id="save-profile-btn">Guardar</button>
+            <button class="btn-action" style="background:#ccc; margin-top:10px;" onclick="toggleUserConfig()">Cerrar</button>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -109,6 +127,24 @@
         
         let equipoGlobal = [], citasGlobal = [], tempSelection = null, citaSeleccionada = null;
 
+        // --- CARGA DE LOGO INMEDIATA (Incluso antes del login) ---
+        onSnapshot(doc(db, "configuracion", "apariencia"), (s) => {
+            if(s.exists()){
+                const d = s.data();
+                if(d.color) document.documentElement.style.setProperty('--brand-color', d.color);
+                if(d.logoB64) {
+                    // Actualizar logo en Login
+                    const loginCont = document.getElementById('login-logo-container');
+                    loginCont.innerHTML = `<img src="${d.logoB64}" alt="Logo">`;
+                    // Actualizar logo en App
+                    const appLogo = document.getElementById('app-logo');
+                    appLogo.src = d.logoB64;
+                    appLogo.style.display = 'block';
+                    document.getElementById('default-logo').style.display = 'none';
+                }
+            }
+        });
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL;
@@ -121,23 +157,23 @@
         });
 
         function iniciarEscuchas(isAdmin, userEmail) {
-            onSnapshot(doc(db, "perfiles", userEmail), (s) => { if(s.exists()){ const d = s.data(); if(d.photo) document.getElementById('user-photo').src = d.photo; document.getElementById('display-profile-name').innerText = d.displayName || ""; } });
-            onSnapshot(doc(db, "configuracion", "apariencia"), (s) => { if(s.exists()){ const d = s.data(); if(d.color) document.documentElement.style.setProperty('--brand-color', d.color); if(d.logoB64) { 
-                const logoImg = d.logoB64;
-                document.getElementById('app-logo').src = logoImg; 
-                document.getElementById('login-display-logo').src = logoImg; // Carga el logo también en el login
-                document.getElementById('app-logo').style.display = 'block'; 
-                document.getElementById('default-logo').style.display = 'none'; 
-            } } });
+            onSnapshot(doc(db, "perfiles", userEmail), (s) => { 
+                if(s.exists()){ 
+                    const d = s.data(); 
+                    if(d.photo) { document.getElementById('user-photo').src = d.photo; document.getElementById('user-photo').style.display = 'block'; }
+                    document.getElementById('display-profile-name').innerText = d.displayName || ""; 
+                } 
+            });
             onSnapshot(collection(db, "psicologas"), (snap) => { equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()})); actualizarSelectorPsicologas(); recalcularAdmin(isAdmin); });
             onSnapshot(collection(db, "citas"), (snap) => { citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()})); actualizarCalendario(isAdmin); recalcularAdmin(isAdmin); });
         }
 
+        // --- LÓGICA DE CALENDARIO Y GESTIÓN (Intacta) ---
         function actualizarSelectorPsicologas() {
             const select = document.getElementById('select-psicologa-cita');
             select.innerHTML = '<option value="">-- Seleccionar Psicóloga --</option>';
             equipoGlobal.forEach(p => { select.innerHTML += `<option value="${p.email.toLowerCase()}">${p.name}</option>`; });
-            const miEmail = auth.currentUser.email.toLowerCase();
+            const miEmail = auth.currentUser?.email.toLowerCase();
             if(equipoGlobal.some(p => p.email.toLowerCase() === miEmail)) select.value = miEmail;
         }
 
@@ -180,15 +216,15 @@
             citasGlobal.forEach(c => { if(isAdmin || c.user === auth.currentUser.email.toLowerCase()) window.calendarObj.addEvent({ id: c.id, title: c.title, start: c.start, end: c.end, color: c.color }); });
         }
 
-        // Lógica Modal Gestión
+        // --- EVENTOS BOTONES ---
         document.getElementById('btn-recordatorio-wa').onclick = () => {
             if (citaSeleccionada.tel) {
                 const psi = equipoGlobal.find(p => p.email.toLowerCase() === citaSeleccionada.user.toLowerCase());
-                const nomPsi = psi ? "Licda. " + psi.name : "tu psicóloga";
+                const nomPsi = "Licda. " + (psi ? psi.name : "");
                 const fH = new Date(citaSeleccionada.start).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
                 const msg = `Hola ${citaSeleccionada.title} te recordamos que tienes una cita en el día ${fH} con ${nomPsi}. Te esperamos!`;
                 window.open(`https://wa.me/${citaSeleccionada.tel}?text=${encodeURIComponent(msg)}`);
-            } else alert("Sin número registrado.");
+            } else alert("Sin número.");
         };
 
         document.getElementById('btn-editar-cita').onclick = async () => {
@@ -198,21 +234,20 @@
         };
 
         document.getElementById('btn-eliminar-cita').onclick = async () => {
-            if (confirm("¿Borrar cita del sistema?")) { await deleteDoc(doc(db, "citas", citaSeleccionada.id)); cerrarModalGestion(); }
+            if (confirm("¿Eliminar?")) { await deleteDoc(doc(db, "citas", citaSeleccionada.id)); cerrarModalGestion(); }
         };
 
-        // Lógica Guardar Nueva Cita
         document.getElementById('btn-guardar-cita').onclick = async () => {
             const nombre = document.getElementById('px-nombre').value;
             const whatsapp = document.getElementById('px-whatsapp').value;
             const emailPsicologa = document.getElementById('select-psicologa-cita').value;
-            if(!nombre || !emailPsicologa) return alert("Falta nombre o psicóloga");
-            const psi = equipoGlobal.find(p => p.email.toLowerCase() === emailPsicologa);
-            const nomPsi = "Licda. " + psi.name;
-            const fH = new Date(tempSelection.startStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-            await addDoc(collection(db, "citas"), { title: nombre, tel: whatsapp, start: tempSelection.startStr, end: tempSelection.endStr, user: emailPsicologa, color: psi.color });
+            if(!nombre || !emailPsicologa) return alert("Faltan datos");
+            const psicologa = equipoGlobal.find(p => p.email.toLowerCase() === emailPsicologa);
+            await addDoc(collection(db, "citas"), { title: nombre, tel: whatsapp, start: tempSelection.startStr, end: tempSelection.endStr, user: emailPsicologa, color: psicologa.color });
             if(whatsapp) {
-                const msg = `Hola, ${nombre} tu cita en RESILIENCIA ha sido agendada exitosamente el día ${fH} con ${nomPsi}. Te esperamos!`;
+                const nomPsi = "Licda. " + psicologa.name;
+                const fH = new Date(tempSelection.startStr).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+                const msg = `Hola, ${nombre} tu cita en RESILIENCIA ha sido agendada el día ${fH} con ${nomPsi}. Te esperamos!`;
                 window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`);
             }
             cerrarModalCita();
@@ -227,11 +262,12 @@
         document.getElementById('logout-btn').onclick = async () => { await signOut(auth); location.reload(); };
         window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
         document.getElementById('add-doc-btn').onclick = async () => { const n = document.getElementById('new-doc-name').value; const e = document.getElementById('new-doc-email').value.toLowerCase(); if(n && e) await addDoc(collection(db, "psicologas"), { name: n, email: e, color: '#'+Math.floor(Math.random()*16777215).toString(16) }); };
+        
         document.getElementById('save-admin-style').onclick = async () => {
             const logo = document.getElementById('admin-logo-upload').files[0];
             let upd = { color: document.getElementById('brand-color-picker').value };
             if(logo) { const r = new FileReader(); r.readAsDataURL(logo); r.onload = async (e) => { upd.logoB64 = e.target.result; await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Actualizado"); }; }
-            else { await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Color actualizado"); }
+            else { await setDoc(doc(db, "configuracion", "apariencia"), upd, { merge: true }); alert("Actualizado"); }
         };
     </script>
 </body>
