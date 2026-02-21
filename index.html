@@ -26,7 +26,6 @@
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow-x: auto; }
         #calendar { min-width: 700px; }
 
-        /* Forzar Mayúsculas en el título */
         .fc .fc-toolbar-title { text-transform: uppercase !important; font-weight: 600; color: #333; font-size: 1.5em; }
 
         .psicologa-item { padding: 8px; border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; color: #000 !important; font-weight: 600; font-size: 11px; }
@@ -37,7 +36,6 @@
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; color: #333; }
         .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 
-        /* Estilos PDF */
         #pdf-template { display: none; color: #000; background: #fff; width: 1300px; transform: scale(0.65); transform-origin: top left; padding: 20px; }
         .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 10px; }
         #pdf-date-display { font-weight: 600; margin: 5px 0; font-size: 24px; color: #000; text-transform: uppercase; }
@@ -175,14 +173,13 @@
             }
         });
 
-        // CORRECCIÓN DEFINITIVA DE TÍTULO: Sin "de" y Forzado Español
         function corregirTituloCalendario() {
             const titleEl = document.querySelector('.fc-toolbar-title');
             if (titleEl && window.calendarObj) {
                 const viewDate = window.calendarObj.getDate();
                 const mesNombre = viewDate.toLocaleString('es-ES', { month: 'long' }).toUpperCase();
                 const anio = viewDate.getFullYear();
-                titleEl.innerText = `${mesNombre} ${anio}`; // Formato: FEBRERO 2026
+                titleEl.innerText = `${mesNombre} ${anio}`;
             }
         }
 
@@ -255,20 +252,9 @@
                 locale: 'es',
                 selectable: true,
                 height: 'auto',
-                buttonText: {
-                    today: 'Hoy',
-                    month: 'Mes',
-                    week: 'Semana',
-                    day: 'Día'
-                },
-                headerToolbar: { 
-                    left: 'prev,next today', 
-                    center: 'title', 
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay' 
-                },
-                datesSet: () => {
-                    corregirTituloCalendario();
-                },
+                buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+                datesSet: () => { corregirTituloCalendario(); },
                 eventClick: (info) => {
                     currentEvent = info.event;
                     document.getElementById('edit-name').value = currentEvent.title;
@@ -280,10 +266,44 @@
             calendar.render(); window.calendarObj = calendar;
         }
 
+        // AGENDAR Y ENVIAR WHATSAPP CON NOMBRE DE LICDA.
+        document.getElementById('p-save').onclick = async () => {
+            const name = document.getElementById('p-name').value;
+            const phone = document.getElementById('p-phone').value;
+            const sel = document.getElementById('p-select');
+            
+            if(!name || !phone) { alert("Completa nombre y WhatsApp"); return; }
+
+            const licdaNombre = sel.options[sel.selectedIndex].text; // Captura el nombre de la psicóloga
+
+            // Guardar en Firebase
+            await addDoc(collection(db, "citas"), { 
+                title: name, 
+                phone: phone, 
+                start: window.selectedTime.startStr, 
+                end: window.selectedTime.endStr, 
+                user: sel.value.toLowerCase(), 
+                color: sel.options[sel.selectedIndex].dataset.color 
+            });
+
+            // Preparar Mensaje WhatsApp
+            const fechaObj = new Date(window.selectedTime.start);
+            const fechaTexto = fechaObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+            const horaTexto = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            
+            const mensaje = `Hola ${name} tu cita a sido agendada exitosamente el ${fechaTexto} a las ${horaTexto} con la Licda. ${licdaNombre}`;
+            
+            // Abrir WhatsApp
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`);
+
+            document.getElementById('assign-modal').style.display = 'none';
+            document.getElementById('p-name').value = "";
+            document.getElementById('p-phone').value = "";
+        };
+
         document.getElementById('btn-recordar').onclick = () => {
             const pxName = document.getElementById('edit-name').value;
             const pxPhone = document.getElementById('edit-phone').value;
-            if(!currentEvent) return;
             const fechaObj = currentEvent.start;
             const fechaTexto = fechaObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
             const horaTexto = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
@@ -294,46 +314,30 @@
         window.generarReportePDF = async () => {
             let name = prompt("Nombre PDF:", "Reporte_Resiliencia");
             if(!name) return;
-            
             const temp = document.getElementById('pdf-template');
             const body = document.getElementById('pdf-table-body');
             body.innerHTML = "";
             equipoGlobal.forEach(p => { 
                 body.innerHTML += `<tr style="border: 1px solid #000;"><td style="padding:5px;">${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`; 
             });
-
-            // Sincronizar título del PDF
-            const calendarTitle = document.querySelector('.fc-toolbar-title').innerText;
-            document.getElementById('pdf-date-display').innerText = calendarTitle;
-
+            document.getElementById('pdf-date-display').innerText = document.querySelector('.fc-toolbar-title').innerText;
             const container = document.getElementById('pdf-calendar-snap');
             container.innerHTML = ""; 
-            const calClone = document.getElementById('calendar').cloneNode(true);
-            container.appendChild(calClone);
-
+            container.appendChild(document.getElementById('calendar').cloneNode(true));
             temp.style.display = 'block';
             await html2pdf().set({
-                margin: 5,
-                filename: name + '.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
+                margin: 5, filename: name + '.pdf', image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true, width: 1300 },
                 jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }
             }).from(temp).save();
             temp.style.display = 'none';
         };
 
-        // Eventos generales
-        document.getElementById('report-month').onchange = () => recalcularYRenderizar(true);
         document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (e) { alert("Error"); } };
         window.toggleConfig = () => { const d = document.getElementById('config-drawer'); d.style.display = d.style.display === 'none' ? 'block' : 'none'; };
         document.getElementById('btn-cancelar-modal').onclick = () => document.getElementById('action-modal').style.display = 'none';
         document.getElementById('btn-eliminar').onclick = async () => { if(confirm("¿Eliminar?")) { await deleteDoc(doc(db, "citas", currentEvent.id)); document.getElementById('action-modal').style.display = 'none'; } };
         document.getElementById('btn-modificar').onclick = async () => { await updateDoc(doc(db, "citas", currentEvent.id), { title: document.getElementById('edit-name').value, phone: document.getElementById('edit-phone').value }); document.getElementById('action-modal').style.display = 'none'; };
-        document.getElementById('p-save').onclick = async () => {
-            const sel = document.getElementById('p-select');
-            await addDoc(collection(db, "citas"), { title: document.getElementById('p-name').value, phone: document.getElementById('p-phone').value, start: window.selectedTime.startStr, end: window.selectedTime.endStr, user: sel.value.toLowerCase(), color: sel.options[sel.selectedIndex].dataset.color });
-            document.getElementById('assign-modal').style.display = 'none';
-        };
         document.getElementById('p-cancel').onclick = () => document.getElementById('assign-modal').style.display = 'none';
         document.getElementById('save-style-btn').onclick = async () => {
             const file = document.getElementById('logo-upload').files[0];
@@ -350,6 +354,7 @@
             document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
         };
         window.confirmarBorrar = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "psicologas", id)); };
+        document.getElementById('report-month').onchange = () => recalcularYRenderizar(true);
     </script>
 </body>
 </html>
