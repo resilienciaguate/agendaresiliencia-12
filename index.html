@@ -27,6 +27,9 @@
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow-x: auto; }
         #calendar { min-width: 700px; }
 
+        /* Estilo para el título del mes en la página */
+        .fc .fc-toolbar-title { text-transform: uppercase !important; font-weight: 600; }
+
         .psicologa-item { padding: 8px; border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; color: #000 !important; font-weight: 600; font-size: 11px; }
         input, select { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; box-sizing: border-box; }
         .btn-action { width: 100%; background: var(--brand-color); color: #000 !important; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 5px; }
@@ -46,7 +49,7 @@
             padding: 20px;
         }
         .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 10px; }
-        #pdf-date-display { font-weight: 600; margin: 5px 0; font-size: 22px; color: #000; }
+        #pdf-date-display { font-weight: 600; margin: 5px 0; font-size: 24px; color: #000; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -92,7 +95,7 @@
             <input type="email" id="new-doc-email" placeholder="Correo">
             <button class="btn-action" id="add-doc-btn">Añadir</button>
             <hr style="opacity:0.2; margin:15px 0;">
-            <h3>Citas Mensuales</h3>
+            <h3 id="panel-month-title">CITAS DEL MES</h3>
             <input type="month" id="report-month" style="margin-bottom:10px;">
             <div id="docs-list"></div>
         </div>
@@ -181,6 +184,12 @@
             }
         });
 
+        // FUNCIÓN PARA LIMPIAR EL TÍTULO (Quitar "de" y pasar a MAYÚSCULAS)
+        function formatearTituloMes(texto) {
+            if (!texto) return "";
+            return texto.replace(/\bde\b/gi, '').replace(/\s+/g, ' ').trim().toUpperCase();
+        }
+
         function iniciarEscuchas(isAdmin) {
             onSnapshot(doc(db, "configuracion", "apariencia"), (s) => {
                 if(s.exists()){
@@ -189,7 +198,9 @@
                     if(d.textColor) document.documentElement.style.setProperty('--header-text-color', d.textColor);
                     if(d.logoB64) {
                         const img = document.getElementById('app-logo');
+                        const pdfImg = document.getElementById('pdf-logo');
                         img.src = d.logoB64; img.style.display = 'block'; img.style.width = d.logoWidth + 'px';
+                        pdfImg.src = d.logoB64; pdfImg.style.display = 'block';
                         document.getElementById('default-logo').style.display = 'none';
                     }
                 }
@@ -248,8 +259,12 @@
                 locale: 'es',
                 selectable: true,
                 height: 'auto',
-                buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+                // Evento para limpiar el título apenas se renderice
+                datesSet: () => {
+                    const titleEl = document.querySelector('.fc-toolbar-title');
+                    if(titleEl) titleEl.innerText = formatearTituloMes(titleEl.innerText);
+                },
                 eventClick: (info) => {
                     currentEvent = info.event;
                     document.getElementById('edit-name').value = currentEvent.title;
@@ -283,14 +298,9 @@
                 body.innerHTML += `<tr style="border: 1px solid #000;"><td style="padding:5px;">${p.name}</td><td>${countsGlobal[p.email.toLowerCase()] || 0}</td></tr>`; 
             });
 
-            // LÓGICA DE TÍTULO CORREGIDA: MAYÚSCULAS FORZADAS
-            const inputMes = document.getElementById('report-month').value;
-            const [year, month] = inputMes.split('-');
-            const date = new Date(year, month - 1);
-            const mesNombre = date.toLocaleString('es-ES', { month: 'long' });
-            
-            // Forzamos mayúsculas mediante JavaScript antes de asignar al HTML
-            document.getElementById('pdf-date-display').innerText = `${mesNombre.toUpperCase()} ${year}`;
+            // Título PDF: Obtenemos el título actual del calendario (ya limpio)
+            const calendarTitle = document.querySelector('.fc-toolbar-title').innerText;
+            document.getElementById('pdf-date-display').innerText = calendarTitle;
 
             const container = document.getElementById('pdf-calendar-snap');
             container.innerHTML = ""; 
