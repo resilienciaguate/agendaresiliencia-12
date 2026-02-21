@@ -7,24 +7,22 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/es.global.min.js'></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root { --brand-color: #a5c941; --brand-dark: #292929; --header-text-color: #ffffff; }
         html, body { min-height: 100%; margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--brand-dark); color: white; overflow-x: hidden; }
         body { display: flex; flex-direction: column; }
 
-        .top-nav { background-color: var(--brand-color); padding: 8px 15px; display: none; justify-content: space-between; align-items: center; min-height: 85px; position: sticky; top: 0; z-index: 999; }
+        .top-nav { background-color: var(--brand-color); padding: 8px 15px; display: none; justify-content: space-between; align-items: center; min-height: 90px; position: sticky; top: 0; z-index: 999; }
         
-        .profile-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        #user-photo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid white; object-fit: cover; background: #eee; display: none; }
-        /* TEXTO EN NEGRO Y SIN SOMBRA */
-        #display-profile-name { font-size: 13px; font-weight: 600; color: #000000 !important; text-shadow: none !important; margin-top: 2px; }
+        .profile-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; width: 220px; }
+        #user-photo { width: 65px; height: 65px; border-radius: 50%; border: 3px solid white; object-fit: cover; background: #eee; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        #display-profile-name { font-size: 13px; font-weight: 600; color: #000000 !important; text-shadow: none !important; margin-top: 4px; text-align: center; width: 100%; }
 
         #login-screen { position: fixed; inset: 0; background: var(--brand-dark); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-box { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; color: #333; }
         #app-content { display: none; flex-direction: column; padding: 10px; gap: 15px; flex: 1; }
-        @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 300px; position: sticky; top: 100px; } }
+        @media (min-width: 768px) { #app-content { flex-direction: row; padding: 20px; } .side-panel { width: 300px; position: sticky; top: 110px; } }
 
         .side-panel { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); }
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 10px; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); overflow-x: auto; }
@@ -33,7 +31,6 @@
         .btn-action { width: 100%; background: var(--brand-color); color: #000 !important; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 5px; }
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
         .modal-box { background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 350px; color: #333; }
-        .config-section { background: #f9f9f9; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--brand-color); }
     </style>
 </head>
 <body>
@@ -59,7 +56,7 @@
         </div>
 
         <div style="display:flex; align-items:center; gap:12px;">
-            <div onclick="toggleUserConfig()" style="cursor:pointer; font-size:24px;">👤⚙️</div>
+            <div onclick="toggleUserConfig()" style="cursor:pointer; font-size:24px;" title="Mi Perfil">👤⚙️</div>
             <button onclick="location.reload()" style="background:#e74c3c; color:white; border:none; padding:8px 12px; border-radius:6px; font-size:11px;">Salir</button>
         </div>
     </div>
@@ -67,10 +64,12 @@
     <div id="user-config-modal" class="modal-overlay">
         <div class="modal-box">
             <h3>Mi Perfil Personal</h3>
-            <input type="text" id="user-custom-name" placeholder="Ej: Licda. Fatima Rodas">
+            <label style="font-size: 11px;">Nombre a mostrar:</label>
+            <input type="text" id="user-custom-name" placeholder="Ej: Licda. Odett Pineda">
             <label style="font-size: 11px;">Foto de Perfil:</label>
             <input type="file" id="user-photo-upload" accept="image/*">
-            <button class="btn-action" id="save-profile-btn">Guardar Mi Perfil</button>
+            <p id="upload-status" style="font-size: 10px; color: var(--brand-color); display: none; font-weight: 600;">Procesando imagen, por favor espera...</p>
+            <button class="btn-action" id="save-profile-btn">Guardar Cambios</button>
             <button class="btn-action" style="background:#ccc;" onclick="toggleUserConfig()">Cerrar</button>
         </div>
     </div>
@@ -78,37 +77,32 @@
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
             <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h3 style="margin:0">Panel Admin</h3>
+                <h3 style="margin:0">Admin</h3>
                 <div style="display:flex; gap:10px;">
-                    <div onclick="generarReportePDF()" style="cursor:pointer; font-size:20px;">🖨️</div>
                     <div onclick="toggleAdminConfig()" style="cursor:pointer; font-size:20px;">🎨⚙️</div>
                 </div>
             </div>
 
-            <div id="admin-config-drawer" style="display:none;" class="config-section">
-                <label style="font-size: 10px;">Logo Clínica:</label>
+            <div id="admin-config-drawer" style="display:none; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; margin-bottom: 15px;">
+                <label style="font-size: 10px;">Configuración de Clínica:</label>
                 <input type="file" id="admin-logo-upload">
                 <input type="range" id="logo-size" min="40" max="250" value="100">
                 <div style="display:flex; gap:5px;">
                     <input type="color" id="brand-color-picker" value="#a5c941">
                     <input type="color" id="text-color-picker" value="#ffffff">
                 </div>
-                <button class="btn-action" id="save-admin-style" style="font-size: 10px;">Guardar Config Clínica</button>
+                <button class="btn-action" id="save-admin-style" style="font-size: 10px;">Actualizar Clínica</button>
             </div>
 
             <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
             <input type="email" id="new-doc-email" placeholder="Correo">
             <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
             <hr style="opacity:0.2; margin:15px 0;">
-            <h3>CITAS DEL MES</h3>
             <input type="month" id="report-month">
             <div id="docs-list" style="margin-top:10px;"></div>
         </div>
         <div class="calendar-card"><div id='calendar'></div></div>
     </div>
-
-    <div id="action-modal" class="modal-overlay"><div class="modal-box"><h3>Gestión</h3><input type="text" id="edit-name"><input type="tel" id="edit-phone"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;"><button class="btn-action" style="background:#25d366;color:white!important;" id="btn-recordar">WhatsApp</button><button class="btn-action" id="btn-modificar">Guardar</button><button class="btn-action" style="background:#e74c3c;color:white!important;" id="btn-eliminar">Eliminar</button><button class="btn-action" style="background:#ccc;" onclick="document.getElementById('action-modal').style.display='none'">Cerrar</button></div></div></div>
-    <div id="assign-modal" class="modal-overlay"><div class="modal-box"><h3>Nueva Cita</h3><input type="text" id="p-name" placeholder="Paciente"><input type="tel" id="p-phone" placeholder="WhatsApp"><select id="p-select"></select><button class="btn-action" id="p-save">Agendar</button><button class="btn-action" style="background:#ccc;" onclick="document.getElementById('assign-modal').style.display='none'">Cancelar</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -130,8 +124,6 @@
         
         let equipoGlobal = [];
         let citasGlobal = [];
-        let countsGlobal = {};
-        let currentEvent = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -176,53 +168,53 @@
             onSnapshot(collection(db, "citas"), (snap) => {
                 citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 actualizarCalendario(isAdmin);
-                recalcularYRenderizar(isAdmin);
             });
         }
 
-        // GUARDAR PERFIL PERSONAL (Psicóloga)
+        async function redimensionarImagen(file, size = 300) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = size;
+                        canvas.height = size;
+                        const ctx = canvas.getContext('2d');
+                        const min = Math.min(img.width, img.height);
+                        const sx = (img.width - min) / 2;
+                        const sy = (img.height - min) / 2;
+                        ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+                        resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    };
+                    img.onerror = () => reject("Error al cargar imagen");
+                };
+                reader.onerror = () => reject("Error al leer archivo");
+            });
+        }
+
         document.getElementById('save-profile-btn').onclick = async () => {
             const userEmail = auth.currentUser.email.toLowerCase();
             const newName = document.getElementById('user-custom-name').value;
             const photoFile = document.getElementById('user-photo-upload').files[0];
+            const status = document.getElementById('upload-status');
             
             let profileData = { displayName: newName };
 
-            if(photoFile) {
-                const reader = new FileReader();
-                reader.readAsDataURL(photoFile);
-                reader.onload = async () => {
-                    profileData.photo = reader.result;
-                    await setDoc(doc(db, "perfiles", userEmail), profileData, { merge: true });
-                    alert("Perfil Personal Actualizado");
-                    toggleUserConfig();
-                };
-            } else {
+            try {
+                if(photoFile) {
+                    status.style.display = 'block';
+                    profileData.photo = await redimensionarImagen(photoFile, 300);
+                }
                 await setDoc(doc(db, "perfiles", userEmail), profileData, { merge: true });
-                alert("Nombre Actualizado");
+                alert("¡Perfil guardado correctamente!");
+                status.style.display = 'none';
                 toggleUserConfig();
-            }
-        };
-
-        // GUARDAR CONFIG CLÍNICA (Solo Admin)
-        document.getElementById('save-admin-style').onclick = async () => {
-            const logoFile = document.getElementById('admin-logo-upload').files[0];
-            let data = {
-                color: document.getElementById('brand-color-picker').value,
-                textColor: document.getElementById('text-color-picker').value,
-                logoWidth: document.getElementById('logo-size').value
-            };
-            if(logoFile) {
-                const reader = new FileReader();
-                reader.readAsDataURL(logoFile);
-                reader.onload = async () => {
-                    data.logoB64 = reader.result;
-                    await setDoc(doc(db, "configuracion", "apariencia"), data, { merge: true });
-                    alert("Configuración Clínica Guardada");
-                };
-            } else {
-                await setDoc(doc(db, "configuracion", "apariencia"), data, { merge: true });
-                alert("Colores actualizados");
+            } catch (e) {
+                alert("Error al guardar. Prueba con otra foto.");
+                status.style.display = 'none';
             }
         };
 
@@ -230,80 +222,36 @@
             const m = document.getElementById('user-config-modal');
             m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
         };
-
         window.toggleAdminConfig = () => {
             const d = document.getElementById('admin-config-drawer');
             d.style.display = d.style.display === 'none' ? 'block' : 'none';
         };
-
-        // Funciones de Calendario y Datos
-        function recalcularYRenderizar(isAdmin) {
-            countsGlobal = {};
-            const mesSel = document.getElementById('report-month').value;
-            citasGlobal.forEach(c => { if(c.start.startsWith(mesSel)) countsGlobal[c.user] = (countsGlobal[c.user] || 0) + 1; });
-            const list = document.getElementById('docs-list'), sel = document.getElementById('p-select');
-            list.innerHTML = ""; if(isAdmin) sel.innerHTML = "";
-            equipoGlobal.forEach(p => {
-                const mail = p.email.toLowerCase();
-                if(isAdmin) {
-                    sel.innerHTML += `<option value="${mail}" data-color="${p.color}">${p.name}</option>`;
-                    list.innerHTML += `<div style="background:${p.color}; padding:8px; border-radius:6px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center; color:black; font-size:11px; font-weight:600;"><span>${p.name} (${countsGlobal[mail] || 0})</span><span onclick="confirmarBorrar('${p.id}')" style="cursor:pointer;">✕</span></div>`;
-                }
-            });
-        }
+        document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (e) { alert("Error de acceso"); } };
 
         function actualizarCalendario(isAdmin) {
-            if(!window.calendarObj) initCalendar(isAdmin);
+            if(!window.calendarObj) {
+                const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                    initialView: 'dayGridMonth', locale: 'es', selectable: true, height: 'auto',
+                    slotMinTime: '07:00:00', slotMaxTime: '21:00:00', scrollTime: '07:00:00', allDaySlot: false,
+                    dayHeaderFormat: { weekday: 'short', day: 'numeric' },
+                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+                });
+                calendar.render(); window.calendarObj = calendar;
+            }
             window.calendarObj.removeAllEvents();
             citasGlobal.forEach(c => {
                 if(isAdmin || c.user === auth.currentUser.email.toLowerCase()) {
-                    window.calendarObj.addEvent({ id: c.id, title: c.title, start: c.start, end: c.end, color: c.color, extendedProps: { phone: c.phone } });
+                    window.calendarObj.addEvent({ id: c.id, title: c.title, start: c.start, end: c.end, color: c.color });
                 }
             });
         }
-
-        function initCalendar(isAdmin) {
-            const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-                initialView: 'dayGridMonth', locale: 'es', selectable: true, height: 'auto',
-                slotMinTime: '07:00:00', slotMaxTime: '21:00:00', scrollTime: '07:00:00', allDaySlot: false,
-                dayHeaderFormat: { weekday: 'short', day: 'numeric' },
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
-                select: (info) => {
-                    if (calendar.view.type === 'dayGridMonth') calendar.changeView('timeGridWeek', info.startStr);
-                    else { window.selectedTime = info; document.getElementById('assign-modal').style.display = 'flex'; }
-                },
-                eventClick: (info) => {
-                    currentEvent = info.event;
-                    document.getElementById('edit-name').value = currentEvent.title;
-                    document.getElementById('edit-phone').value = currentEvent.extendedProps.phone || "";
-                    document.getElementById('action-modal').style.display = 'flex';
-                }
+        function recalcularYRenderizar(isAdmin) {
+            const list = document.getElementById('docs-list');
+            list.innerHTML = "";
+            equipoGlobal.forEach(p => {
+                if(isAdmin) list.innerHTML += `<div style="background:${p.color}; padding:8px; border-radius:6px; margin-bottom:5px; color:black; font-size:11px; font-weight:600;">${p.name}</div>`;
             });
-            calendar.render(); window.calendarObj = calendar;
         }
-
-        document.getElementById('p-save').onclick = async () => {
-            const n = document.getElementById('p-name').value, ph = document.getElementById('p-phone').value, s = document.getElementById('p-select');
-            if(!n || !ph) return;
-            await addDoc(collection(db, "citas"), { title: n, phone: ph, start: window.selectedTime.startStr, end: window.selectedTime.endStr, user: s.value, color: s.options[s.selectedIndex].dataset.color });
-            const d = new Date(window.selectedTime.start);
-            window.open(`https://wa.me/${ph}?text=${encodeURIComponent('Hola '+n+' tu cita es el '+d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})+' a las '+d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})+' con la Licda. '+s.options[s.selectedIndex].text)}`);
-            document.getElementById('assign-modal').style.display = 'none';
-        };
-
-        document.getElementById('btn-recordar').onclick = () => {
-            const f = currentEvent.start;
-            window.open(`https://wa.me/${document.getElementById('edit-phone').value}?text=${encodeURIComponent('Hola '+document.getElementById('edit-name').value+', te recordamos tu cita el '+f.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})+' a las '+f.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})+'. Te esperamos!')}`);
-        };
-
-        document.getElementById('login-btn').onclick = async () => { try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (e) { alert("Acceso denegado"); } };
-        document.getElementById('btn-modificar').onclick = async () => { await updateDoc(doc(db, "citas", currentEvent.id), { title: document.getElementById('edit-name').value, phone: document.getElementById('edit-phone').value }); document.getElementById('action-modal').style.display = 'none'; };
-        document.getElementById('btn-eliminar').onclick = async () => { if(confirm("¿Eliminar?")) { await deleteDoc(doc(db, "citas", currentEvent.id)); document.getElementById('action-modal').style.display = 'none'; } };
-        document.getElementById('add-doc-btn').onclick = async () => { await addDoc(collection(db, "psicologas"), { name: document.getElementById('new-doc-name').value, email: document.getElementById('new-doc-email').value.toLowerCase(), color: '#'+Math.floor(Math.random()*16777215).toString(16) }); };
-        document.getElementById('report-month').value = new Date().toISOString().substring(0, 7);
-        document.getElementById('report-month').onchange = () => recalcularYRenderizar(true);
-        window.confirmarBorrar = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "psicologas", id)); };
-        window.generarReportePDF = async () => { /* Lógica PDF existente */ };
     </script>
 </body>
 </html>
