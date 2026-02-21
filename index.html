@@ -252,6 +252,9 @@
                 locale: 'es',
                 selectable: true,
                 height: 'auto',
+                // CONFIGURACIÓN DE HORAS: 7am a 8pm (20hrs)
+                slotMinTime: '07:00:00',
+                slotMaxTime: '21:00:00',
                 buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
                 headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                 datesSet: () => { corregirTituloCalendario(); },
@@ -266,17 +269,14 @@
             calendar.render(); window.calendarObj = calendar;
         }
 
-        // AGENDAR Y ENVIAR WHATSAPP CON NOMBRE DE LICDA.
         document.getElementById('p-save').onclick = async () => {
             const name = document.getElementById('p-name').value;
             const phone = document.getElementById('p-phone').value;
             const sel = document.getElementById('p-select');
             
             if(!name || !phone) { alert("Completa nombre y WhatsApp"); return; }
+            const licdaNombre = sel.options[sel.selectedIndex].text;
 
-            const licdaNombre = sel.options[sel.selectedIndex].text; // Captura el nombre de la psicóloga
-
-            // Guardar en Firebase
             await addDoc(collection(db, "citas"), { 
                 title: name, 
                 phone: phone, 
@@ -286,14 +286,11 @@
                 color: sel.options[sel.selectedIndex].dataset.color 
             });
 
-            // Preparar Mensaje WhatsApp
             const fechaObj = new Date(window.selectedTime.start);
             const fechaTexto = fechaObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
             const horaTexto = fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
             
             const mensaje = `Hola ${name} tu cita a sido agendada exitosamente el ${fechaTexto} a las ${horaTexto} con la Licda. ${licdaNombre}`;
-            
-            // Abrir WhatsApp
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`);
 
             document.getElementById('assign-modal').style.display = 'none';
