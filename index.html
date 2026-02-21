@@ -33,11 +33,19 @@
         .control-btn { cursor: pointer; font-size: 18px; opacity: 0.6; transition: 0.3s; }
         #config-drawer { display: none; margin-top: 10px; padding: 12px; background: rgba(255,255,255,0.08); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); }
 
-        /* Estilos PDF (Ajustado para Horizontal) */
-        #pdf-template { display: none; padding: 20px; color: #000; background: #fff; width: 1000px; } /* Ancho simulado para captura */
-        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--brand-color); margin-bottom: 15px; padding-bottom: 10px; }
-        .pdf-summary-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .pdf-summary-table th, .pdf-summary-table td { border: 1px solid #ccc; padding: 6px; text-align: left; font-size: 11px; }
+        /* Estilos PDF - Súper compactos */
+        #pdf-template { 
+            display: none; 
+            padding: 10px; 
+            color: #000; 
+            background: #fff; 
+            width: 1050px; /* Ancho para Landscape */
+            transform: scale(0.85); /* Reducción de escala al 85% */
+            transform-origin: top left;
+        }
+        .pdf-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--brand-color); margin-bottom: 10px; padding-bottom: 5px; }
+        .pdf-summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .pdf-summary-table th, .pdf-summary-table td { border: 1px solid #ddd; padding: 4px 8px; text-align: left; font-size: 10px; }
         .pdf-summary-table th { background: #f2f2f2; }
 
         #assign-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; }
@@ -67,7 +75,7 @@
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
             <div class="controls">
-                <div class="control-btn" onclick="generarReportePDF()" title="Exportar Reporte Horizontal">🖨️</div>
+                <div class="control-btn" onclick="generarReportePDF()" title="Exportar PDF Horizontal">🖨️</div>
                 <div class="control-btn" onclick="toggleConfig()" title="Configuración">⚙️</div>
             </div>
             <h3 style="margin-top:0">Panel Admin</h3>
@@ -101,16 +109,16 @@
     <div id="pdf-template">
         <div class="pdf-header">
             <div>
-                <h1 style="margin:0; color:var(--brand-color); font-size: 24px;">RESILIENCIA</h1>
-                <p id="pdf-date-display" style="margin:0; font-size:14px; font-weight:600;"></p>
+                <h1 style="margin:0; color:var(--brand-color); font-size: 20px;">RESILIENCIA</h1>
+                <p id="pdf-date-display" style="margin:0; font-size:12px; font-weight:600;"></p>
             </div>
-            <img id="pdf-logo" src="" style="max-height:50px; display:none;">
+            <img id="pdf-logo" src="" style="max-height:40px; display:none;">
         </div>
-        <div id="pdf-calendar-snap" style="width:100%; border: 1px solid #eee;"></div>
-        <div style="margin-top:15px;">
-            <h4 style="margin-bottom:5px;">Resumen de Citas por Psicóloga</h4>
+        <div id="pdf-calendar-snap" style="width:100%;"></div>
+        <div style="margin-top:10px;">
+            <h4 style="margin:0 0 5px 0; font-size:12px;">Resumen Mensual de Actividad</h4>
             <table class="pdf-summary-table" id="pdf-table">
-                <thead><tr><th>Psicóloga</th><th>Total Citas Agendadas</th></tr></thead>
+                <thead><tr><th>Psicóloga</th><th>Total Citas</th></tr></thead>
                 <tbody id="pdf-table-body"></tbody>
             </table>
         </div>
@@ -163,30 +171,30 @@
             
             tableBody.innerHTML = "";
             equipoGlobal.forEach(doc => {
-                const row = `<tr><td>${doc.name}</td><td>${countsGlobal[doc.email.toLowerCase()] || 0}</td></tr>`;
-                tableBody.innerHTML += row;
+                tableBody.innerHTML += `<tr><td>${doc.name}</td><td>${countsGlobal[doc.email.toLowerCase()] || 0}</td></tr>`;
             });
 
-            document.getElementById('pdf-date-display').innerText = `REPORTE MENSUAL: ${monthVal}`;
+            document.getElementById('pdf-date-display').innerText = `REPORTE: ${monthVal}`;
             const logoImg = document.getElementById('app-logo').src;
             if(logoImg) {
                 const pdfLogo = document.getElementById('pdf-logo');
                 pdfLogo.src = logoImg; pdfLogo.style.display = 'block';
             }
 
-            // Capturar el calendario
             const calClone = document.getElementById('calendar').cloneNode(true);
             const container = document.getElementById('pdf-calendar-snap');
             container.innerHTML = "";
             container.appendChild(calClone);
 
             template.style.display = 'block';
+            
+            // Opciones de exportación forzando una sola hoja
             const opt = {
-                margin: 8,
-                filename: `Resiliencia_Reporte_${monthVal}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' } // Configurado a HORIZONTAL
+                margin: 5,
+                filename: `Reporte_Resiliencia_${monthVal}.pdf`,
+                image: { type: 'jpeg', quality: 0.95 },
+                html2canvas: { scale: 1.5, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'letter', orientation: 'landscape' }
             };
 
             await html2pdf().set(opt).from(template).save();
@@ -194,7 +202,7 @@
         };
 
         document.getElementById('login-btn').onclick = async () => {
-            try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (err) { alert("Error de acceso"); }
+            try { await setPersistence(auth, browserLocalPersistence); await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); } catch (err) { alert("Error"); }
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -231,9 +239,9 @@
             const data = { color: document.getElementById('brand-color-picker').value, textColor: document.getElementById('text-color-picker').value, logoWidth: document.getElementById('logo-size').value };
             if(file) {
                 const reader = new FileReader();
-                reader.onloadend = async () => { data.logoB64 = reader.result; await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); alert("Sincronizado"); };
+                reader.onloadend = async () => { data.logoB64 = reader.result; await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); alert("Hecho"); };
                 reader.readAsDataURL(file);
-            } else { await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); alert("Actualizado"); }
+            } else { await setDoc(doc(db, "configuracion", "apariencia"), data, {merge:true}); alert("Hecho"); }
         };
 
         function cargarEquipo(isAdmin, userEmail) {
@@ -269,7 +277,7 @@
                         item.innerHTML = `<span>${data.name} (Mes: ${countsGlobal[email] || 0})</span>`;
                         select.innerHTML += `<option value="${data.email}" data-color="${data.color}">${data.name}</option>`;
                         const del = document.createElement('span');
-                        del.innerHTML = "✕"; del.onclick = () => { if(confirm("¿Eliminar psicóloga?")) deleteDoc(doc(db, "psicologas", d.id)); };
+                        del.innerHTML = "✕"; del.onclick = () => { if(confirm("¿Eliminar?")) deleteDoc(doc(db, "psicologas", d.id)); };
                         item.appendChild(del);
                         list.appendChild(item);
                     }
@@ -282,7 +290,7 @@
             const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
                 initialView: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek',
                 locale: 'es', allDaySlot: false, selectable: true, height: 'auto',
-                slotMinTime: "07:00:00", slotMaxTime: "21:00:00",
+                slotMinTime: "07:00:00", slotMaxTime: "20:00:00",
                 headerToolbar: { left: 'prev,next', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                 select: async (info) => {
                     if(isAdmin) { window.selectedInfo = info; document.getElementById('assign-modal').style.display = 'flex'; }
@@ -293,9 +301,8 @@
                 },
                 eventClick: (info) => {
                     const t = info.event.extendedProps.phone;
-                    if(confirm(`Cita: ${info.event.title}\nOK: Recordatorio WA\nCancelar: Eliminar`)) {
-                        const msg = encodeURIComponent(`Hola ${info.event.title}, te recordamos tu cita en RESILIENCIA el ${info.event.start.toLocaleString()}.`);
-                        window.open(`https://wa.me/${t}?text=${msg}`);
+                    if(confirm(`Cita: ${info.event.title}\nOK: WhatsApp\nCancelar: Eliminar`)) {
+                        window.open(`https://wa.me/${t}?text=${encodeURIComponent('Hola '+info.event.title+', recordatorio de cita en RESILIENCIA.')}`);
                     } else { deleteDoc(doc(db, "citas", info.event.id)); }
                 }
             });
