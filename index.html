@@ -61,9 +61,8 @@
     <div id="login-screen" style="position:fixed; inset:0; background:#f5f5f7; display:flex; align-items:center; justify-content:center; z-index:9999;">
         <div class="modal-box" style="background:white;">
             <div id="logo-container-login" style="margin-bottom: 25px;">
-                <img id="login-logo-img" src="https://raw.githubusercontent.com/TuUsuarioDeGithub/TuRepositorio/main/Resiliencia.png" 
-                     style="width:110px; height:110px; border-radius:24px; margin: 0 auto; display:block; object-fit:cover; box-shadow: var(--apple-shadow);"
-                     onerror="this.style.display='none'">
+                <img id="login-logo-img" src="https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/Resiliencia.png" 
+                     style="width:110px; height:110px; border-radius:24px; margin: 0 auto; display:block; object-fit:cover; box-shadow: var(--apple-shadow);">
             </div>
             <h2 style="font-size:22px; margin-bottom:30px; font-weight:800; color: #1d1d1f; letter-spacing: -0.5px;">AGENDA RESILIENCIA 2026</h2>
             
@@ -74,7 +73,7 @@
     </div>
 
     <div class="top-nav" id="nav-bar">
-        <img id="app-logo" src="https://raw.githubusercontent.com/TuUsuarioDeGithub/TuRepositorio/main/Resiliencia.png" style="max-height:45px; border-radius:10px; display:block;">
+        <img id="app-logo" src="https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/Resiliencia.png" style="max-height:45px; border-radius:10px; display:block;">
         <div class="profile-center">
             <img id="user-photo" src="" alt="" style="display:none;">
             <span id="display-profile-name">Cargando...</span>
@@ -153,10 +152,25 @@
         
         let equipoGlobal = [], citasGlobal = [], tempSelection = null, citaSeleccionada = null, filtroPsicologaActual = null;
 
-        // --- CARGA DE LOGO GitHub ---
-        const LOGO_URL = "https://raw.githubusercontent.com/TuUsuarioDeGithub/TuRepositorio/main/Resiliencia.png";
-        document.getElementById('login-logo-img').src = LOGO_URL;
-        document.getElementById('app-logo').src = LOGO_URL;
+        // --- SISTEMA INTELIGENTE DE CARGA DE LOGO ---
+        function cargarLogoUniversal() {
+            const loginImg = document.getElementById('login-logo-img');
+            const navImg = document.getElementById('app-logo');
+
+            // Función para aplicar la imagen a ambos elementos
+            const aplicar = (src) => { loginImg.src = src; navImg.src = src; };
+
+            // Escuchar errores: Si GitHub falla, cargar desde Firebase
+            const manejarError = () => {
+                onSnapshot(doc(db, "configuracion", "apariencia"), (s) => {
+                    if(s.exists() && s.data().logoB64) aplicar(s.data().logoB64);
+                });
+            };
+
+            loginImg.onerror = manejarError;
+            navImg.onerror = manejarError;
+        }
+        cargarLogoUniversal();
 
         window.mostrarAviso = (t, m, esConfirm = false, onOk = null) => {
             document.getElementById('aviso-titulo').innerText = t;
