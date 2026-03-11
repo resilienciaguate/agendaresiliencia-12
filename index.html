@@ -35,7 +35,7 @@
         .calendar-card { flex: 1; background: white; border-radius: 24px; padding: 20px; box-shadow: var(--apple-shadow); min-height: 650px; }
         .glass-card { background: var(--glass-bg); backdrop-filter: blur(15px); padding: 25px; border-radius: 24px; box-shadow: var(--apple-shadow); border: 1px solid rgba(255,255,255,0.4); }
         
-        /* ADMIN UI RECUPERADO */
+        /* ADMIN UI */
         .doc-item { padding: 12px 15px; border-radius: 14px; margin-bottom: 10px; display: flex; align-items: center; font-size: 13px; font-weight: 600; background: white; border-left: 6px solid; box-shadow: 0 2px 5px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; gap: 12px; }
         .doc-item:hover { transform: translateX(5px); background: #fafafa; }
         .doc-thumb { width: 35px; height: 35px; border-radius: 8px; object-fit: cover; background: #eee; }
@@ -45,29 +45,29 @@
         .filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .btn-show-all { font-size: 10px; font-weight: 700; color: #007aff; cursor: pointer; text-transform: uppercase; background: rgba(0,122,255,0.1); padding: 4px 8px; border-radius: 6px; display: none; }
 
-        /* CALENDARIO ESTILO IPHONE (DENTRO DE MODO USUARIO) */
+        /* CALENDARIO GENERAL */
         .fc { border: none !important; font-family: inherit; }
         .fc-theme-standard td, .fc-theme-standard th { border: 0.5px solid #f0f0f0 !important; }
-        .fc-daygrid-day-number { font-size: 14px; font-weight: 400; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto !important; transition: 0.2s; }
+        .fc-daygrid-day-number { font-size: 14px; font-weight: 400; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto !important; transition: 0.2s; text-decoration: none !important; color: inherit; }
         
-        /* Círculo Rojo Hoy */
-        .fc-day-today .fc-daygrid-day-number { background: #ff3b30 !important; color: white !important; border-radius: 50%; font-weight: 700; }
-        /* Círculo Gris Seleccionado (Nuevo Requerimiento) */
-        .selected-day .fc-daygrid-day-number { background: var(--ios-selection) !important; color: black !important; border-radius: 50%; }
-
-        /* Puntos de eventos estilo iOS */
+        /* --- ESTILOS MODO USUARIO (IPHONE) --- */
+        .mode-user .fc-day-today .fc-daygrid-day-number { background: #ff3b30 !important; color: white !important; border-radius: 50%; font-weight: 700; }
+        .mode-user .selected-day .fc-daygrid-day-number { background: var(--ios-selection) !important; color: black !important; border-radius: 50%; }
         .mode-user .fc-daygrid-event-harness { display: none; }
         .mode-user .fc-daygrid-day-events { display: flex; justify-content: center; min-height: 12px !important; }
-        .has-event-dot::after { content: ''; width: 4px; height: 4px; background: #8e8e93; border-radius: 50%; display: block; margin: 2px auto; }
+        .mode-user .has-event-dot::after { content: ''; width: 4px; height: 4px; background: #8e8e93; border-radius: 50%; display: block; margin: 2px auto; }
 
-        /* VISTA ADMIN (CONSERVADA) */
+        /* --- ESTILOS MODO ADMIN (ORIGINAL) --- */
         .mode-admin .fc-daygrid-event-harness { display: block !important; }
+        /* El admin NO tiene puntos ni círculos de hoy/seleccionado para mantener limpieza */
+        .mode-admin .fc-day-today { background: rgba(165, 201, 65, 0.05) !important; }
+        .mode-admin .fc-daygrid-day-number { background: transparent !important; }
 
         /* AGENDA DEL DÍA (ESTILO IPHONE) */
         #agenda-viewer { margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px; display: none; }
         .agenda-header { font-size: 18px; font-weight: 800; margin-bottom: 15px; color: #1d1d1f; display: flex; align-items: center; gap: 10px; }
         .agenda-header span { font-weight: 400; color: #8e8e93; font-size: 14px; }
-        .event-ios-card { display: flex; align-items: center; padding: 12px 0; border-bottom: 0.5px solid #f2f2f7; cursor: pointer; transition: 0.2s; }
+        .event-ios-card { display: flex; align-items: center; padding: 12px 0; border-bottom: 0.5px solid #f2f2f7; cursor: pointer; }
         .event-time { width: 80px; font-size: 12px; font-weight: 600; color: #1d1d1f; }
         .event-bar { width: 4px; height: 35px; border-radius: 2px; margin: 0 15px; }
         .event-info { flex: 1; }
@@ -136,7 +136,6 @@
 
         <div class="calendar-card">
             <div id='calendar'></div>
-            
             <div id="agenda-viewer">
                 <div class="agenda-header" id="agenda-title">Agenda <span>Selecciona un día</span></div>
                 <div id="agenda-list"></div>
@@ -182,23 +181,19 @@
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
         const PALETA = ["#FF5E5E", "#4FACFE", "#00F2FE", "#F9D423", "#A18CD1", "#84FAB0", "#FF9A9E", "#B210FF", "#30CFD0"];
         
-        let equipoGlobal = [], citasGlobal = [], perfilesGlobal = {}, citaSeleccionadaId = null, filtroPsicologaActual = null;
-
-        const showToast = (msg) => {
-            const t = document.getElementById('toast');
-            t.innerText = msg; t.style.transform = 'translateX(-50%) translateY(0)';
-            setTimeout(() => t.style.transform = 'translateX(-50%) translateY(120px)', 3000);
-        };
+        let equipoGlobal = [], citasGlobal = [], perfilesGlobal = {}, citaSeleccionadaId = null, filtroPsicologaActual = null, globalIsAdmin = false;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL;
-                if(isAdmin) document.body.className = "mode-admin";
+                globalIsAdmin = user.email.toLowerCase() === ADMIN_EMAIL;
+                if(globalIsAdmin) document.body.className = "mode-admin";
+                else document.body.className = "mode-user";
+                
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'flex';
-                if(isAdmin) document.getElementById('side-panel-ui').style.display = 'block';
-                iniciarEscuchas(isAdmin, user.email.toLowerCase());
+                if(globalIsAdmin) document.getElementById('side-panel-ui').style.display = 'block';
+                iniciarEscuchas(globalIsAdmin, user.email.toLowerCase());
             }
         });
 
@@ -228,23 +223,30 @@
                     initialView: 'dayGridMonth',
                     locale: 'es', 
                     firstDay: 1, 
-                    slotMinTime: '07:00:00', // Horario Obligatorio
+                    slotMinTime: '07:00:00',
                     slotMaxTime: '19:00:00',
                     headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                     selectable: true,
                     dayCellDidMount: (info) => {
-                        const dateStr = info.date.toISOString().split('T')[0];
-                        if(citasGlobal.some(c => c.start.startsWith(dateStr))) info.el.classList.add('has-event-dot');
+                        if(!isAdmin) {
+                            const dateStr = info.date.toISOString().split('T')[0];
+                            if(citasGlobal.some(c => c.start.startsWith(dateStr))) info.el.classList.add('has-event-dot');
+                        }
                     },
                     dateClick: (info) => {
                         if (window.calendarObj.view.type === 'dayGridMonth') {
-                            document.querySelectorAll('.selected-day').forEach(el => el.classList.remove('selected-day'));
-                            info.dayEl.classList.add('selected-day');
-                            renderAgendaDia(info.dateStr);
+                            if(isAdmin) {
+                                // ADMIN: Ir directo al día
+                                window.calendarObj.changeView('timeGridDay', info.dateStr);
+                            } else {
+                                // USUARIO: Marcar círculo gris y ver agenda abajo
+                                document.querySelectorAll('.selected-day').forEach(el => el.classList.remove('selected-day'));
+                                info.dayEl.classList.add('selected-day');
+                                renderAgendaDia(info.dateStr);
+                            }
                         }
                     },
                     select: (info) => {
-                        // En vista Mes ya no se agrega paciente (manual por Semana/Día)
                         if(window.calendarObj.view.type === 'dayGridMonth') return;
                         abrirModalCita(null, info);
                     },
@@ -300,7 +302,6 @@
 
         function abrirModalCita(id = null, info = null) {
             citaSeleccionadaId = id;
-            const btnDel = document.getElementById('btn-eliminar-cita');
             if(id) {
                 const c = citasGlobal.find(x => x.id === id);
                 document.getElementById('px-nombre').value = c.title;
@@ -308,11 +309,11 @@
                 document.getElementById('px-area').value = c.area || "502";
                 document.getElementById('px-start').value = c.start.substring(0, 16);
                 document.getElementById('select-psicologa-cita').value = c.user;
-                btnDel.style.display = 'block';
+                document.getElementById('btn-eliminar-cita').style.display = 'block';
             } else {
                 document.getElementById('px-nombre').value = "";
                 document.getElementById('px-start').value = info.startStr.substring(0, 16);
-                btnDel.style.display = 'none';
+                document.getElementById('btn-eliminar-cita').style.display = 'none';
             }
             document.getElementById('modal-cita').style.display = 'flex';
         }
@@ -326,18 +327,13 @@
             };
             if(citaSeleccionadaId) await updateDoc(doc(db, "citas", citaSeleccionadaId), data);
             else await addDoc(collection(db, "citas"), data);
-            cerrarModalCita(); showToast("Agenda actualizada");
+            cerrarModalCita();
         };
 
-        window.filtrarPorPsicologa = (e) => { 
-            filtroPsicologaActual = e; 
-            document.getElementById('btn-show-all').style.display = e ? 'block' : 'none';
-            actualizarCalendario(true); 
-        };
-
+        window.filtrarPorPsicologa = (e) => { filtroPsicologaActual = e; document.getElementById('btn-show-all').style.display = e ? 'block' : 'none'; actualizarCalendario(true); };
         window.eliminarPsicologa = async (id) => { if(confirm("¿Eliminar psicóloga?")) await deleteDoc(doc(db, "psicologas", id)); };
         document.getElementById('btn-eliminar-cita').onclick = async () => { if(confirm("¿Eliminar cita?")) { await deleteDoc(doc(db, "citas", citaSeleccionadaId)); cerrarModalCita(); }};
-        document.getElementById('login-btn').onclick = () => { signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(() => showToast("Error de acceso")); };
+        document.getElementById('login-btn').onclick = () => { signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); };
         document.getElementById('logout-btn').onclick = () => { signOut(auth).then(() => location.reload()); };
         window.cerrarModalCita = () => document.getElementById('modal-cita').style.display = 'none';
         window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
