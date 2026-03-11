@@ -152,12 +152,26 @@
         .fc-daygrid-day-number { font-weight: 600; padding: 10px !important; text-decoration: none !important; color: var(--text-dark); }
         .fc-col-header-cell-cushion { text-decoration: none !important; color: var(--text-light); font-size: 12px; text-transform: uppercase; font-weight: 700; }
 
+        /* MEDIA QUERIES QUIRÚRGICOS 2026 */
         @media (max-width: 850px) {
-            #app-content { flex-direction: column; padding: 15px; }
+            #app-content { flex-direction: column; padding: 10px; }
             .side-panel { width: 100%; position: relative; top: 0; }
-            .top-nav { padding: 0 20px; }
-            .modal-overlay { align-items: flex-end; padding: 0; }
-            .modal-box { border-radius: 35px 35px 0 0; max-width: 100%; margin: 0; padding: 30px 20px 40px; }
+            .top-nav { padding: 0 15px; height: 75px; }
+            
+            /* Logo reducido para que no tape el perfil */
+            #app-logo { max-width: 110px; } 
+            
+            /* Reducción de controles de calendario */
+            .fc-toolbar { flex-direction: column; gap: 8px; }
+            .fc-toolbar-title { font-size: 1.1em !important; }
+            .fc .fc-button { padding: 4px 8px !important; font-size: 12px !important; }
+            
+            /* Calendario con celdas iguales */
+            .fc-daygrid-day { height: 85px !important; }
+            
+            /* Modal PX reducido */
+            .modal-overlay { align-items: center; padding: 10px; }
+            .modal-box { border-radius: 35px; max-width: 95%; padding: 25px 20px; }
         }
     </style>
 </head>
@@ -378,13 +392,19 @@
                 const calendarEl = document.getElementById('calendar');
                 window.calendarObj = new FullCalendar.Calendar(calendarEl, {
                     initialView: 'dayGridMonth',
-                    locale: 'es',
+                    locale: 'es', // FORZADO ESPAÑOL
                     firstDay: 1,
-                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
+                    slotMinTime: '07:00:00', // HORARIO LABORAL FIJO 7AM
+                    slotMaxTime: '19:00:00', // HORARIO LABORAL FIJO 7PM
+                    headerToolbar: { 
+                        left: 'prev,next today', 
+                        center: 'title', 
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay' // VENTANA DÍA RECUPERADA
+                    },
                     selectable: true,
                     dateClick: (info) => {
                         renderAgendaDia(info.dateStr);
-                        lanzarToast("Citas del " + info.dateStr);
+                        lanzarToast("Sesiones del " + info.dateStr);
                     },
                     select: (info) => { if(window.calendarObj.view.type !== 'dayGridMonth') abrirModalCita(null, info); },
                     eventClick: (info) => abrirModalCita(info.event.id),
