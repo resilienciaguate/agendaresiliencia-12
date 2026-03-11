@@ -13,127 +13,124 @@
         :root { 
             --brand-color: #a5c941; 
             --glass-bg: rgba(255, 255, 255, 0.85);
-            --apple-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            --apple-shadow: 0 10px 40px rgba(0,0,0,0.1);
             --text-dark: #1d1d1f;
             --ios-gray: #f2f2f7;
+            --ios-selection: #e5e5ea;
         }
 
-        html, body { min-height: 100%; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; color: var(--text-dark); overflow-x: hidden; }
+        html, body { min-height: 100%; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #f5f5f7; color: var(--text-dark); overflow-x: hidden; }
 
-        /* REPARACIÓN DEFINITIVA LOGO PC */
-        .top-nav { 
-            background: rgba(255, 255, 255, 0.8); 
-            backdrop-filter: blur(20px); 
-            padding: 0 40px; 
-            display: none; 
-            justify-content: space-between; 
-            align-items: center; 
-            height: 70px; 
-            position: sticky; 
-            top: 0; 
-            z-index: 999; 
-            border-bottom: 0.5px solid rgba(0,0,0,0.1); 
-        }
-        #app-logo { 
-            height: 45px !important; 
-            width: auto !important; 
-            max-width: 160px !important; 
-            object-fit: contain; 
-        }
+        /* HEADER REPARADO (LOGO PC) */
+        .top-nav { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(25px); padding: 0 30px; display: none; justify-content: space-between; align-items: center; height: 85px; position: sticky; top: 0; z-index: 999; border-bottom: 0.5px solid rgba(0,0,0,0.1); }
+        #app-logo { height: auto !important; width: auto !important; max-width: 160px !important; max-height: 60px !important; object-fit: contain; }
 
         .profile-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; }
-        #user-photo { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        #display-profile-name { font-size: 9px; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
+        #user-photo { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; margin-bottom: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 2px solid white; }
+        #display-profile-name { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.8; }
 
-        /* CONTENIDO */
-        #app-content { display: none; padding: 20px; gap: 20px; max-width: 1600px; margin: 0 auto; }
-        .side-panel { width: 320px; }
-        .calendar-card { flex: 1; background: white; border-radius: 20px; padding: 15px; }
+        /* DISEÑO DE PANELES */
+        #app-content { display: none; padding: 25px; gap: 25px; align-items: flex-start; }
+        .side-panel { width: 300px; position: sticky; top: 110px; }
+        .calendar-card { flex: 1; background: white; border-radius: 24px; padding: 20px; box-shadow: var(--apple-shadow); min-height: 650px; }
+        .glass-card { background: var(--glass-bg); backdrop-filter: blur(15px); padding: 25px; border-radius: 24px; box-shadow: var(--apple-shadow); border: 1px solid rgba(255,255,255,0.4); }
         
-        /* ESTILO CALENDARIO IOS */
+        /* ADMIN UI RECUPERADO */
+        .doc-item { padding: 12px 15px; border-radius: 14px; margin-bottom: 10px; display: flex; align-items: center; font-size: 13px; font-weight: 600; background: white; border-left: 6px solid; box-shadow: 0 2px 5px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; gap: 12px; }
+        .doc-item:hover { transform: translateX(5px); background: #fafafa; }
+        .doc-thumb { width: 35px; height: 35px; border-radius: 8px; object-fit: cover; background: #eee; }
+        .btn-del-doc { margin-left: auto; background: none; border: none; color: #ff3b30; cursor: pointer; font-size: 18px; opacity: 0.3; transition: 0.2s; padding: 0 5px; }
+        .btn-del-doc:hover { opacity: 1; transform: scale(1.2); }
+        
+        .filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .btn-show-all { font-size: 10px; font-weight: 700; color: #007aff; cursor: pointer; text-transform: uppercase; background: rgba(0,122,255,0.1); padding: 4px 8px; border-radius: 6px; display: none; }
+
+        /* CALENDARIO ESTILO IPHONE (DENTRO DE MODO USUARIO) */
         .fc { border: none !important; font-family: inherit; }
-        .fc-theme-standard td, .fc-theme-standard th { border: none !important; }
-        .fc-daygrid-day-number { font-size: 14px; font-weight: 400; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto !important; }
-        .fc-day-today .fc-daygrid-day-number { background: #ff3b30; color: white !important; border-radius: 50%; font-weight: 700; }
-        .fc-col-header-cell-cushion { font-size: 11px; text-transform: uppercase; color: #8e8e93; font-weight: 600; text-decoration: none !important; }
-        .fc-toolbar-title { font-size: 22px !important; font-weight: 700 !important; }
-        .fc .fc-button-primary { background: var(--ios-gray) !important; color: #007aff !important; border: none !important; border-radius: 8px !important; font-weight: 600 !important; font-size: 13px !important; }
-        .fc .fc-button-active { background: #007aff !important; color: white !important; }
+        .fc-theme-standard td, .fc-theme-standard th { border: 0.5px solid #f0f0f0 !important; }
+        .fc-daygrid-day-number { font-size: 14px; font-weight: 400; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto !important; transition: 0.2s; }
         
-        /* OCULTAR EVENTOS DENTRO DEL CALENDARIO PARA EL LOOK IPHONE */
-        .fc-daygrid-event-harness { display: none; }
-        .fc-daygrid-day-events { min-height: 10px !important; display: flex; justify-content: center; }
+        /* Círculo Rojo Hoy */
+        .fc-day-today .fc-daygrid-day-number { background: #ff3b30 !important; color: white !important; border-radius: 50%; font-weight: 700; }
+        /* Círculo Gris Seleccionado (Nuevo Requerimiento) */
+        .selected-day .fc-daygrid-day-number { background: var(--ios-selection) !important; color: black !important; border-radius: 50%; }
+
+        /* Puntos de eventos estilo iOS */
+        .mode-user .fc-daygrid-event-harness { display: none; }
+        .mode-user .fc-daygrid-day-events { display: flex; justify-content: center; min-height: 12px !important; }
         .has-event-dot::after { content: ''; width: 4px; height: 4px; background: #8e8e93; border-radius: 50%; display: block; margin: 2px auto; }
 
+        /* VISTA ADMIN (CONSERVADA) */
+        .mode-admin .fc-daygrid-event-harness { display: block !important; }
+
         /* AGENDA DEL DÍA (ESTILO IPHONE) */
-        #agenda-viewer { margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+        #agenda-viewer { margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px; display: none; }
         .agenda-header { font-size: 18px; font-weight: 800; margin-bottom: 15px; color: #1d1d1f; display: flex; align-items: center; gap: 10px; }
-        .agenda-header span { font-weight: 400; color: #8e8e93; }
+        .agenda-header span { font-weight: 400; color: #8e8e93; font-size: 14px; }
         .event-ios-card { display: flex; align-items: center; padding: 12px 0; border-bottom: 0.5px solid #f2f2f7; cursor: pointer; transition: 0.2s; }
-        .event-ios-card:active { background: #f2f2f7; }
         .event-time { width: 80px; font-size: 12px; font-weight: 600; color: #1d1d1f; }
-        .event-time span { display: block; font-size: 10px; color: #8e8e93; font-weight: 400; }
         .event-bar { width: 4px; height: 35px; border-radius: 2px; margin: 0 15px; }
         .event-info { flex: 1; }
         .event-info h4 { margin: 0; font-size: 15px; font-weight: 600; }
-        .event-info p { margin: 2px 0 0; font-size: 12px; color: #8e8e93; }
 
-        /* ADMIN & MODALES */
-        .glass-card { background: #fbfbfd; padding: 20px; border-radius: 20px; border: 1px solid #efeff4; }
-        .doc-item { padding: 10px; border-radius: 12px; margin-bottom: 8px; display: flex; align-items: center; background: white; border: 1px solid #f2f2f7; font-size: 13px; gap: 10px; }
-        .doc-thumb { width: 35px; height: 35px; border-radius: 8px; object-fit: cover; }
-        
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; }
-        .modal-box { background: white; padding: 30px; border-radius: 30px; width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        /* MODALES */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.25); backdrop-filter: blur(18px); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-box { background: white; padding: 35px; border-radius: 35px; width: 100%; max-width: 420px; box-shadow: 0 40px 80px rgba(0,0,0,0.15); text-align: center; overflow-y: auto; max-height: 90vh; }
 
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid #d2d2d7; background: #f5f5f7; outline: none; }
-        .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: 700; margin-top: 10px; }
+        input, select, textarea { width: 100%; padding: 14px; margin: 8px 0; border-radius: 14px; border: 1px solid #d2d2d7; font-family: inherit; font-size: 15px; background: #fbfbfd; outline: none; }
+        .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 16px; border-radius: 14px; cursor: pointer; font-weight: 700; margin-top: 10px; transition: 0.3s; }
+        .btn-danger { background: #fff5f5; color: #ff3b30; border: none; padding: 12px; border-radius: 12px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 10px; }
 
         @media (max-width: 768px) {
             #app-content { flex-direction: column; padding: 10px; }
-            .side-panel { width: 100%; order: 2; }
-            .top-nav { padding: 0 15px; height: 60px; }
-            #app-logo { height: 35px !important; }
-            .modal-overlay { align-items: flex-end; }
-            .modal-box { border-radius: 30px 30px 0 0; max-width: 100%; }
+            .side-panel { width: 100%; position: relative; top: 0; margin-bottom: 10px; }
+            .modal-box { border-radius: 25px 25px 0 0; position: fixed; bottom: 0; max-width: 100%; margin: 0; }
+            .modal-overlay { align-items: flex-end; padding: 0; }
         }
     </style>
 </head>
-<body>
+<body class="mode-user">
 
-    <div id="toast" style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(100px); background:#1d1d1f; color:white; padding:12px 25px; border-radius:50px; z-index:11000; transition:0.5s;"></div>
+    <div id="toast" style="position:fixed; bottom:40px; left:50%; transform:translateX(-50%) translateY(120px); background:#1d1d1f; color:white; padding:14px 28px; border-radius:50px; z-index:11000; transition:0.6s; font-weight:600;">Acción completada</div>
 
-    <div id="login-screen" style="position:fixed; inset:0; background:#ffffff; display:flex; align-items:center; justify-content:center; z-index:9999;">
-        <div style="text-align:center; width: 320px;">
-            <img src="Resiliencia.png" style="width:180px; margin-bottom:40px;" onerror="this.src='https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png'">
-            <input type="email" id="email" placeholder="Correo electrónico">
-            <input type="password" id="password" placeholder="Contraseña">
-            <button class="btn-action" id="login-btn">Entrar</button>
+    <div id="login-screen" style="position:fixed; inset:0; background:#f5f5f7; display:flex; align-items:center; justify-content:center; z-index:9999;">
+        <div class="modal-box" style="background:transparent; box-shadow:none;">
+            <img src="Resiliencia.png" style="width:150px; margin-bottom: 30px;">
+            <div style="background:white; padding:40px; border-radius:35px; box-shadow: var(--apple-shadow);">
+                <h2 style="font-weight:800;">BIENVENIDO</h2>
+                <input type="email" id="email" placeholder="Correo electrónico">
+                <input type="password" id="password" placeholder="Contraseña">
+                <button class="btn-action" id="login-btn">Entrar</button>
+            </div>
         </div>
     </div>
 
     <div class="top-nav" id="nav-bar">
-        <img id="app-logo" src="Resiliencia.png" onerror="this.src='https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png'">
+        <img id="app-logo" src="Resiliencia.png">
         <div class="profile-center">
             <img id="user-photo" src="" style="display:none;">
             <span id="display-profile-name">Cargando...</span>
         </div>
-        <div style="display:flex; gap:15px; align-items:center;">
-            <div onclick="toggleUserConfig()" style="cursor:pointer; font-size:20px;">⚙️</div>
-            <button id="logout-btn" style="border:none; background:none; color:#ff3b30; font-weight:700; font-size:12px;">SALIR</button>
+        <div style="display:flex; align-items:center; gap:20px;">
+            <div onclick="toggleUserConfig()" style="cursor:pointer; font-size:22px;">⚙️</div>
+            <button id="logout-btn" style="background:none; color:#ff3b30; border:none; font-weight:800; cursor:pointer; font-size:12px;">SALIR</button>
         </div>
     </div>
 
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
             <div class="glass-card">
-                <h3 style="margin:0 0 15px 0; font-size:16px;">Administración</h3>
+                <h3 style="margin:0 0 15px 0; font-size:17px; font-weight:800;">Administración</h3>
                 <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
                 <input type="email" id="new-doc-email" placeholder="Correo">
-                <button class="btn-action" id="add-doc-btn">Añadir</button>
-                <hr style="opacity:0.1; margin:20px 0;">
+                <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
+                <hr style="opacity:0.1; margin:25px 0;">
+                <div class="filter-header">
+                    <label style="font-size:11px; font-weight:800; opacity:0.5;">EQUIPO ACTIVO</label>
+                    <span id="btn-show-all" class="btn-show-all" onclick="filtrarPorPsicologa(null)">Ver Todo</span>
+                </div>
                 <input type="month" id="report-month" onchange="recalcularAdmin(true)">
-                <div id="docs-list" style="margin-top:10px;"></div>
+                <div id="docs-list" style="margin-top:15px;"></div>
             </div>
         </div>
 
@@ -142,34 +139,35 @@
             
             <div id="agenda-viewer">
                 <div class="agenda-header" id="agenda-title">Agenda <span>Selecciona un día</span></div>
-                <div id="agenda-list">
-                    <p style="color:#8e8e93; font-size:13px; text-align:center; padding:20px;">No hay citas para este día.</p>
-                </div>
+                <div id="agenda-list"></div>
             </div>
         </div>
     </div>
 
     <div id="modal-cita" class="modal-overlay"><div class="modal-box">
-        <h3 id="modal-titulo" style="margin-top:0;">Agendar Cita</h3>
+        <h3 id="modal-titulo" style="font-weight:800;">Agendar Cita</h3>
         <select id="select-psicologa-cita"></select>
         <input type="text" id="px-nombre" placeholder="Nombre Paciente">
         <div style="display:flex; gap:10px;">
-            <select id="px-area" style="flex:1;"><option value="502">🇬🇹 +502</option><option value="1">🇺🇸 +1</option></select>
-            <input type="number" id="px-whatsapp" placeholder="WhatsApp" style="flex:2;">
+            <select id="px-area" style="width:115px;">
+                <option value="502">🇬🇹 +502</option>
+                <option value="1">🇺🇸 +1</option>
+            </select>
+            <input type="number" id="px-whatsapp" placeholder="WhatsApp">
         </div>
         <input type="datetime-local" id="px-start">
-        <textarea id="px-notas" placeholder="Notas..."></textarea>
-        <button class="btn-action" id="btn-guardar-cita">Guardar</button>
-        <button class="btn-action" style="background:#f2f2f7; color:#ff3b30;" id="btn-eliminar-cita">Eliminar</button>
-        <button class="btn-action" style="background:none; color:#8e8e93;" onclick="cerrarModalCita()">Cancelar</button>
+        <textarea id="px-notas" placeholder="Notas de la sesión..." style="height: 90px;"></textarea>
+        <button class="btn-action" id="btn-guardar-cita">Guardar Cita</button>
+        <button class="btn-danger" id="btn-eliminar-cita" style="display:none;">Eliminar Cita</button>
+        <button class="btn-action" style="background:#f2f2f7; color:#1d1d1f;" onclick="cerrarModalCita()">Cerrar</button>
     </div></div>
 
     <div id="user-config-modal" class="modal-overlay"><div class="modal-box">
-        <h3>Mi Perfil</h3>
-        <input type="text" id="user-custom-name" placeholder="Nombre">
+        <h3 style="font-weight:800;">Mi Perfil</h3>
+        <input type="text" id="user-custom-name" placeholder="Tu Nombre Público">
         <input type="file" id="user-photo-upload" accept="image/*">
-        <button class="btn-action" id="save-profile-btn">Actualizar</button>
-        <button class="btn-action" style="background:none; color:#8e8e93;" onclick="toggleUserConfig()">Cerrar</button>
+        <button class="btn-action" id="save-profile-btn">Actualizar Perfil</button>
+        <button class="btn-action" style="background:#f2f2f7; color:#1d1d1f;" onclick="toggleUserConfig()">Cerrar</button>
     </div></div>
 
     <script type="module">
@@ -189,12 +187,13 @@
         const showToast = (msg) => {
             const t = document.getElementById('toast');
             t.innerText = msg; t.style.transform = 'translateX(-50%) translateY(0)';
-            setTimeout(() => t.style.transform = 'translateX(-50%) translateY(100px)', 3000);
+            setTimeout(() => t.style.transform = 'translateX(-50%) translateY(120px)', 3000);
         };
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 const isAdmin = user.email.toLowerCase() === ADMIN_EMAIL;
+                if(isAdmin) document.body.className = "mode-admin";
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'flex';
@@ -227,18 +226,28 @@
             if(!window.calendarObj) {
                 window.calendarObj = new FullCalendar.Calendar(document.getElementById('calendar'), {
                     initialView: 'dayGridMonth',
-                    locale: 'es', firstDay: 1, 
-                    headerToolbar: { left: 'title', center: '', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+                    locale: 'es', 
+                    firstDay: 1, 
+                    slotMinTime: '07:00:00', // Horario Obligatorio
+                    slotMaxTime: '19:00:00',
+                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                     selectable: true,
                     dayCellDidMount: (info) => {
                         const dateStr = info.date.toISOString().split('T')[0];
-                        const hasEvent = citasGlobal.some(c => c.start.startsWith(dateStr));
-                        if(hasEvent) info.el.classList.add('has-event-dot');
+                        if(citasGlobal.some(c => c.start.startsWith(dateStr))) info.el.classList.add('has-event-dot');
                     },
                     dateClick: (info) => {
-                        renderAgendaDia(info.dateStr);
+                        if (window.calendarObj.view.type === 'dayGridMonth') {
+                            document.querySelectorAll('.selected-day').forEach(el => el.classList.remove('selected-day'));
+                            info.dayEl.classList.add('selected-day');
+                            renderAgendaDia(info.dateStr);
+                        }
                     },
-                    select: (info) => abrirModalCita(null, info),
+                    select: (info) => {
+                        // En vista Mes ya no se agrega paciente (manual por Semana/Día)
+                        if(window.calendarObj.view.type === 'dayGridMonth') return;
+                        abrirModalCita(null, info);
+                    },
                     eventClick: (info) => abrirModalCita(info.event.id),
                     height: 'auto'
                 });
@@ -249,37 +258,29 @@
                 const esPropio = c.user === auth.currentUser.email.toLowerCase();
                 const cumpleFiltro = !filtroPsicologaActual || c.user === filtroPsicologaActual;
                 if((isAdmin && cumpleFiltro) || (!isAdmin && esPropio)) {
-                    window.calendarObj.addEvent({ id: c.id, title: c.title, start: c.start, end: c.end || c.start, color: c.color });
+                    window.calendarObj.addEvent({ id: c.id, title: c.title, start: c.start, color: c.color });
                 }
             });
         }
 
         function renderAgendaDia(fechaStr) {
             const list = document.getElementById('agenda-list');
-            const tit = document.getElementById('agenda-title');
+            const viewer = document.getElementById('agenda-viewer');
             const citasDia = citasGlobal.filter(c => c.start.startsWith(fechaStr));
-            
-            tit.innerHTML = `Agenda <span>${fechaStr}</span>`;
+            viewer.style.display = 'block';
+            document.getElementById('agenda-title').innerHTML = `Agenda <span>${fechaStr}</span>`;
             
             if(citasDia.length === 0) {
-                list.innerHTML = `<p style="color:#8e8e93; font-size:13px; text-align:center; padding:20px;">No hay citas para este día.</p>`;
+                list.innerHTML = `<p style="text-align:center; color:#8e8e93; padding:20px;">No hay citas para este día.</p>`;
                 return;
             }
-
-            citasDia.sort((a,b) => a.start.localeCompare(b.start));
-            list.innerHTML = citasDia.map(c => {
-                const hora = c.start.split('T')[1].substring(0,5);
-                return `
-                    <div class="event-ios-card" onclick="abrirModalCita('${c.id}')">
-                        <div class="event-time">${hora} <span>Sesión</span></div>
-                        <div class="event-bar" style="background:${c.color}"></div>
-                        <div class="event-info">
-                            <h4>${c.title}</h4>
-                            <p>${perfilesGlobal[c.user]?.displayName || 'Psicóloga'}</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            list.innerHTML = citasDia.sort((a,b) => a.start.localeCompare(b.start)).map(c => `
+                <div class="event-ios-card" onclick="abrirModalCita('${c.id}')">
+                    <div class="event-time">${c.start.split('T')[1].substring(0,5)}</div>
+                    <div class="event-bar" style="background:${c.color}"></div>
+                    <div class="event-info"><h4>${c.title}</h4></div>
+                </div>
+            `).join('');
         }
 
         window.recalcularAdmin = (isAdmin) => {
@@ -288,30 +289,30 @@
             const counts = {};
             citasGlobal.forEach(c => { if(c.start.startsWith(mesSel)) counts[c.user] = (counts[c.user] || 0) + 1; });
             document.getElementById('docs-list').innerHTML = equipoGlobal.map(p => {
-                const total = counts[p.email.toLowerCase()] || 0;
                 const perf = perfilesGlobal[p.email.toLowerCase()] || {};
-                return `<div class="doc-item" style="border-left:4px solid ${p.color}" onclick="filtrarPorPsicologa('${p.email.toLowerCase()}')">
+                return `<div class="doc-item" style="border-color:${p.color}" onclick="filtrarPorPsicologa('${p.email.toLowerCase()}')">
                     <img src="${perf.photo || 'https://via.placeholder.com/40'}" class="doc-thumb">
-                    <div style="flex:1"><b>${p.name}</b><br><small>${total} citas</small></div>
+                    <div style="flex:1;"><b>${p.name}</b><br><small>${counts[p.email.toLowerCase()] || 0} sesiones</small></div>
+                    <button class="btn-del-doc" onclick="event.stopPropagation(); eliminarPsicologa('${p.id}')">×</button>
                 </div>`;
             }).join('');
         };
 
         function abrirModalCita(id = null, info = null) {
             citaSeleccionadaId = id;
+            const btnDel = document.getElementById('btn-eliminar-cita');
             if(id) {
                 const c = citasGlobal.find(x => x.id === id);
                 document.getElementById('px-nombre').value = c.title;
                 document.getElementById('px-whatsapp').value = c.tel || "";
                 document.getElementById('px-area').value = c.area || "502";
-                document.getElementById('px-notas').value = c.notas || "";
                 document.getElementById('px-start').value = c.start.substring(0, 16);
                 document.getElementById('select-psicologa-cita').value = c.user;
-                document.getElementById('btn-eliminar-cita').style.display = 'block';
+                btnDel.style.display = 'block';
             } else {
                 document.getElementById('px-nombre').value = "";
                 document.getElementById('px-start').value = info.startStr.substring(0, 16);
-                document.getElementById('btn-eliminar-cita').style.display = 'none';
+                btnDel.style.display = 'none';
             }
             document.getElementById('modal-cita').style.display = 'flex';
         }
@@ -319,19 +320,27 @@
         document.getElementById('btn-guardar-cita').onclick = async () => {
             const psi = equipoGlobal.find(p => p.email.toLowerCase() === document.getElementById('select-psicologa-cita').value);
             const data = {
-                title: document.getElementById('px-nombre').value,
-                tel: document.getElementById('px-whatsapp').value,
-                area: document.getElementById('px-area').value,
-                notas: document.getElementById('px-notas').value,
-                start: document.getElementById('px-start').value,
-                user: psi.email.toLowerCase(),
-                color: psi.color
+                title: document.getElementById('px-nombre').value, tel: document.getElementById('px-whatsapp').value,
+                area: document.getElementById('px-area').value, notas: document.getElementById('px-notas').value,
+                start: document.getElementById('px-start').value, user: psi.email.toLowerCase(), color: psi.color
             };
             if(citaSeleccionadaId) await updateDoc(doc(db, "citas", citaSeleccionadaId), data);
             else await addDoc(collection(db, "citas"), data);
-            cerrarModalCita();
+            cerrarModalCita(); showToast("Agenda actualizada");
         };
 
+        window.filtrarPorPsicologa = (e) => { 
+            filtroPsicologaActual = e; 
+            document.getElementById('btn-show-all').style.display = e ? 'block' : 'none';
+            actualizarCalendario(true); 
+        };
+
+        window.eliminarPsicologa = async (id) => { if(confirm("¿Eliminar psicóloga?")) await deleteDoc(doc(db, "psicologas", id)); };
+        document.getElementById('btn-eliminar-cita').onclick = async () => { if(confirm("¿Eliminar cita?")) { await deleteDoc(doc(db, "citas", citaSeleccionadaId)); cerrarModalCita(); }};
+        document.getElementById('login-btn').onclick = () => { signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(() => showToast("Error de acceso")); };
+        document.getElementById('logout-btn').onclick = () => { signOut(auth).then(() => location.reload()); };
+        window.cerrarModalCita = () => document.getElementById('modal-cita').style.display = 'none';
+        window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
         document.getElementById('save-profile-btn').onclick = async () => {
             const file = document.getElementById('user-photo-upload').files[0], name = document.getElementById('user-custom-name').value;
             let upd = { displayName: name };
@@ -340,19 +349,12 @@
                 r.onload = async (ev) => { upd.photo = ev.target.result; await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), upd, { merge: true }); toggleUserConfig(); };
             } else { await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), upd, { merge: true }); toggleUserConfig(); }
         };
-
         document.getElementById('add-doc-btn').onclick = async () => {
             const n = document.getElementById('new-doc-name').value, e = document.getElementById('new-doc-email').value;
-            const color = PALETA[equipoGlobal.length % PALETA.length];
-            await addDoc(collection(db, "psicologas"), { name: n, email: e.toLowerCase(), color: color });
+            if(!n || !e) return;
+            await addDoc(collection(db, "psicologas"), { name: n, email: e.toLowerCase(), color: PALETA[equipoGlobal.length % 9] });
+            document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
         };
-
-        window.filtrarPorPsicologa = (e) => { filtroPsicologaActual = e; actualizarCalendario(true); };
-        document.getElementById('btn-eliminar-cita').onclick = async () => { if(confirm("¿Eliminar?")) { await deleteDoc(doc(db, "citas", citaSeleccionadaId)); cerrarModalCita(); }};
-        document.getElementById('login-btn').onclick = () => { signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); };
-        document.getElementById('logout-btn').onclick = () => { signOut(auth).then(() => location.reload()); };
-        window.cerrarModalCita = () => document.getElementById('modal-cita').style.display = 'none';
-        window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
     </script>
 </body>
 </html>
