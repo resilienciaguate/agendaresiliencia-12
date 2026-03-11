@@ -105,6 +105,7 @@
             padding: 20px; 
             box-shadow: var(--apple-shadow); 
             min-height: 700px; 
+            overflow: hidden;
         }
 
         .glass-card { 
@@ -171,9 +172,16 @@
             display: none; 
         }
 
-        /* --- CALENDARIO ESTILOS --- */
-        .fc { border: none !important; }
+        /* --- CALENDARIO ESTILOS (CONTROLADOS) --- */
+        .fc { border: none !important; max-height: 800px; }
         .fc-theme-standard td, .fc-theme-standard th { border: 0.5px solid #f2f2f7 !important; }
+        
+        /* Limitar altura de las celdas para que no se deforme */
+        .fc-daygrid-day-frame {
+            max-height: 100px !important;
+            overflow: hidden !important;
+        }
+
         .fc-col-header-cell-cushion { font-size: 11px; text-transform: uppercase; color: #8e8e93; font-weight: 700; text-decoration: none !important; }
         
         .fc-daygrid-day-number { 
@@ -187,15 +195,26 @@
             margin: 2px auto !important; 
             text-decoration: none !important; 
             color: var(--text-dark);
-            transition: 0.2s;
         }
 
-        /* VISTA USUARIO (iPhone Style) */
+        /* Estilo para los nombres de pacientes en el calendario */
+        .fc-event {
+            border: none !important;
+            padding: 1px 4px !important;
+            font-size: 9px !important;
+            border-radius: 4px !important;
+            margin-bottom: 1px !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block !important;
+        }
+
+        /* VISTA USUARIO (iPhone Style + Privacy) */
         .mode-user .fc-day-today .fc-daygrid-day-number { 
             background: #ff3b30 !important; 
             color: white !important; 
             border-radius: 50%; 
-            font-weight: 700;
         }
 
         .mode-user .selected-day .fc-daygrid-day-number { 
@@ -204,24 +223,7 @@
             border-radius: 50%; 
         }
 
-        .mode-user .fc-daygrid-event-harness { display: none; }
-        .mode-user .fc-daygrid-day-events { display: flex; justify-content: center; min-height: 12px !important; }
-        .mode-user .has-event-dot::after { 
-            content: ''; 
-            width: 5px; 
-            height: 5px; 
-            background: #c7c7cc; 
-            border-radius: 50%; 
-            display: block; 
-            margin: 2px auto; 
-        }
-
-        /* VISTA ADMIN (Original Full) */
-        .mode-admin .fc-daygrid-event-harness { display: block !important; }
-        .mode-admin .fc-event { border-radius: 6px; padding: 2px 4px; font-size: 11px; border: none; cursor: pointer; }
-        .mode-admin .fc-day-today { background: rgba(165, 201, 65, 0.05) !important; }
-
-        /* --- AGENDA DEL DÍA (ABAJO DEL CALENDARIO) --- */
+        /* --- AGENDA DEL DÍA --- */
         #agenda-viewer { 
             margin-top: 30px; 
             border-top: 1px solid #f2f2f7; 
@@ -242,14 +244,12 @@
             padding: 15px 0; 
             border-bottom: 0.5px solid #f2f2f7; 
             cursor: pointer; 
-            transition: background 0.2s;
         }
 
         .event-time { 
             width: 85px; 
             font-size: 13px; 
             font-weight: 700; 
-            color: #1d1d1f; 
         }
 
         .event-bar { 
@@ -259,10 +259,7 @@
             margin: 0 18px; 
         }
 
-        .event-info h4 { margin: 0; font-size: 16px; font-weight: 600; }
-        .event-info p { margin: 2px 0 0 0; font-size: 13px; color: #8e8e93; }
-
-        /* --- MODALES TIPO VENTANA --- */
+        /* --- MODALES --- */
         .modal-overlay { 
             display: none; 
             position: fixed; 
@@ -293,8 +290,6 @@
             border-radius: 14px; 
             border: 1px solid #d2d2d7; 
             font-family: inherit; 
-            font-size: 15px; 
-            background: #fbfbfd;
             box-sizing: border-box;
         }
 
@@ -307,16 +302,12 @@
             border-radius: 14px; 
             cursor: pointer; 
             font-weight: 700; 
-            font-size: 16px;
             margin-top: 10px; 
-            transition: transform 0.2s, opacity 0.2s; 
         }
 
-        .btn-action:active { transform: scale(0.98); }
         .btn-wpp { background: var(--wpp-green); margin-top: 15px; }
         .btn-reminder { background: var(--wpp-blue); }
 
-        /* --- RESPONSIVE --- */
         @media (max-width: 768px) {
             #app-content { flex-direction: column; padding: 10px; }
             .side-panel { width: 100%; position: relative; top: 0; margin-bottom: 15px; }
@@ -328,47 +319,42 @@
 </head>
 <body class="mode-user">
 
-    <div id="toast" style="position:fixed; bottom:40px; left:50%; transform:translateX(-50%) translateY(120px); background:#1d1d1f; color:white; padding:14px 28px; border-radius:50px; z-index:11000; transition:0.6s; font-weight:600; font-size:14px;"></div>
+    <div id="toast" style="position:fixed; bottom:40px; left:50%; transform:translateX(-50%) translateY(120px); background:#1d1d1f; color:white; padding:14px 28px; border-radius:50px; z-index:11000; transition:0.6s; font-weight:600;"></div>
 
     <div id="login-screen" style="position:fixed; inset:0; background:#f5f5f7; display:flex; align-items:center; justify-content:center; z-index:9999;">
         <div class="modal-box" style="background:transparent; box-shadow:none;">
             <img src="Resiliencia.png" style="width:160px; margin-bottom: 40px; display:block; margin-left:auto; margin-right:auto;">
             <div style="background:white; padding:40px; border-radius:35px; box-shadow: var(--apple-shadow);">
-                <h2 style="text-align:center; font-weight:800; margin-bottom:25px;">Iniciar Sesión</h2>
                 <input type="email" id="email" placeholder="Correo electrónico">
                 <input type="password" id="password" placeholder="Contraseña">
-                <button class="btn-action" id="login-btn">Entrar a la Suite</button>
+                <button class="btn-action" id="login-btn">Entrar</button>
             </div>
         </div>
     </div>
 
     <div class="top-nav" id="nav-bar">
-        <img id="app-logo" src="Resiliencia.png" alt="Logo">
+        <img id="app-logo" src="Resiliencia.png">
         <div class="profile-center">
             <img id="user-photo" src="" style="display:none;">
             <span id="display-profile-name">Cargando...</span>
         </div>
         <div style="display:flex; align-items:center; gap:25px;">
             <div onclick="toggleUserConfig()" style="cursor:pointer; font-size:24px;">⚙️</div>
-            <button id="logout-btn" style="background:none; color:#ff3b30; border:none; font-weight:800; cursor:pointer; font-size:13px; text-transform:uppercase;">Salir</button>
+            <button id="logout-btn" style="background:none; color:#ff3b30; border:none; font-weight:800; cursor:pointer;">SALIR</button>
         </div>
     </div>
 
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
             <div class="glass-card">
-                <h3 style="margin-top:0; font-weight:800; font-size:18px;">Gestión de Equipo</h3>
-                <input type="text" id="new-doc-name" placeholder="Nombre de la Psicóloga">
-                <input type="email" id="new-doc-email" placeholder="Correo institucional">
+                <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
+                <input type="email" id="new-doc-email" placeholder="Correo">
                 <button class="btn-action" id="add-doc-btn">Registrar Psicóloga</button>
-                
                 <hr style="opacity:0.1; margin:25px 0;">
-                
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <label style="font-size:11px; font-weight:800; opacity:0.5; letter-spacing:1px;">PSICÓLOGAS ACTIVAS</label>
-                    <span id="btn-show-all" class="btn-show-all" onclick="filtrarPorPsicologa(null)">Mostrar Todo</span>
+                    <label style="font-size:11px; font-weight:800; opacity:0.5;">EQUIPO</label>
+                    <span id="btn-show-all" class="btn-show-all" onclick="filtrarPorPsicologa(null)">Ver Todo</span>
                 </div>
-                
                 <input type="month" id="report-month" onchange="recalcularAdmin(true)">
                 <div id="docs-list"></div>
             </div>
@@ -376,41 +362,29 @@
 
         <div class="calendar-card">
             <div id='calendar'></div>
-            
             <div id="agenda-viewer">
-                <div class="agenda-header" id="agenda-title">Citas programadas</div>
+                <div class="agenda-header" id="agenda-title">Citas</div>
                 <div id="agenda-list"></div>
             </div>
         </div>
     </div>
 
     <div id="modal-cita" class="modal-overlay"><div class="modal-box">
-        <h3 id="modal-titulo" style="font-weight:800; margin-top:0; font-size:22px;">Detalles de la Cita</h3>
-        
-        <label style="font-size:11px; font-weight:700; color:#8e8e93;">PSICÓLOGA ASIGNADA</label>
+        <h3 id="modal-titulo" style="font-weight:800;">Detalles de la Cita</h3>
         <select id="select-psicologa-cita"></select>
-        
-        <input type="text" id="px-nombre" placeholder="Nombre Completo del Paciente">
-        
+        <input type="text" id="px-nombre" placeholder="Nombre del Paciente">
         <div style="display:flex; gap:10px;">
-            <select id="px-area" style="width:120px;">
-                <option value="502">🇬🇹 +502</option>
-                <option value="1">🇺🇸 +1</option>
-            </select>
+            <select id="px-area" style="width:120px;"><option value="502">🇬🇹 +502</option><option value="1">🇺🇸 +1</option></select>
             <input type="number" id="px-whatsapp" placeholder="WhatsApp">
         </div>
-        
         <input type="datetime-local" id="px-start">
-        <textarea id="px-notas" placeholder="Notas adicionales de la sesión..." style="height:100px;"></textarea>
-        
-        <button class="btn-action" id="btn-guardar-cita">Guardar Cambios</button>
-        
+        <textarea id="px-notas" placeholder="Notas..."></textarea>
+        <button class="btn-action" id="btn-guardar-cita">Guardar</button>
         <div id="wpp-actions" style="display:none;">
-            <button class="btn-action btn-wpp" id="btn-confirmar-wpp">Confirmar por WhatsApp</button>
+            <button class="btn-action btn-wpp" id="btn-confirmar-wpp">Confirmar WhatsApp</button>
             <button class="btn-action btn-reminder" id="btn-recordatorio-wpp">Enviar Recordatorio</button>
         </div>
-        
-        <button class="btn-action" id="btn-eliminar-cita" style="display:none; background:#fff5f5; color:#ff3b30; margin-top:20px;">Eliminar Cita</button>
+        <button class="btn-action" id="btn-eliminar-cita" style="display:none; background:#fff5f5; color:#ff3b30;">Eliminar</button>
         <button class="btn-action" style="background:#f2f2f7; color:#1d1d1f;" onclick="cerrarModalCita()">Cerrar</button>
     </div></div>
 
@@ -419,7 +393,6 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Configuración Firebase (Blindada)
         const firebaseConfig = { 
             apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA", 
             authDomain: "agendaresiliencia-12.firebaseapp.com", 
@@ -436,199 +409,129 @@
         
         let equipoGlobal = [], citasGlobal = [], perfilesGlobal = {}, citaSeleccionadaId = null, filtroPsicologaActual = null, globalIsAdmin = false;
 
-        // Gestión de Notificaciones
-        const showToast = (msg) => {
-            const t = document.getElementById('toast');
-            t.innerText = msg; t.style.transform = 'translateX(-50%) translateY(0)';
-            setTimeout(() => t.style.transform = 'translateX(-50%) translateY(120px)', 3000);
-        };
-
-        // Escucha de Autenticación
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 globalIsAdmin = user.email.toLowerCase() === ADMIN_EMAIL;
                 document.body.className = globalIsAdmin ? "mode-admin" : "mode-user";
-                
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'flex';
                 document.getElementById('app-content').style.display = 'flex';
-                
                 if(globalIsAdmin) document.getElementById('side-panel-ui').style.display = 'block';
                 iniciarEscuchas(globalIsAdmin, user.email.toLowerCase());
             }
         });
 
         function iniciarEscuchas(isAdmin, userEmail) {
-            // Perfiles de Usuario
             onSnapshot(collection(db, "perfiles"), (snap) => {
-                perfilesGlobal = {}; 
-                snap.forEach(d => { perfilesGlobal[d.id] = d.data(); });
+                perfilesGlobal = {}; snap.forEach(d => { perfilesGlobal[d.id] = d.data(); });
                 const mp = perfilesGlobal[userEmail];
-                if(mp && mp.photo) { 
-                    document.getElementById('user-photo').src = mp.photo; 
-                    document.getElementById('user-photo').style.display = 'block'; 
-                }
+                if(mp && mp.photo) { document.getElementById('user-photo').src = mp.photo; document.getElementById('user-photo').style.display = 'block'; }
                 if(mp) document.getElementById('display-profile-name').innerText = mp.displayName || "Psicóloga";
             });
 
-            // Lista de Psicólogas
             onSnapshot(collection(db, "psicologas"), (snap) => { 
                 equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()})); 
                 document.getElementById('select-psicologa-cita').innerHTML = equipoGlobal.map(p => 
                     `<option value="${p.email.toLowerCase()}">${p.name}</option>`
                 ).join('');
-                recalcularAdmin(isAdmin);
             });
 
-            // Citas
             onSnapshot(collection(db, "citas"), (snap) => { 
-                citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()})); 
-                actualizarCalendario(isAdmin);
-                recalcularAdmin(isAdmin);
+                const allCitas = snap.docs.map(d => ({id: d.id, ...d.data()})); 
+                // PRIVACIDAD QUIRÚRGICA: Si no es admin, solo ve sus citas
+                if(!globalIsAdmin) {
+                    citasGlobal = allCitas.filter(c => c.user === auth.currentUser.email.toLowerCase());
+                } else {
+                    citasGlobal = allCitas;
+                }
+                actualizarCalendario(globalIsAdmin);
+                recalcularAdmin(globalIsAdmin);
             });
         }
 
-        // --- CALENDARIO CORE ---
         function actualizarCalendario(isAdmin) {
             if(!window.calendarObj) {
                 window.calendarObj = new FullCalendar.Calendar(document.getElementById('calendar'), {
                     initialView: 'dayGridMonth',
-                    locale: 'es', // FORZADO ESPAÑOL
+                    locale: 'es',
                     firstDay: 1, 
-                    slotMinTime: '07:00:00', // Horario solicitado
+                    slotMinTime: '07:00:00',
                     slotMaxTime: '19:00:00',
-                    allDaySlot: false,
-                    headerToolbar: { 
-                        left: 'prev,next today', 
-                        center: 'title', 
-                        right: 'dayGridMonth,timeGridWeek,timeGridDay' 
-                    },
+                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
                     selectable: true,
-                    dayCellDidMount: (info) => {
-                        if(!isAdmin) {
-                            const dateStr = info.date.toISOString().split('T')[0];
-                            if(citasGlobal.some(c => c.start.startsWith(dateStr))) {
-                                info.el.classList.add('has-event-dot');
-                            }
-                        }
-                    },
                     dateClick: (info) => {
                         if (window.calendarObj.view.type === 'dayGridMonth') {
-                            if(isAdmin) {
-                                // ADMIN: Salto directo al día
-                                window.calendarObj.changeView('timeGridDay', info.dateStr);
-                            } else {
-                                // USUARIO: Selección visual + agenda
+                            if(isAdmin) window.calendarObj.changeView('timeGridDay', info.dateStr);
+                            else {
                                 document.querySelectorAll('.selected-day').forEach(el => el.classList.remove('selected-day'));
                                 info.dayEl.classList.add('selected-day');
                                 renderAgendaDia(info.dateStr);
                             }
                         }
                     },
-                    select: (info) => {
-                        // Impedir agendar desde vista Mes
-                        if(window.calendarObj.view.type === 'dayGridMonth') return;
-                        abrirModalCita(null, info);
-                    },
+                    select: (info) => { if(window.calendarObj.view.type !== 'dayGridMonth') abrirModalCita(null, info); },
                     eventClick: (info) => abrirModalCita(info.event.id),
                     height: 'auto'
                 });
                 window.calendarObj.render();
             }
             
-            // Limpiar y Pintar Eventos
             window.calendarObj.removeAllEvents();
             citasGlobal.forEach(c => {
-                const esPropio = c.user === auth.currentUser.email.toLowerCase();
-                const cumpleFiltro = !filtroPsicologaActual || c.user === filtroPsicologaActual;
-                
-                if((isAdmin && cumpleFiltro) || (!isAdmin && esPropio)) {
+                // Filtro para el Admin (botón de psicóloga lateral)
+                const cumpleFiltroAdmin = !filtroPsicologaActual || c.user === filtroPsicologaActual;
+                if(isAdmin ? cumpleFiltroAdmin : true) {
                     window.calendarObj.addEvent({ 
                         id: c.id, 
-                        title: c.title, 
+                        title: c.title, // Ahora el nombre se ve en el calendario
                         start: c.start, 
-                        color: c.color,
-                        extendedProps: { tel: c.tel, area: c.area, notas: c.notas }
+                        color: c.color 
                     });
                 }
             });
         }
 
-        // --- WHATSAPP ENGINE ---
         function enviarWhatsApp(tipo) {
-            const nombre = document.getElementById('px-nombre').value;
-            const tel = document.getElementById('px-whatsapp').value;
-            const area = document.getElementById('px-area').value;
-            const fechaVal = document.getElementById('px-start').value;
-
-            if(!tel || !fechaVal) {
-                showToast("Datos incompletos para WhatsApp");
-                return;
-            }
-
+            const nombre = document.getElementById('px-nombre').value, tel = document.getElementById('px-whatsapp').value, area = document.getElementById('px-area').value, fechaVal = document.getElementById('px-start').value;
+            if(!tel || !fechaVal) return;
             const dt = new Date(fechaVal);
             const fmt = dt.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-            
-            let msg = "";
-            if(tipo === 'confirmar') {
-                msg = `Hola *${nombre}*, te saludamos de *Clínica Resiliencia*. Confirmamos tu sesión para el día *${fmt}*. ¿Me podrías confirmar de recibido?`;
-            } else {
-                msg = `Hola *${nombre}*, te recordamos tu sesión de hoy en *Clínica Resiliencia* a las *${dt.getHours()}:${dt.getMinutes().toString().padStart(2, '0')}*. ¡Te esperamos!`;
-            }
-
+            let msg = tipo === 'confirmar' ? `Hola *${nombre}*, te saludamos de *Clínica Resiliencia*. Confirmamos tu sesión para el día *${fmt}*.` : `Recordatorio de sesión: *${nombre}*, te esperamos a las *${dt.getHours()}:${dt.getMinutes().toString().padStart(2,'0')}*.`;
             window.open(`https://wa.me/${area}${tel}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // --- UI GESTIÓN ---
         function abrirModalCita(id = null, info = null) {
             citaSeleccionadaId = id;
-            const btnEliminar = document.getElementById('btn-eliminar-cita');
-            const wppActions = document.getElementById('wpp-actions');
-            
+            const wpp = document.getElementById('wpp-actions'), del = document.getElementById('btn-eliminar-cita');
             if(id) {
                 const c = citasGlobal.find(x => x.id === id);
-                document.getElementById('px-nombre').value = c.title || "";
+                document.getElementById('px-nombre').value = c.title;
                 document.getElementById('px-whatsapp').value = c.tel || "";
                 document.getElementById('px-area').value = c.area || "502";
                 document.getElementById('px-start').value = c.start.substring(0, 16);
                 document.getElementById('px-notas').value = c.notas || "";
                 document.getElementById('select-psicologa-cita').value = c.user;
-                btnEliminar.style.display = 'block';
-                wppActions.style.display = 'block';
+                wpp.style.display = 'block'; del.style.display = 'block';
             } else {
-                document.getElementById('px-nombre').value = "";
-                document.getElementById('px-whatsapp').value = "";
-                document.getElementById('px-notas').value = "";
+                document.getElementById('px-nombre').value = ""; document.getElementById('px-whatsapp').value = "";
                 document.getElementById('px-start').value = info.startStr.substring(0, 16);
-                btnEliminar.style.display = 'none';
-                wppActions.style.display = 'none';
+                wpp.style.display = 'none'; del.style.display = 'none';
             }
             document.getElementById('modal-cita').style.display = 'flex';
         }
 
         window.renderAgendaDia = (fechaStr) => {
             const list = document.getElementById('agenda-list');
-            const viewer = document.getElementById('agenda-viewer');
             const citasDia = citasGlobal.filter(c => c.start.startsWith(fechaStr));
-            
-            viewer.style.display = 'block';
-            document.getElementById('agenda-title').innerText = `Citas del ${fechaStr}`;
-            
-            if(citasDia.length === 0) {
-                list.innerHTML = `<p style="text-align:center; color:#8e8e93; padding:20px;">No hay citas para este día.</p>`;
-                return;
-            }
-
-            list.innerHTML = citasDia.sort((a,b) => a.start.localeCompare(b.start)).map(c => `
+            document.getElementById('agenda-viewer').style.display = 'block';
+            document.getElementById('agenda-title').innerText = `Citas: ${fechaStr}`;
+            list.innerHTML = citasDia.length ? citasDia.sort((a,b)=>a.start.localeCompare(b.start)).map(c => `
                 <div class="event-ios-card" onclick="abrirModalCita('${c.id}')">
                     <div class="event-time">${c.start.split('T')[1].substring(0,5)}</div>
                     <div class="event-bar" style="background:${c.color}"></div>
-                    <div class="event-info">
-                        <h4>${c.title}</h4>
-                        <p>${c.tel ? '📞 ' + c.tel : 'Sin teléfono'}</p>
-                    </div>
+                    <div><h4>${c.title}</h4><p>${c.tel || ''}</p></div>
                 </div>
-            `).join('');
+            `).join('') : '<p>Sin citas.</p>';
         };
 
         window.recalcularAdmin = (isAdmin) => {
@@ -636,82 +539,35 @@
             const mesSel = document.getElementById('report-month').value || new Date().toISOString().substring(0, 7);
             const counts = {};
             citasGlobal.forEach(c => { if(c.start.startsWith(mesSel)) counts[c.user] = (counts[c.user] || 0) + 1; });
-            
             document.getElementById('docs-list').innerHTML = equipoGlobal.map(p => {
                 const perf = perfilesGlobal[p.email.toLowerCase()] || {};
                 return `<div class="doc-item" style="border-color:${p.color}" onclick="filtrarPorPsicologa('${p.email.toLowerCase()}')">
                     <img src="${perf.photo || 'https://via.placeholder.com/40'}" class="doc-thumb">
-                    <div style="flex:1;">
-                        <b>${p.name}</b><br>
-                        <small style="opacity:0.6;">${counts[p.email.toLowerCase()] || 0} sesiones este mes</small>
-                    </div>
-                    <button class="btn-del-doc" onclick="event.stopPropagation(); eliminarPsicologa('${p.id}')">×</button>
+                    <div style="flex:1;"><b>${p.name}</b><br><small>${counts[p.email.toLowerCase()] || 0} citas</small></div>
                 </div>`;
             }).join('');
         };
 
-        // --- ACTIONS BINDING ---
         document.getElementById('btn-guardar-cita').onclick = async () => {
             const psiEmail = document.getElementById('select-psicologa-cita').value;
             const psi = equipoGlobal.find(p => p.email.toLowerCase() === psiEmail);
-            
-            const data = {
-                title: document.getElementById('px-nombre').value,
-                tel: document.getElementById('px-whatsapp').value,
-                area: document.getElementById('px-area').value,
-                notas: document.getElementById('px-notas').value,
-                start: document.getElementById('px-start').value,
-                user: psiEmail,
-                color: psi.color
-            };
-
+            const data = { title: document.getElementById('px-nombre').value, tel: document.getElementById('px-whatsapp').value, area: document.getElementById('px-area').value, notas: document.getElementById('px-notas').value, start: document.getElementById('px-start').value, user: psiEmail, color: psi.color };
             if(citaSeleccionadaId) await updateDoc(doc(db, "citas", citaSeleccionadaId), data);
             else await addDoc(collection(db, "citas"), data);
-            
             cerrarModalCita();
-            showToast("Agenda actualizada");
         };
 
         document.getElementById('btn-confirmar-wpp').onclick = () => enviarWhatsApp('confirmar');
         document.getElementById('btn-recordatorio-wpp').onclick = () => enviarWhatsApp('recordatorio');
-
-        window.filtrarPorPsicologa = (email) => { 
-            filtroPsicologaActual = email; 
-            document.getElementById('btn-show-all').style.display = email ? 'block' : 'none';
-            actualizarCalendario(true); 
-        };
-
-        window.eliminarPsicologa = async (id) => { if(confirm("¿Eliminar de la suite?")) await deleteDoc(doc(db, "psicologas", id)); };
-        document.getElementById('btn-eliminar-cita').onclick = async () => { if(confirm("¿Eliminar esta cita?")) { await deleteDoc(doc(db, "citas", citaSeleccionadaId)); cerrarModalCita(); }};
-        
-        document.getElementById('login-btn').onclick = () => {
-            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
-                .catch(() => showToast("Credenciales incorrectas"));
-        };
-
+        window.filtrarPorPsicologa = (e) => { filtroPsicologaActual = e; document.getElementById('btn-show-all').style.display = e ? 'block' : 'none'; actualizarCalendario(true); };
+        document.getElementById('btn-eliminar-cita').onclick = async () => { if(confirm("¿Eliminar?")) { await deleteDoc(doc(db, "citas", citaSeleccionadaId)); cerrarModalCita(); }};
+        document.getElementById('login-btn').onclick = () => { signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); };
         document.getElementById('logout-btn').onclick = () => { signOut(auth).then(() => location.reload()); };
         window.cerrarModalCita = () => document.getElementById('modal-cita').style.display = 'none';
-        
         document.getElementById('add-doc-btn').onclick = async () => {
-            const n = document.getElementById('new-doc-name').value;
-            const e = document.getElementById('new-doc-email').value;
-            if(!n || !e) return;
-            await addDoc(collection(db, "psicologas"), { 
-                name: n, 
-                email: e.toLowerCase(), 
-                color: PALETA[equipoGlobal.length % PALETA.length] 
-            });
-            document.getElementById('new-doc-name').value = "";
-            document.getElementById('new-doc-email').value = "";
+            const n = document.getElementById('new-doc-name').value, e = document.getElementById('new-doc-email').value;
+            await addDoc(collection(db, "psicologas"), { name: n, email: e.toLowerCase(), color: PALETA[equipoGlobal.length % 9] });
         };
-
-        // Configuración de Perfil (Fotos)
-        window.toggleUserConfig = () => {
-            const m = document.getElementById('modal-cita'); // Reuso de overlay para simplicidad
-            // Aquí iría el modal de perfil si decides expandirlo, por ahora cerramos
-            showToast("Configuración de perfil habilitada");
-        };
-
     </script>
 </body>
 </html>
