@@ -22,10 +22,10 @@
             --btn-dark-gray: #4a4a4c;
             --danger: #ff3b30;
             --success: #34c759;
-            --ios-selection: #e5e5ea; /* Gris claro para selección */
+            --ios-selection: #e5e5ea;
         }
 
-        /* RESET Y BASE DEL DOCUMENTO */
+        /* RESET Y BASE */
         html, body { 
             min-height: 100%; margin: 0; padding: 0;
             font-family: 'Plus Jakarta Sans', sans-serif; 
@@ -33,7 +33,7 @@
             overflow-x: hidden; -webkit-font-smoothing: antialiased;
         }
 
-        /* SISTEMA DE NOTIFICACIONES (TOAST) */
+        /* SISTEMA DE NOTIFICACIONES */
         #toast {
             position: fixed; bottom: 40px; left: 50%;
             transform: translateX(-50%) translateY(150px);
@@ -44,15 +44,15 @@
         }
         #toast.show { transform: translateX(-50%) translateY(0); }
 
-        /* NAVEGACIÓN SUPERIOR - LOGO REDUCIDO */
+        /* NAVEGACIÓN - LOGO SIEMPRE PEQUEÑO */
         .top-nav { 
             background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(30px); 
-            padding: 0 40px; display: none; justify-content: space-between; 
+            padding: 0 20px; display: none; justify-content: space-between; 
             align-items: center; height: 70px; position: sticky; top: 0; 
             z-index: 1000; border-bottom: 0.5px solid rgba(0,0,0,0.1); 
         }
 
-        #app-logo { max-width: 100px; height: auto; transition: transform 0.3s ease; cursor: pointer; }
+        #app-logo { max-width: 90px; height: auto; transition: transform 0.3s ease; cursor: pointer; }
         #app-logo:hover { transform: scale(1.02); }
 
         .profile-center { 
@@ -61,13 +61,13 @@
         }
 
         #user-photo { 
-            width: 38px; height: 38px; border-radius: 12px; 
+            width: 35px; height: 35px; border-radius: 12px; 
             object-fit: cover; margin-bottom: 3px; border: 2px solid white;
             box-shadow: 0 4px 12px rgba(0,0,0,0.12); cursor: pointer;
         }
 
         #display-profile-name { 
-            font-size: 10px; font-weight: 800; text-transform: uppercase; 
+            font-size: 9px; font-weight: 800; text-transform: uppercase; 
             letter-spacing: 1px; color: var(--text-dark); opacity: 0.9;
         }
 
@@ -77,7 +77,6 @@
             max-width: 1700px; margin: 0 auto; min-height: calc(100vh - 70px);
         }
 
-        /* PANELES */
         .side-panel { width: 320px; position: sticky; top: 90px; height: fit-content; }
         
         .calendar-card { 
@@ -100,7 +99,7 @@
         }
         input:focus, select:focus, textarea:focus { border-color: var(--brand-color); background: #fff; }
 
-        /* BOTONES PROFESIONALES */
+        /* BOTONES */
         .btn-action { 
             width: 100%; background: var(--btn-dark-gray); color: white; 
             border: none; padding: 16px; border-radius: 16px; 
@@ -108,25 +107,12 @@
             transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-        .btn-action:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .btn-action:active { transform: translateY(0); }
-
+        .btn-action:hover { opacity: 0.9; transform: translateY(-2px); }
         .btn-save-main { background: var(--brand-color) !important; color: #fff; }
         .btn-danger { background: var(--danger) !important; }
         .btn-ghost { background: transparent !important; color: var(--text-dark); border: 1.5px solid #d2d2d7; }
 
-        /* DASHBOARD ADMIN (EQUIPO) */
-        .doc-item { 
-            padding: 12px; border-radius: 16px; margin-bottom: 10px; 
-            display: flex; align-items: center; font-size: 13px; 
-            font-weight: 600; background: white; border-left: 6px solid; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02); cursor: pointer; 
-            transition: 0.3s; gap: 12px; 
-        }
-        .doc-item:hover { transform: scale(1.02) translateX(5px); background: #fdfdfd; }
-        .doc-thumb { width: 36px; height: 36px; border-radius: 10px; object-fit: cover; background: #eee; }
-
-        /* MODALES ELEGANTES - VENTANA PX MÁS PEQUEÑA */
+        /* MODALES - VENTANA PACIENTE PEQUEÑA */
         .modal-overlay { 
             display: none; position: fixed; inset: 0; 
             background: rgba(0,0,0,0.4); backdrop-filter: blur(15px); 
@@ -134,43 +120,52 @@
         }
         .modal-box { 
             background: white; padding: 25px; border-radius: 30px; 
-            width: 100%; max-width: 320px; box-shadow: 0 40px 80px rgba(0,0,0,0.25); 
+            width: 100%; max-width: 310px; box-shadow: 0 40px 80px rgba(0,0,0,0.25); 
             max-height: 85vh; overflow-y: auto; position: relative;
         }
 
-        /* AGENDA DIARIA COMPACTA */
-        .event-ios-card { 
-            display: flex; align-items: center; padding: 12px; 
-            border-bottom: 0.5px solid #f2f2f7; cursor: pointer; transition: 0.2s;
-        }
-        .event-ios-card:hover { background: #f9f9fb; }
-        .event-time { width: 60px; font-size: 12px; font-weight: 800; color: var(--text-dark); }
-        .event-bar { width: 4px; height: 30px; border-radius: 2px; margin: 0 15px; }
-
-        /* FULLCALENDAR OVERRIDES ESTILO iOS */
+        /* FULLCALENDAR - ESTILO iOS PERSONALIZADO */
         .fc { --fc-border-color: transparent; --fc-button-bg-color: #f2f2f7; --fc-button-border-color: transparent; --fc-button-text-color: #1d1d1f; }
-        .fc-toolbar-title { font-weight: 800 !important; font-size: 1.2em !important; color: #1d1d1f; }
+        .fc-toolbar-title { font-weight: 800 !important; font-size: 1.1em !important; color: #1d1d1f; }
         .fc .fc-button { border-radius: 10px !important; font-weight: 700 !important; font-size: 13px !important; text-transform: capitalize; }
         .fc .fc-button-primary:not(:disabled).fc-button-active { background-color: var(--brand-color) !important; color: white !important; }
         
-        /* Círculo Gris para Día Seleccionado */
-        .fc .fc-highlight { background: var(--ios-selection) !important; opacity: 1 !important; border-radius: 50%; }
-        .fc-daygrid-day-number { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin: 2px auto !important; font-weight: 600; text-decoration: none !important; color: var(--text-dark); }
-        
-        /* MEDIA QUERIES PARA MÓVIL */
+        /* Círculo Gris para Selección (Solo el número) */
+        .fc-daygrid-day-number { 
+            width: 30px !important; 
+            height: 30px !important; 
+            display: flex !important; 
+            align-items: center !important; 
+            justify-content: center !important; 
+            margin: 2px auto !important; 
+            font-weight: 600; 
+            border-radius: 50% !important; 
+            position: relative;
+            z-index: 5;
+        }
+        .fc-day-selected .fc-daygrid-day-number { background-color: var(--ios-selection) !important; color: var(--text-dark) !important; }
+        .fc .fc-day-today .fc-daygrid-day-number { background-color: var(--danger) !important; color: white !important; }
+        .fc .fc-highlight { background: transparent !important; }
+
+        /* AJUSTES MÓVIL (SIN AFECTAR PC) */
         @media (max-width: 850px) {
             #app-content { flex-direction: column; padding: 10px; }
             .side-panel { width: 100%; position: relative; top: 0; }
-            .top-nav { padding: 0 15px; height: 60px; }
-            #app-logo { max-width: 85px; } 
+            .calendar-card { border-radius: 20px; padding: 15px; }
             
-            .fc-toolbar { flex-direction: column; gap: 10px; }
-            .fc-daygrid-day { height: 60px !important; }
+            /* Calendario Estático y pequeño como la imagen */
+            .fc-daygrid-day { height: 50px !important; } 
+            .fc-daygrid-event-harness { display: none !important; } /* Ocultar nombres de px dentro del calendario en móvil */
             
-            /* Indicador de selección circular */
-            .fc-daygrid-day.fc-day-today .fc-daygrid-day-number { background: var(--danger); color: white; border-radius: 50%; }
-            .fc-day-selected .fc-daygrid-day-number { background: var(--ios-selection); border-radius: 50%; }
+            /* Agenda inferior compacta */
+            .event-ios-card { padding: 10px 5px; }
+            .event-info-title { font-size: 13px; font-weight: 700; }
         }
+
+        /* AGENDA DIARIA COMPACTA ABAJO */
+        .event-ios-card { display: flex; align-items: center; padding: 12px; border-bottom: 0.5px solid #f2f2f7; cursor: pointer; }
+        .event-time { width: 55px; font-size: 12px; font-weight: 800; color: var(--text-dark); }
+        .event-bar { width: 4px; height: 30px; border-radius: 2px; margin: 0 15px; }
     </style>
 </head>
 <body class="mode-user">
@@ -197,7 +192,10 @@
             <span id="display-profile-name">...</span>
         </div>
 
-        <div style="display:flex; align-items:center; gap:8px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div onclick="abrirConfigPerfil()" style="cursor:pointer; color:var(--text-light); display: flex;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </div>
             <button id="logout-btn" style="background:none; color:var(--danger); border:none; font-weight:800; cursor:pointer; font-size:11px; letter-spacing:0.5px;">SALIR</button>
         </div>
     </div>
@@ -209,12 +207,10 @@
                 <input type="text" id="new-doc-name" placeholder="Nombre">
                 <input type="email" id="new-doc-email" placeholder="Correo">
                 <button class="btn-action btn-save-main" id="add-doc-btn" style="padding:12px; font-size:13px;">+ Registrar</button>
-                
                 <div style="margin:20px 0 10px; display:flex; justify-content:space-between; align-items:flex-end;">
                     <label style="font-size:9px; font-weight:800; color:var(--text-light); letter-spacing:1px;">REPORTE</label>
                     <span id="btn-show-all" style="font-size:9px; font-weight:800; color:#007aff; cursor:pointer; display:none;" onclick="filtrarPorPsicologa(null)">LIMPIAR</span>
                 </div>
-                
                 <input type="month" id="report-month" onchange="recalcularAdmin()" style="padding:10px; font-size:12px;">
                 <div id="docs-list" style="margin-top:10px;"></div>
             </div>
@@ -222,7 +218,6 @@
 
         <div class="calendar-card">
             <div id='calendar'></div>
-            
             <div id="agenda-viewer" style="display:none; margin-top:25px; border-top:1px solid #f2f2f7; padding-top:20px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                     <h3 id="agenda-title" style="margin:0; font-weight:800; font-size:18px;">Sesiones</h3>
@@ -235,27 +230,20 @@
     <div id="modal-cita" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin:0 0 15px; font-weight:800; font-size:18px;">Detalles de Sesión</h3>
-            
             <label style="font-size:10px; font-weight:700; color:var(--text-light);">PROFESIONAL:</label>
             <select id="select-psicologa-cita" style="padding:10px; font-size:13px;"></select>
-            
             <input type="text" id="px-nombre" placeholder="Nombre del Paciente">
-            
             <div style="display:flex; gap:8px;">
                 <select id="px-area" style="width:90px; padding:10px;"><option value="502">🇬🇹 +502</option><option value="1">🇺🇸 +1</option></select>
                 <input type="number" id="px-whatsapp" placeholder="WhatsApp" style="padding:10px;">
             </div>
-            
             <input type="datetime-local" id="px-start" style="padding:10px;">
             <textarea id="px-notas" placeholder="Notas clínicas..." rows="3" style="padding:10px; font-size:13px;"></textarea>
-            
             <button class="btn-action btn-save-main" id="btn-guardar-cita" style="padding:14px;">Guardar</button>
-            
             <div id="wpp-actions" style="display:none; gap:8px; margin-top:10px;">
                 <button class="btn-action btn-ghost" id="btn-confirmar-wpp" style="font-size:11px; padding:10px;">Confirmar</button>
                 <button class="btn-action btn-ghost" id="btn-recordatorio-wpp" style="font-size:11px; padding:10px;">Recordar</button>
             </div>
-            
             <button class="btn-action btn-danger" id="btn-eliminar-cita" style="display:none; margin-top:10px; padding:10px; font-size:12px;">Eliminar</button>
             <button class="btn-action btn-ghost" onclick="cerrarModalCita()" style="margin-top:8px; padding:10px; font-size:12px; border:none;">Cerrar</button>
         </div>
@@ -373,18 +361,19 @@
                     initialView: 'dayGridMonth',
                     locale: 'es',
                     firstDay: 1,
-                    buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' }, // ESPAÑOL SIEMPRE
+                    showNonCurrentDates: false, // SOLO DÍAS DEL MES ACTUAL
+                    fixedWeekCount: false,      // EL CALENDARIO SE AJUSTA AL MES
+                    buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
                     slotMinTime: '07:00:00',
                     slotMaxTime: '19:00:00',
                     headerToolbar: { 
                         left: 'prev,next today', 
                         center: 'title', 
-                        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                        right: 'dayGridMonth,timeGridDay'
                     },
                     selectable: true,
                     unselectAuto: false,
                     dateClick: (info) => {
-                        // Resaltado visual circular gris
                         document.querySelectorAll('.fc-daygrid-day').forEach(el => el.classList.remove('fc-day-selected'));
                         info.dayEl.classList.add('fc-day-selected');
                         renderAgendaDia(info.dateStr);
@@ -419,7 +408,7 @@
                     <div class="event-time">${c.start.split('T')[1].substring(0,5)}</div>
                     <div class="event-bar" style="background:${c.color}"></div>
                     <div style="flex:1;">
-                        <div style="font-weight:700; font-size:14px; color:var(--text-dark);">${c.title}</div>
+                        <div class="event-info-title">${c.title}</div>
                         <div style="font-size:11px; color:var(--text-light);">${c.user}</div>
                     </div>
                 </div>`).join('');
