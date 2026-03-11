@@ -132,10 +132,22 @@
             color: var(--text-dark); width: 100%; box-sizing: border-box; outline: none;
         }
 
-        .btn-action { width: 100%; border: none; padding: 15px; border-radius: 16px; cursor: pointer; font-weight: 700; font-size: 14px; transition: transform 0.1s; }
-        .btn-action:active { transform: scale(0.98); }
-        .btn-save-main { background: var(--brand-color); color: white; margin-top: 20px; }
-        .btn-wpp { background: #25d366; color: white; margin-top: 8px; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        /* BOTONES MODAL PX (Elegantes, grises y compactos) */
+        .btn-action { 
+            width: 100%; border: none; padding: 12px; border-radius: 12px; 
+            cursor: pointer; font-weight: 600; font-size: 13px; 
+            transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .btn-action:active { transform: scale(0.98); opacity: 0.8; }
+
+        .modal-box .btn-action {
+            background: #636366 !important; /* Gris elegante Apple */
+            color: #ffffff !important;
+            margin-top: 8px;
+        }
+
+        #btn-eliminar-cita { background: #3a3a3c !important; margin-top: 15px; }
+        .modal-box button[onclick="cerrarModalCita()"] { background: #e5e5ea !important; color: #1d1d1f !important; }
 
         /* MÓVIL */
         @media (max-width: 850px) {
@@ -162,7 +174,7 @@
             <div style="background:white; padding:30px 20px; border-radius:28px; box-shadow: var(--apple-shadow);">
                 <input type="email" id="email" placeholder="Correo" style="width:100%; padding:14px; border-radius:12px; border:1px solid #ddd; margin-bottom:10px; box-sizing:border-box;">
                 <input type="password" id="password" placeholder="Contraseña" style="width:100%; padding:14px; border-radius:12px; border:1px solid #ddd; margin-bottom:20px; box-sizing:border-box;">
-                <button class="btn-action btn-save-main" id="login-btn">Entrar</button>
+                <button class="btn-action" id="login-btn" style="background:var(--brand-color)!important; color:white!important;">Entrar</button>
             </div>
         </div>
     </div>
@@ -187,7 +199,7 @@
                 <h3>Administración</h3>
                 <input type="text" id="new-doc-name" placeholder="Nombre completo">
                 <input type="email" id="new-doc-email" placeholder="Correo electrónico">
-                <button class="btn-action btn-save-main" id="add-doc-btn" style="padding:10px; margin-top:5px;">+ Registrar Especialista</button>
+                <button class="btn-action" id="add-doc-btn" style="background:var(--brand-color)!important; color:white!important; padding:10px; margin-top:5px;">+ Registrar Especialista</button>
                 
                 <div style="margin-top:25px;">
                     <label style="font-size:9px; font-weight:800; color:var(--text-light);">REPORTE MENSUAL</label>
@@ -222,13 +234,14 @@
             <input type="datetime-local" id="px-start">
             <label>Notas</label>
             <textarea id="px-notas" placeholder="Anotaciones..." rows="2"></textarea>
-            <button class="btn-action btn-save-main" id="btn-guardar-cita">Guardar Cita</button>
+            
+            <button class="btn-action" id="btn-guardar-cita">Guardar Cita</button>
             <div id="wpp-actions" style="display:none; flex-direction:column; gap:6px; margin-top:10px;">
-                <button class="btn-action btn-wpp" id="btn-confirmar-wpp">Confirmar WhatsApp</button>
-                <button class="btn-action btn-wpp" id="btn-recordatorio-wpp" style="background:#128c7e;">Recordatorio WhatsApp</button>
+                <button class="btn-action" id="btn-confirmar-wpp">Confirmar WhatsApp</button>
+                <button class="btn-action" id="btn-recordatorio-wpp">Recordatorio WhatsApp</button>
             </div>
-            <button class="btn-action" id="btn-eliminar-cita" style="background:none; color:var(--danger); margin-top:15px; font-size:12px;">Eliminar</button>
-            <button class="btn-action" onclick="cerrarModalCita()" style="background:none; color:var(--text-light); font-size:12px;">Cerrar</button>
+            <button class="btn-action" id="btn-eliminar-cita">Eliminar</button>
+            <button class="btn-action" onclick="cerrarModalCita()">Cerrar</button>
         </div>
     </div>
 
@@ -241,9 +254,9 @@
             <label>Nombre Público</label>
             <input type="text" id="edit-display-name">
             <input type="file" id="file-photo-input" accept="image/*" style="display:none;" onchange="procesarFotoLocal(this)">
-            <button class="btn-action" onclick="document.getElementById('file-photo-input').click()" style="background:var(--ios-gray); color:var(--text-dark); margin-top:10px;">Cambiar Foto</button>
-            <button class="btn-action btn-save-main" id="btn-save-profile">Actualizar</button>
-            <button class="btn-action" onclick="document.getElementById('modal-perfil').style.display='none'" style="background:none; color:var(--text-light); margin-top:10px;">Cancelar</button>
+            <button class="btn-action" onclick="document.getElementById('file-photo-input').click()" style="background:var(--ios-gray)!important; color:var(--text-dark)!important; margin-top:10px;">Cambiar Foto</button>
+            <button class="btn-action" id="btn-save-profile" style="background:var(--brand-color)!important; color:white!important;">Actualizar</button>
+            <button class="btn-action" onclick="document.getElementById('modal-perfil').style.display='none'" style="background:none!important; color:var(--text-light)!important; margin-top:10px;">Cancelar</button>
         </div>
     </div>
 
@@ -266,7 +279,7 @@
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
         const PALETA = ["#FF5E5E", "#4FACFE", "#00F2FE", "#F9D423", "#A18CD1", "#84FAB0"];
         
-        let equipoGlobal = [], citasGlobal = [], perfilesGlobal = {}, citaSeleccionadaId = null, globalIsAdmin = false, base64FotoTemp = "";
+        let equipoGlobal = [], citasGlobal = [], perfilesGlobal = {}, citaSeleccionadaId = null, globalIsAdmin = false, base64FotoTemp = "", filtroEspecialista = null;
 
         window.lanzarToast = (msg) => {
             const t = document.getElementById('toast');
@@ -298,6 +311,11 @@
         });
 
         function iniciarEscuchas() {
+            // Setear mes actual por defecto
+            const hoy = new Date();
+            const mesActual = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0');
+            document.getElementById('report-month').value = mesActual;
+
             onSnapshot(collection(db, "perfiles"), (snap) => {
                 perfilesGlobal = {}; snap.forEach(d => { perfilesGlobal[d.id] = d.data(); });
                 const current = perfilesGlobal[auth.currentUser.email.toLowerCase()];
@@ -345,7 +363,12 @@
                 window.calendarObj.render();
             }
             window.calendarObj.removeAllEvents();
-            citasGlobal.forEach(c => {
+            
+            const eventosFiltrados = (globalIsAdmin && filtroEspecialista) 
+                ? citasGlobal.filter(c => c.user === filtroEspecialista) 
+                : citasGlobal;
+
+            eventosFiltrados.forEach(c => {
                 window.calendarObj.addEvent({ id: c.id, title: c.title, start: c.start, color: c.color });
             });
         }
@@ -430,7 +453,7 @@
                 const pInfo = perfilesGlobal[p.email.toLowerCase()] || {};
                 const photoSrc = pInfo.photo && pInfo.photo.length > 10 ? pInfo.photo : 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
                 return `
-                <div class="doc-item" style="border-color:${p.color}">
+                <div class="doc-item" style="border-color:${p.color}; ${filtroEspecialista === p.email.toLowerCase() ? 'background:#f2f2f7;' : ''}" onclick="filtrarPorEspecialista('${p.email.toLowerCase()}')">
                     <img src="${photoSrc}" class="doc-thumb" style="${!pInfo.photo ? 'opacity:0' : ''}">
                     <div class="doc-info">
                         <h4>${p.name}</h4>
@@ -438,6 +461,18 @@
                     </div>
                 </div>`;
             }).join('');
+        };
+
+        window.filtrarPorEspecialista = (email) => {
+            if (filtroEspecialista === email) {
+                filtroEspecialista = null; // Quita el filtro
+                lanzarToast("Mostrando todas las sesiones");
+            } else {
+                filtroEspecialista = email; // Aplica el filtro
+                lanzarToast("Filtrando agenda de especialista");
+            }
+            recalcularAdmin(); 
+            actualizarCalendario(); 
         };
 
         document.getElementById('add-doc-btn').onclick = async () => {
