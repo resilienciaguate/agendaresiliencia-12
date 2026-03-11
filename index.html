@@ -19,6 +19,14 @@
 
         html, body { min-height: 100%; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #f5f5f7; color: var(--text-dark); overflow-x: hidden; }
 
+        /* REPARACIÓN LOGO GIGANTE EN PC */
+        #app-logo { 
+            max-width: 180px; 
+            height: auto; 
+            object-fit: contain;
+            transition: 0.3s ease;
+        }
+
         /* NAVEGACIÓN APPLE */
         .top-nav { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(25px); padding: 0 30px; display: none; justify-content: space-between; align-items: center; height: 85px; position: sticky; top: 0; z-index: 999; border-bottom: 0.5px solid rgba(0,0,0,0.1); }
         .profile-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; }
@@ -31,10 +39,11 @@
         .calendar-card { flex: 1; background: white; border-radius: 24px; padding: 20px; box-shadow: var(--apple-shadow); min-height: 650px; }
         .glass-card { background: var(--glass-bg); backdrop-filter: blur(15px); padding: 25px; border-radius: 24px; box-shadow: var(--apple-shadow); border: 1px solid rgba(255,255,255,0.4); }
         
-        /* ADMIN UI */
-        .doc-item { padding: 12px 15px; border-radius: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; background: white; border-left: 6px solid; box-shadow: 0 2px 5px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; }
+        /* ADMIN UI CON FOTOS */
+        .doc-item { padding: 12px 15px; border-radius: 14px; margin-bottom: 10px; display: flex; align-items: center; font-size: 13px; font-weight: 600; background: white; border-left: 6px solid; box-shadow: 0 2px 5px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; gap: 12px; }
         .doc-item:hover { transform: translateX(5px); background: #fafafa; }
-        .btn-del-doc { background: none; border: none; color: #ff3b30; cursor: pointer; font-size: 18px; opacity: 0.3; transition: 0.2s; padding: 0 5px; font-weight: 300; }
+        .doc-thumb { width: 35px; height: 35px; border-radius: 8px; object-fit: cover; background: #eee; }
+        .btn-del-doc { margin-left: auto; background: none; border: none; color: #ff3b30; cursor: pointer; font-size: 18px; opacity: 0.3; transition: 0.2s; padding: 0 5px; }
         .btn-del-doc:hover { opacity: 1; transform: scale(1.2); }
         
         .filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -46,30 +55,39 @@
 
         input, select, textarea { width: 100%; padding: 14px; margin: 8px 0; border-radius: 14px; border: 1px solid #d2d2d7; font-family: inherit; box-sizing: border-box; font-size: 15px; outline: none; background: #fbfbfd; }
         input:focus { border-color: var(--brand-color); background: white; }
-        .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 16px; border-radius: 14px; cursor: pointer; font-weight: 700; margin-top: 10px; font-size: 15px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .btn-action:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 16px; border-radius: 14px; cursor: pointer; font-weight: 700; margin-top: 10px; font-size: 15px; transition: 0.3s; }
         .btn-secondary { background: #f2f2f7; color: #1d1d1f; margin-top: 10px; }
         .btn-danger { background: #fff5f5; color: #ff3b30; margin-top: 15px; border: none; font-weight: 700; cursor: pointer; padding: 10px; border-radius: 10px; width: 100%; }
         
         /* CALENDARIO ESTILO APPLE */
-        .fc .fc-button-primary { background: #e8e8ed !important; border: none !important; color: #1d1d1f !important; font-size: 13px !important; font-weight: 600 !important; border-radius: 10px !important; text-transform: capitalize !important; padding: 10px 15px !important; transition: 0.2s; }
+        .fc .fc-button-primary { background: #e8e8ed !important; border: none !important; color: #1d1d1f !important; font-size: 13px !important; font-weight: 600 !important; border-radius: 10px !important; text-transform: capitalize !important; padding: 10px 15px !important; }
         .fc .fc-button-active { background: #1d1d1f !important; color: white !important; }
         .fc-toolbar-title { font-size: 1.3em !important; font-weight: 800 !important; text-transform: capitalize !important; letter-spacing: -0.5px; }
-        .fc-daygrid-day-number { font-weight: 600; padding: 8px !important; }
 
-        /* TOAST NOTIFICATION */
+        /* TOAST */
         #toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(120px); background: #1d1d1f; color: white; padding: 14px 28px; border-radius: 50px; font-size: 14px; z-index: 11000; transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1); box-shadow: 0 15px 35px rgba(0,0,0,0.3); font-weight: 600; }
         #toast.show { transform: translateX(-50%) translateY(0); }
 
-        /* RESPONSIVE MÓVIL */
+        /* --- DISEÑO MÓVIL PROFESIONAL --- */
         @media (max-width: 768px) {
-            #app-content { flex-direction: column; padding: 15px; }
-            .side-panel { width: 100%; position: relative; top: 0; margin-bottom: 25px; }
-            .fc .fc-toolbar { flex-direction: column; gap: 15px; }
-            .top-nav { height: 75px; padding: 0 15px; }
-            .profile-center { display: none; }
-            #app-logo { max-height: 48px; }
-            .calendar-card { padding: 12px; border-radius: 20px; }
+            body { background: #ffffff; }
+            .top-nav { height: 65px; padding: 0 20px; border: none; background: rgba(255,255,255,0.9); }
+            #app-logo { max-width: 120px; }
+            
+            #app-content { flex-direction: column; padding: 10px; gap: 15px; }
+            .side-panel { width: 100%; position: relative; top: 0; margin-bottom: 10px; }
+            .glass-card { border-radius: 20px; padding: 18px; border: 1px solid #eee; background: #f9f9fb; box-shadow: none; }
+            
+            .calendar-card { border-radius: 0; padding: 10px; box-shadow: none; border-top: 1px solid #f0f0f2; }
+            .fc .fc-toolbar { display: flex; flex-direction: column; gap: 12px; padding: 10px 0; }
+            .fc-toolbar-title { font-size: 1.1em !important; order: -1; }
+            .fc .fc-button-group { width: 100%; display: flex; }
+            .fc .fc-button { flex: 1; font-size: 11px !important; }
+
+            .modal-box { padding: 25px 20px; border-radius: 25px 25px 0 0; position: fixed; bottom: 0; max-width: 100%; margin: 0; }
+            .modal-overlay { align-items: flex-end; padding: 0; }
+            input, select, textarea { font-size: 16px; padding: 16px; border-radius: 12px; }
+            .doc-item { border-radius: 12px; padding: 10px; background: white; border: 1px solid #f0f0f2; }
         }
     </style>
 </head>
@@ -136,7 +154,7 @@
         </div>
         <label style="display:block; text-align:left; font-size:12px; margin-top:12px; font-weight:800; color:var(--brand-color);">FECHA Y HORA</label>
         <input type="datetime-local" id="px-start">
-        <textarea id="px-notas" placeholder="Notas de la sesión... (Motivo, seguimiento, etc.)" style="height: 90px;"></textarea>
+        <textarea id="px-notas" placeholder="Notas de la sesión..." style="height: 90px;"></textarea>
         
         <button class="btn-action" id="btn-guardar-cita">Guardar Cita</button>
         <button class="btn-danger" id="btn-eliminar-cita" style="display:none;">Eliminar Cita</button>
@@ -154,7 +172,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA", authDomain: "agendaresiliencia-12.firebaseapp.com", projectId: "agendaresiliencia-12", storageBucket: "agendaresiliencia-12.firebasestorage.app", appId: "1:1068233469888:web:f958c72f406ac8698da225" };
@@ -164,7 +182,7 @@
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
         const PALETA = ["#FF5E5E", "#4FACFE", "#00F2FE", "#F9D423", "#A18CD1", "#84FAB0", "#FF9A9E", "#B210FF", "#30CFD0"];
         
-        let equipoGlobal = [], citasGlobal = [], citaSeleccionadaId = null, filtroPsicologaActual = null;
+        let equipoGlobal = [], citasGlobal = [], perfilesGlobal = {}, citaSeleccionadaId = null, filtroPsicologaActual = null;
 
         const showToast = (msg) => {
             const t = document.getElementById('toast');
@@ -184,12 +202,12 @@
         });
 
         function iniciarEscuchas(isAdmin, userEmail) {
-            onSnapshot(doc(db, "perfiles", userEmail), (s) => { 
-                if(s.exists()){ 
-                    const d = s.data(); 
-                    if(d.photo) { document.getElementById('user-photo').src = d.photo; document.getElementById('user-photo').style.display = 'block'; }
-                    document.getElementById('display-profile-name').innerText = d.displayName || "Psicóloga"; 
-                } 
+            onSnapshot(collection(db, "perfiles"), (snap) => {
+                perfilesGlobal = {}; snap.forEach(d => { perfilesGlobal[d.id] = d.data(); });
+                recalcularAdmin(isAdmin);
+                const mp = perfilesGlobal[userEmail];
+                if(mp && mp.photo) { document.getElementById('user-photo').src = mp.photo; document.getElementById('user-photo').style.display = 'block'; }
+                if(mp) document.getElementById('display-profile-name').innerText = mp.displayName || "Psicóloga";
             });
             onSnapshot(collection(db, "psicologas"), (snap) => { 
                 equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()})); 
@@ -213,8 +231,7 @@
                     dateClick: (info) => { window.calendarObj.changeView('timeGridDay', info.dateStr); },
                     select: (info) => abrirModalCita(null, info),
                     eventClick: (info) => abrirModalCita(info.event.id),
-                    selectable: true, height: 'auto',
-                    slotMinTime: '07:00:00', slotMaxTime: '21:00:00'
+                    selectable: true, height: 'auto'
                 });
                 window.calendarObj.render();
             }
@@ -227,6 +244,23 @@
                 }
             });
         }
+
+        window.recalcularAdmin = (isAdmin) => {
+            if(!isAdmin) return;
+            const mesSel = document.getElementById('report-month').value || new Date().toISOString().substring(0, 7);
+            const counts = {};
+            citasGlobal.forEach(c => { if(c.start.startsWith(mesSel)) counts[c.user] = (counts[c.user] || 0) + 1; });
+            document.getElementById('docs-list').innerHTML = equipoGlobal.map(p => {
+                const total = counts[p.email.toLowerCase()] || 0;
+                const perf = perfilesGlobal[p.email.toLowerCase()] || {};
+                const foto = perf.photo || 'https://via.placeholder.com/40';
+                return `<div class="doc-item" style="border-color:${p.color}" onclick="filtrarPorPsicologa('${p.email.toLowerCase()}')">
+                    <img src="${foto}" class="doc-thumb">
+                    <div style="display:flex; flex-direction:column;"><span>${p.name}</span><span style="opacity:0.6; font-size:11px;">${total} citas</span></div>
+                    <button class="btn-del-doc" onclick="event.stopPropagation(); eliminarPsicologa('${p.id}')">×</button>
+                </div>`;
+            }).join('');
+        };
 
         function abrirModalCita(id = null, info = null) {
             citaSeleccionadaId = id;
@@ -254,53 +288,21 @@
 
         document.getElementById('btn-guardar-cita').onclick = async () => {
             const psi = equipoGlobal.find(p => p.email.toLowerCase() === document.getElementById('select-psicologa-cita').value);
-            const fechaHora = document.getElementById('px-start').value;
-            const final = new Date(new Date(fechaHora).getTime() + 60*60*1000).toISOString().substring(0, 16);
-            
             const data = {
                 title: document.getElementById('px-nombre').value,
                 tel: document.getElementById('px-whatsapp').value,
                 area: document.getElementById('px-area').value,
                 notas: document.getElementById('px-notas').value,
-                start: fechaHora,
-                end: final,
+                start: document.getElementById('px-start').value,
+                end: new Date(new Date(document.getElementById('px-start').value).getTime() + 3600000).toISOString().substring(0, 16),
                 user: psi.email.toLowerCase(),
                 color: psi.color
             };
-            if(!data.title) return showToast("Falta nombre del paciente");
-            
+            if(!data.title) return showToast("Falta nombre");
             if(citaSeleccionadaId) await updateDoc(doc(db, "citas", citaSeleccionadaId), data);
             else await addDoc(collection(db, "citas"), data);
-            
             showToast("Agenda actualizada");
             cerrarModalCita();
-        };
-
-        window.recalcularAdmin = (isAdmin) => {
-            if(!isAdmin) return;
-            const mesSel = document.getElementById('report-month').value || new Date().toISOString().substring(0, 7);
-            const counts = {};
-            citasGlobal.forEach(c => { if(c.start.startsWith(mesSel)) counts[c.user] = (counts[c.user] || 0) + 1; });
-            document.getElementById('docs-list').innerHTML = equipoGlobal.map(p => {
-                const total = counts[p.email.toLowerCase()] || 0;
-                return `<div class="doc-item" style="border-color:${p.color}" onclick="filtrarPorPsicologa('${p.email.toLowerCase()}')">
-                    <div style="display:flex; flex-direction:column;"><span>${p.name}</span><span style="opacity:0.6; font-size:11px;">${total} citas en el mes</span></div>
-                    <button class="btn-del-doc" onclick="event.stopPropagation(); eliminarPsicologa('${p.id}')">×</button>
-                </div>`;
-            }).join('');
-        };
-
-        window.filtrarPorPsicologa = (e) => { filtroPsicologaActual = e; document.getElementById('btn-show-all').style.display = e ? 'block' : 'none'; actualizarCalendario(true); };
-        window.eliminarPsicologa = async (id) => { if(confirm("¿Eliminar psicóloga del equipo?")) await deleteDoc(doc(db, "psicologas", id)); };
-        document.getElementById('btn-eliminar-cita').onclick = async () => { if(confirm("¿Segura que deseas eliminar esta cita?")) { await deleteDoc(doc(db, "citas", citaSeleccionadaId)); cerrarModalCita(); showToast("Cita eliminada"); }};
-        
-        document.getElementById('add-doc-btn').onclick = async () => {
-            const n = document.getElementById('new-doc-name').value, e = document.getElementById('new-doc-email').value;
-            if(!n || !e) return showToast("Completa los datos");
-            const color = PALETA.find(c => !equipoGlobal.map(p => p.color).includes(c)) || PALETA[0];
-            await addDoc(collection(db, "psicologas"), { name: n, email: e.toLowerCase(), color: color });
-            document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
-            showToast("Psicóloga añadida correctamente");
         };
 
         document.getElementById('save-profile-btn').onclick = async () => {
@@ -312,13 +314,20 @@
             } else { await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), upd, { merge: true }); toggleUserConfig(); showToast("Perfil actualizado"); }
         };
 
-        document.getElementById('login-btn').onclick = () => {
-            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
-                .then(() => showToast("Bienvenida"))
-                .catch(() => showToast("Error en credenciales"));
+        document.getElementById('add-doc-btn').onclick = async () => {
+            const n = document.getElementById('new-doc-name').value, e = document.getElementById('new-doc-email').value;
+            if(!n || !e) return showToast("Faltan datos");
+            const color = PALETA.find(c => !equipoGlobal.map(p => p.color).includes(c)) || PALETA[0];
+            await addDoc(collection(db, "psicologas"), { name: n, email: e.toLowerCase(), color: color });
+            document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
+            showToast("Psicóloga añadida");
         };
 
-        document.getElementById('logout-btn').onclick = () => { signOut(auth); location.reload(); };
+        window.filtrarPorPsicologa = (e) => { filtroPsicologaActual = e; document.getElementById('btn-show-all').style.display = e ? 'block' : 'none'; actualizarCalendario(true); };
+        window.eliminarPsicologa = async (id) => { if(confirm("¿Eliminar psicóloga?")) await deleteDoc(doc(db, "psicologas", id)); };
+        document.getElementById('btn-eliminar-cita').onclick = async () => { if(confirm("¿Eliminar cita?")) { await deleteDoc(doc(db, "citas", citaSeleccionadaId)); cerrarModalCita(); showToast("Cita eliminada"); }};
+        document.getElementById('login-btn').onclick = () => { signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).then(() => showToast("Acceso correcto")).catch(() => showToast("Error")); };
+        document.getElementById('logout-btn').onclick = () => { signOut(auth).then(() => location.reload()); };
         window.cerrarModalCita = () => document.getElementById('modal-cita').style.display = 'none';
         window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
     </script>
