@@ -2,446 +2,545 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Resiliencia | Suite de Gestión Clínica</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Resiliencia | Suite Clínica</title>
 
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/es.global.min.js'></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* ESTÉTICA: MINIMALIST LUXURY 
-           Enfoque en elegancia, legibilidad y refinamiento profesional.
+        /* SISTEMA DE DISEÑO: APPLE CALENDAR DAY MODE
+           Enfoque: Minimalismo, Blanco Seda, Bordes de 0.5px y Sombras Profundas.
         */
         :root {
-            --bg-principal: #FDFDFD;
-            --bg-secundario: #F8F9FA;
-            --acent-color: #1A73E8; /* Azul profesional */
-            --text-dark: #202124;
-            --text-light: #5F6368;
-            --white: #FFFFFF;
-            --border-elegant: #E0E0E0;
-            --shadow-lux: 0 10px 30px rgba(0,0,0,0.05);
-            --radius-fin: 16px;
+            --ios-bg: #FFFFFF;
+            --ios-secondary-bg: #F2F2F7;
+            --ios-accent: #007AFF;
+            --ios-text-main: #000000;
+            --ios-text-secondary: #8E8E93;
+            --ios-border: #C6C6C8;
+            --ios-divider: rgba(0, 0, 0, 0.1);
+            --apple-radius: 12px;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --shadow-ios: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             margin: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-secundario);
-            color: var(--text-dark);
-            -webkit-font-smoothing: antialiased;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--ios-bg);
+            color: var(--ios-text-main);
+            height: 100vh;
+            overflow: hidden;
         }
 
-        /* HEADER REFINADO */
-        .header-lux {
-            background: var(--white);
-            height: 100px;
+        /* BARRA SUPERIOR (HEADER APPLE STYLE) */
+        .apple-header {
+            height: 110px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 0.5px solid var(--ios-border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 40px;
-            border-bottom: 1px solid var(--border-elegant);
+            padding: 0 30px;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
 
-        .logo-container img {
-            height: 50px;
+        .header-left {
+            width: 200px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-elegant {
+            height: 40px;
             width: auto;
             object-fit: contain;
         }
 
-        .profile-center {
-            text-align: center;
+        .header-center {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
 
-        .profile-photo-wrapper {
-            width: 55px;
-            height: 55px;
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .img-wrapper {
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            overflow: hidden;
-            border: 2px solid var(--acent-color);
-            background: #eee;
-            margin-bottom: 6px;
-            box-shadow: var(--shadow-lux);
+            border: 1.5px solid var(--ios-accent);
+            padding: 2px;
+            background: white;
+            box-shadow: var(--shadow-ios);
         }
 
-        .profile-photo-wrapper img {
+        .img-wrapper img {
             width: 100%;
             height: 100%;
+            border-radius: 50%;
             object-fit: cover;
         }
 
-        .profile-name-text {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--text-light);
-            letter-spacing: 1px;
-            text-transform: uppercase;
+        .profile-info {
+            text-align: center;
         }
 
-        .header-tools {
+        .profile-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ios-text-main);
+            margin: 0;
+        }
+
+        .header-right {
+            width: 200px;
             display: flex;
-            gap: 20px;
-            align-items: center;
+            justify-content: flex-end;
+            gap: 15px;
         }
 
-        .btn-tool {
-            background: none;
+        .btn-ios-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--ios-secondary-bg);
             border: none;
-            color: var(--text-light);
-            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.2s;
+            color: var(--ios-accent);
+            font-size: 18px;
         }
 
-        .btn-tool:hover { color: var(--acent-color); transform: scale(1.1); }
+        .btn-ios-circle:active {
+            transform: scale(0.9);
+            background: var(--ios-border);
+        }
 
         /* BUSCADOR ELEGANTE */
-        .search-section {
-            background: var(--white);
-            padding: 15px 40px;
-            display: flex;
-            justify-content: center;
+        .search-container {
+            padding: 10px 30px;
+            background: var(--ios-bg);
+            border-bottom: 0.5px solid var(--ios-divider);
         }
 
-        .search-box {
-            width: 100%;
-            max-width: 800px;
-            background: var(--bg-secundario);
-            border-radius: 30px;
-            padding: 12px 25px;
+        .apple-search-bar {
+            background: var(--ios-secondary-bg);
+            border-radius: 10px;
+            padding: 8px 15px;
             display: flex;
             align-items: center;
-            border: 1px solid transparent;
-            transition: 0.3s;
-        }
-
-        .search-box:focus-within {
-            background: white;
-            border-color: var(--acent-color);
-            box-shadow: var(--shadow-lux);
-        }
-
-        .search-box input {
-            border: none;
-            background: transparent;
-            width: 100%;
-            margin-left: 15px;
-            font-size: 16px;
-            outline: none;
-        }
-
-        /* NAVEGACIÓN DE PESTAÑAS */
-        .tabs-container {
-            display: flex;
-            justify-content: center;
-            background: var(--white);
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-elegant);
-            gap: 10px;
-        }
-
-        .tab-btn {
-            padding: 10px 25px;
-            border-radius: 25px;
-            border: none;
-            background: transparent;
-            color: var(--text-light);
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .tab-btn.active {
-            background: var(--acent-color);
-            color: white;
-            box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
-        }
-
-        /* LAYOUT PRINCIPAL */
-        .app-main-layout {
-            display: flex;
-            padding: 30px 40px;
-            gap: 30px;
-            max-width: 1800px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
-        /* BARRA LATERAL ADMIN */
-        .sidebar-lux {
-            width: 350px;
-            flex-shrink: 0;
-            display: none; /* Controlado por JS */
+        .apple-search-bar i {
+            color: var(--ios-text-secondary);
+            font-size: 14px;
         }
 
-        .glass-card {
-            background: var(--white);
-            border-radius: var(--radius-fin);
-            padding: 25px;
-            border: 1px solid var(--border-elegant);
-            box-shadow: var(--shadow-lux);
-            margin-bottom: 25px;
-        }
-
-        .section-title {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: var(--text-dark);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* INPUTS REFINADOS */
-        .lux-input {
-            width: 100%;
-            padding: 14px 18px;
-            border-radius: 12px;
-            border: 1px solid var(--border-elegant);
-            background: var(--bg-secundario);
-            font-size: 15px;
-            margin-bottom: 15px;
-            box-sizing: border-box;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .lux-input:focus {
-            border-color: var(--acent-color);
-            background: white;
-        }
-
-        .btn-lux-primary {
-            width: 100%;
-            padding: 15px;
-            border-radius: 12px;
+        .apple-search-bar input {
+            background: transparent;
             border: none;
-            background: var(--acent-color);
-            color: white;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
+            outline: none;
+            margin-left: 10px;
+            width: 100%;
+            font-size: 16px;
+            color: black;
         }
 
-        .btn-lux-primary:hover { opacity: 0.9; transform: translateY(-2px); }
-
-        /* LISTA DE PSICÓLOGAS Y CONTADORES */
-        .psico-card {
+        /* PESTAÑAS DE NAVEGACIÓN */
+        .nav-tabs {
             display: flex;
-            align-items: center;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: 0.3s;
-            border: 1px solid transparent;
+            justify-content: center;
+            gap: 5px;
+            background: var(--ios-bg);
+            padding: 10px 0;
+            border-bottom: 0.5px solid var(--ios-divider);
         }
 
-        .psico-card:hover { background: var(--bg-secundario); }
-        .psico-card.active {
-            background: white;
-            border-color: var(--acent-color);
-            box-shadow: var(--shadow-lux);
-        }
-
-        .dot-indicator {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            margin-right: 15px;
-        }
-
-        .psico-meta { flex: 1; }
-        .psico-meta b { display: block; font-size: 14px; }
-        .psico-meta span { font-size: 12px; color: var(--text-light); }
-
-        .count-badge {
-            background: var(--bg-secundario);
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--acent-color);
-        }
-
-        /* CALENDARIO CONTENEDOR */
-        .calendar-lux-container {
-            flex: 1;
-            background: var(--white);
-            border-radius: var(--radius-fin);
-            padding: 20px;
-            border: 1px solid var(--border-elegant);
-            box-shadow: var(--shadow-lux);
-        }
-
-        /* CUSTOMIZACIÓN DE FULLCALENDAR (ELEGANTE) */
-        .fc { --fc-border-color: #F0F0F0; }
-        .fc-header-toolbar { display: none !important; }
-        .fc-view-harness { background: white; }
-        .fc-daygrid-day-top { flex-direction: row !important; padding: 8px; }
-        .fc-daygrid-day-number { font-weight: 300; font-size: 18px; color: #BBB; }
-        .fc-day-today .fc-daygrid-day-number { color: var(--acent-color); font-weight: 700; }
-        
-        .fc-event {
-            border: none !important;
-            padding: 5px 8px !important;
-            border-radius: 6px !important;
-            font-size: 11px !important;
-            font-weight: 600 !important;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        .tab-btn {
+            padding: 6px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            border: none;
+            background: transparent;
+            color: var(--ios-accent);
             cursor: pointer;
             transition: 0.2s;
         }
-        .fc-event:hover { transform: scale(1.02); filter: brightness(1.1); }
+
+        .tab-btn.active {
+            background: var(--ios-accent);
+            color: white;
+        }
+
+        /* LAYOUT PRINCIPAL */
+        .main-wrapper {
+            display: flex;
+            height: calc(100vh - 215px);
+            overflow: hidden;
+        }
+
+        /* BARRA LATERAL (ADMIN ONLY) */
+        .sidebar-admin {
+            width: 320px;
+            background: var(--ios-secondary-bg);
+            border-right: 0.5px solid var(--ios-border);
+            padding: 20px;
+            overflow-y: auto;
+            display: none; /* Se activa por JS */
+        }
+
+        .sidebar-section {
+            background: white;
+            border-radius: var(--apple-radius);
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ios-text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .ios-field {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 0.5px solid var(--ios-border);
+            background: var(--ios-secondary-bg);
+            margin-bottom: 10px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .ios-btn-primary {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--ios-accent);
+            color: white;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        /* REPORTE Y LISTA PSICOLOGAS */
+        .report-grid {
+            margin-top: 10px;
+        }
+
+        .psico-item-row {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 5px;
+            transition: background 0.2s;
+        }
+
+        .psico-item-row:hover { background: var(--ios-secondary-bg); }
+        .psico-item-row.active { background: #E8F2FF; border: 0.5px solid var(--ios-accent); }
+
+        .psico-thumb {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 12px;
+            object-fit: cover;
+        }
+
+        .psico-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .psico-meta {
+            flex: 1;
+        }
+
+        .psico-meta b { display: block; font-size: 13px; }
+        .psico-meta span { font-size: 11px; color: var(--ios-text-secondary); }
+
+        .count-tag {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ios-accent);
+            background: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        /* CALENDARIO CONTENEDOR */
+        .calendar-area {
+            flex: 1;
+            background: white;
+            padding: 10px;
+        }
+
+        /* CUSTOM FULLCALENDAR (APPLE STYLE) */
+        .fc { --fc-border-color: #E5E5EA; --fc-today-bg-color: transparent; }
+        .fc-header-toolbar { display: none !important; }
+        .fc-col-header-cell { padding: 15px 0 !important; font-weight: 400; color: var(--ios-text-secondary); font-size: 11px; text-transform: uppercase; }
+        .fc-daygrid-day-number { font-size: 17px; font-weight: 300; padding: 10px !important; color: #333; }
+        .fc-day-today { background: rgba(0, 122, 255, 0.03) !important; }
+        .fc-day-today .fc-daygrid-day-number { background: var(--ios-accent); color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin: 5px auto !important; }
+        
+        /* Eventos elegantes */
+        .fc-event {
+            border: none !important;
+            padding: 4px 8px !important;
+            border-radius: 6px !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            margin: 2px 4px !important;
+        }
 
         /* MODALES ELITE */
-        .lux-modal-overlay {
+        .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.1);
-            backdrop-filter: blur(15px);
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 5000;
+            animation: fadeIn 0.3s ease;
         }
 
-        .lux-modal-content {
+        .apple-modal {
             background: white;
             width: 90%;
-            max-width: 500px;
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+            max-width: 420px;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
             position: relative;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .modal-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .modal-header-text {
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--ios-text-main);
+        }
+
+        /* ACCIONES DE CITA */
+        .action-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
             cursor: pointer;
-            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.2s;
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 1100px) {
-            .app-main-layout { flex-direction: column; }
-            .sidebar-lux { width: 100%; }
+        .btn-save { background: var(--ios-accent); color: white; }
+        .btn-wpp { background: #25D366; color: white; }
+        .btn-delete { background: #FF3B30; color: white; }
+        .btn-close { background: var(--ios-secondary-bg); color: var(--ios-accent); }
+
+        .btn-action:active { transform: scale(0.97); }
+
+        /* PANTALLA DE ACCESO */
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        .login-box {
+            width: 320px;
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
 
-    <header class="header-lux" id="ui-header" style="display:none;">
-        <div class="logo-container">
-            <img src="logo_resiliencia.png" alt="Logo">
-        </div>
-        
-        <div class="profile-center">
-            <div class="profile-photo-wrapper">
-                <img id="user-display-photo" src="" alt="Perfil">
+    <div id="login-overlay">
+        <div class="login-box">
+            <img src="Resiliencia.png" style="width: 140px; margin-bottom: 40px;">
+            <div class="sidebar-section">
+                <input type="email" id="log-email" class="ios-field" placeholder="Correo">
+                <input type="password" id="log-pass" class="ios-field" placeholder="Contraseña">
+                <button class="ios-btn-primary" id="btn-do-login">Entrar</button>
             </div>
-            <span id="user-display-name" class="profile-name-text">Cargando...</span>
-        </div>
-
-        <div class="header-tools">
-            <button class="btn-tool" onclick="abrirConfiguracion()"><i class="fa-solid fa-sliders"></i></button>
-            <button class="btn-tool" id="btn-logout-action" style="color: #EA4335;"><i class="fa-solid fa-power-off"></i></button>
-        </div>
-    </header>
-
-    <section class="search-section" id="ui-search" style="display:none;">
-        <div class="search-box">
-            <i class="fa-solid fa-magnifying-glass" style="color: var(--acent-color);"></i>
-            <input type="text" id="px-global-search" placeholder="Escribe el nombre del paciente para localizar su cita..." oninput="filtrarContenido()">
-        </div>
-    </section>
-
-    <nav class="tabs-container" id="ui-tabs" style="display:none;">
-        <button class="tab-btn active" id="btn-mes" onclick="activarVista('dayGridMonth', this)">MES</button>
-        <button class="tab-btn" id="btn-semana" onclick="activarVista('timeGridWeek', this)">SEMANA</button>
-        <button class="tab-btn" id="btn-dia" onclick="activarVista('timeGridDay', this)">DÍA</button>
-    </nav>
-
-    <main class="app-main-layout" id="ui-main" style="display:none;">
-        
-        <aside class="sidebar-lux" id="admin-sidebar">
-            <div class="glass-card">
-                <h3 class="section-title">Registrar Especialista</h3>
-                <input type="text" id="reg-name" class="lux-input" placeholder="Nombre completo">
-                <input type="email" id="reg-email" class="lux-input" placeholder="Correo institucional">
-                <button class="btn-lux-primary" id="btn-save-psico">Guardar Registro</button>
-            </div>
-
-            <div class="glass-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h3 class="section-title" style="margin:0;">Equipo & Reporte</h3>
-                    <input type="month" id="report-date-picker" class="lux-input" style="width:140px; margin:0;" onchange="renderizarSidebar()">
-                </div>
-                <div id="psico-list-render">
-                    </div>
-                <button id="reset-filter-btn" class="btn-lux-primary" style="display:none; margin-top:15px; background:var(--bg-secundario); color:var(--acent-color);" onclick="filtrarPorPsicologa(null)">Ver Todas las Citas</button>
-            </div>
-        </aside>
-
-        <section class="calendar-lux-container">
-            <div id="calendar"></div>
-        </section>
-    </main>
-
-    <div id="modal-config" class="lux-modal-overlay">
-        <div class="lux-modal-content">
-            <i class="fa-solid fa-xmark modal-close" onclick="cerrarModales()"></i>
-            <h2 class="section-title">Ajustes de Perfil</h2>
-            <label style="font-size:12px; color:var(--text-light);">Nombre Visual</label>
-            <input type="text" id="cfg-name" class="lux-input">
-            <label style="font-size:12px; color:var(--text-light);">URL Foto (Elegante)</label>
-            <input type="text" id="cfg-photo" class="lux-input">
-            <button class="btn-lux-primary" onclick="actualizarDatosPerfil()">Guardar Cambios</button>
         </div>
     </div>
 
-    <div id="modal-evento" class="lux-modal-overlay">
-        <div class="lux-modal-content">
-            <i class="fa-solid fa-xmark modal-close" onclick="cerrarModales()"></i>
-            <h2 id="modal-evt-title" class="section-title">Detalles de la Cita</h2>
+    <header class="apple-header" id="ui-header" style="display:none;">
+        <div class="header-left">
+            <img src="Resiliencia.png" class="logo-elegant">
+        </div>
+        
+        <div class="header-center">
+            <div class="profile-container">
+                <div class="img-wrapper">
+                    <img id="u-photo" src="https://via.placeholder.com/150">
+                </div>
+                <div class="profile-info">
+                    <p id="u-name" class="profile-name">Cargando...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button class="btn-ios-circle" onclick="abrirConfig()"><i class="fa-solid fa-gear"></i></button>
+            <button class="btn-ios-circle" id="btn-logout" style="color: #FF3B30;"><i class="fa-solid fa-power-off"></i></button>
+        </div>
+    </header>
+
+    <div class="search-container" id="ui-search" style="display:none;">
+        <div class="apple-search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="global-search" placeholder="Buscar paciente por nombre..." oninput="ejecutarFiltros()">
+        </div>
+    </div>
+
+    <nav class="nav-tabs" id="ui-tabs" style="display:none;">
+        <button class="tab-btn active" id="tab-mes" onclick="switchView('dayGridMonth', this)">MES</button>
+        <button class="tab-btn" id="tab-semana" onclick="switchView('timeGridWeek', this)">SEMANA</button>
+        <button class="tab-btn" id="tab-dia" onclick="switchView('timeGridDay', this)">DÍA</button>
+    </nav>
+
+    <div class="main-wrapper" id="ui-main" style="display:none;">
+        
+        <aside class="sidebar-admin" id="admin-panel">
+            <div class="sidebar-section">
+                <span class="section-label">Añadir Psicóloga</span>
+                <input type="text" id="new-name" class="ios-field" placeholder="Nombre">
+                <input type="email" id="new-email" class="ios-field" placeholder="Correo">
+                <button class="ios-btn-primary" id="btn-add-psico">Registros</button>
+            </div>
+
+            <div class="sidebar-section">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="section-label">Reporte Mensual</span>
+                    <input type="month" id="rep-month" class="ios-field" style="width:130px; margin:0;" onchange="renderizarSidebar()">
+                </div>
+                <div id="psico-list-render" style="margin-top:15px;">
+                    </div>
+                <button id="btn-clear-filter" class="ios-btn-primary" style="display:none; margin-top:10px; background:#E5E5EA; color:#007AFF;" onclick="filtrarAdmin(null)">Mostrar Todo</button>
+            </div>
+        </aside>
+
+        <main class="calendar-area">
+            <div id="calendar"></div>
+        </main>
+    </div>
+
+    <div id="modal-config" class="modal-overlay">
+        <div class="apple-modal">
+            <div class="modal-header-text">Ajustes de Cuenta</div>
+            <span class="section-label">Nombre de Usuario</span>
+            <input type="text" id="cfg-name" class="ios-field">
+            <span class="section-label">Imagen de Perfil (URL)</span>
+            <input type="text" id="cfg-photo" class="ios-field">
+            <div class="action-group">
+                <button class="btn-action btn-save" onclick="salvarPerfil()">Guardar Cambios</button>
+                <button class="btn-action btn-close" onclick="cerrarModales()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-cita" class="modal-overlay">
+        <div class="apple-modal">
+            <div class="modal-header-text" id="m-title">Agendar Paciente</div>
             
-            <input type="text" id="evt-px" class="lux-input" placeholder="Nombre del Paciente">
+            <input type="text" id="m-px" class="ios-field" placeholder="Nombre completo del paciente">
             
             <div style="display:flex; gap:10px;">
-                <select id="evt-code" class="lux-input" style="width:120px;">
+                <select id="m-code" class="ios-field" style="width:110px;">
                     <option value="502">🇬🇹 +502</option>
                     <option value="52">🇲🇽 +52</option>
                     <option value="1">🇺🇸 +1</option>
                     <option value="503">🇸🇻 +503</option>
+                    <option value="504">🇭🇳 +504</option>
+                    <option value="505">🇳🇮 +505</option>
+                    <option value="506">🇨🇷 +506</option>
+                    <option value="507">🇵🇦 +507</option>
                 </select>
-                <input type="number" id="evt-tel" class="lux-input" placeholder="WhatsApp">
+                <input type="number" id="m-tel" class="ios-field" placeholder="WhatsApp">
             </div>
 
-            <textarea id="evt-notas" class="lux-input" placeholder="Notas clínicas..." rows="3"></textarea>
-            <input type="datetime-local" id="evt-start" class="lux-input">
+            <textarea id="m-notas" class="ios-field" placeholder="Notas clínicas..." rows="3"></textarea>
+            
+            <div style="display:flex; gap:10px;">
+                <input type="datetime-local" id="m-start" class="ios-field">
+            </div>
 
-            <button class="btn-lux-primary" id="btn-evt-save">Confirmar Cita</button>
-            <button class="btn-lux-primary" id="btn-evt-wpp" style="margin-top:10px; background:#25D366;">Enviar Recordatorio</button>
-            <button id="btn-evt-del" style="width:100%; background:none; border:none; color:#EA4335; margin-top:20px; cursor:pointer; font-weight:700;">Eliminar Registro</button>
+            <div class="action-group">
+                <button class="btn-action btn-save" id="btn-save-cita">Guardar Cita</button>
+                <button class="btn-action btn-wpp" id="btn-wpp-remind" style="display:none;"><i class="fa-brands fa-whatsapp"></i> Recordatorio</button>
+                <button class="btn-action btn-delete" id="btn-del-cita" style="display:none;"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                <button class="btn-action btn-close" onclick="cerrarModales()">Cerrar</button>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Configuración
+        // Configuración Firebase
         const firebaseConfig = { 
             apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA", 
             authDomain: "agendaresiliencia-12.firebaseapp.com", 
@@ -454,255 +553,278 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const ADMIN_MAIL = "resilienciaguate@gmail.com";
-        const COLORES_EQUIPO = ["#1A73E8", "#34A853", "#FBBC04", "#EA4335", "#8E24AA", "#00ACC1"];
+        const ADMIN_EMAIL = "resilienciaguate@gmail.com";
+        const RAINBOW = ["#007AFF", "#34C759", "#AF52DE", "#FF9500", "#FF2D55", "#5856D6", "#00C7BE"];
 
         let calendar;
-        let dataCitas = [];
-        let dataPsicologas = [];
-        let dataPerfiles = {};
-        let filtroPsicoActual = null;
-        let busquedaTextoActual = "";
-        let citaIdActiva = null;
+        let psicologas = [];
+        let citas = [];
+        let perfiles = {};
+        let filtroAdminPsico = null;
+        let busqueda = "";
+        let citaIdActual = null;
 
-        // Gestión de Sesión
+        // --- GESTIÓN DE AUTENTICACIÓN ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('ui-header').style.display = 'flex';
-                document.getElementById('ui-search').style.display = 'flex';
+                document.getElementById('ui-search').style.display = 'block';
                 document.getElementById('ui-tabs').style.display = 'flex';
                 document.getElementById('ui-main').style.display = 'flex';
                 
-                if(user.email.toLowerCase() === ADMIN_MAIL) {
-                    document.getElementById('admin-sidebar').style.display = 'block';
+                if(user.email.toLowerCase() === ADMIN_EMAIL) {
+                    document.getElementById('admin-panel').style.display = 'block';
                 }
 
-                conectarBaseDatos();
-            } else {
-                // Redirigir a login si fuera necesario
+                initData();
             }
         });
 
-        function conectarBaseDatos() {
-            // Escuchar Citas (Muestra en todas las vistas)
-            onSnapshot(collection(db, "citas"), (snap) => {
-                dataCitas = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                actualizarVisualizacion();
-                renderizarSidebar();
+        function initData() {
+            // Escuchar Perfiles
+            onSnapshot(collection(db, "perfiles"), (snap) => {
+                snap.forEach(d => perfiles[d.id] = d.data());
+                updateProfileUI();
             });
 
             // Escuchar Psicólogas
             onSnapshot(collection(db, "psicologas"), (snap) => {
-                dataPsicologas = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                psicologas = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 renderizarSidebar();
             });
 
-            // Escuchar Perfiles
-            onSnapshot(collection(db, "perfiles"), (snap) => {
-                snap.forEach(d => dataPerfiles[d.id] = d.data());
-                const miPerfil = dataPerfiles[auth.currentUser.email.toLowerCase()];
-                if(miPerfil) {
-                    document.getElementById('user-display-name').innerText = miPerfil.displayName;
-                    document.getElementById('user-display-photo').src = miPerfil.photo;
-                }
+            // Escuchar Citas
+            onSnapshot(collection(db, "citas"), (snap) => {
+                citas = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderizarCalendario();
+                renderizarSidebar(); // Actualizar reporte
             });
 
-            iniciarCalendario();
+            setupCalendar();
         }
 
-        function iniciarCalendario() {
-            const calendarEl = document.getElementById('calendar');
-            calendar = new FullCalendar.Calendar(calendarEl, {
+        function setupCalendar() {
+            const el = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(el, {
                 initialView: 'dayGridMonth',
                 locale: 'es',
                 firstDay: 1,
-                slotMinTime: '07:00:00',
-                slotMaxTime: '19:00:00',
-                slotDuration: '01:00:00',
-                allDaySlot: false,
                 selectable: true,
-                showNonCurrentDates: false,
+                showNonCurrentDates: false, // NO MOSTRAR OTROS MESES
+                slotMinTime: '07:00:00',
+                slotMaxTime: '19:00:00', // HORARIO LABORAL
+                slotDuration: '01:00:00', // BLOQUES 1H
+                allDaySlot: false,
                 headerToolbar: false,
-                eventClick: (info) => abrirEdicionCita(info.event.id),
-                dateClick: (info) => {
-                    // Solo permite agendar en Semana o Día para evitar errores de bloque
+                eventClick: (info) => abrirCita(info.event.id),
+                select: (info) => {
+                    // Solo permitir agendar en Semana o Día
                     if (calendar.view.type !== 'dayGridMonth') {
-                        abrirNuevaCita(info.dateStr.substring(0,16));
+                        nuevaCita(info.startStr.substring(0,16));
                     }
                 },
-                // Renderizado para asegurar que se vea el nombre del px
+                // Renderizado elegante del nombre del px
                 eventContent: function(arg) {
-                    return { html: `<div class="fc-content"><b>${arg.event.title}</b></div>` };
+                    return { html: `<div style="overflow:hidden; text-overflow:ellipsis;">${arg.event.title}</div>` };
                 }
             });
             calendar.render();
         }
 
-        window.actualizarVisualizacion = () => {
-            calendar.removeAllEvents();
-            let listaFiltrada = dataCitas;
-
-            // Filtro por Rol
-            if(auth.currentUser.email.toLowerCase() !== ADMIN_MAIL) {
-                listaFiltrada = listaFiltrada.filter(c => c.psicoEmail === auth.currentUser.email.toLowerCase());
-            } else if(filtroPsicoActual) {
-                listaFiltrada = listaFiltrada.filter(c => c.psicoEmail === filtroPsicoActual);
-            }
-
-            // Filtro por Buscador
-            if(busquedaTextoActual) {
-                listaFiltrada = listaFiltrada.filter(c => c.title.toLowerCase().includes(busquedaTextoActual.toLowerCase()));
-            }
-
-            listaFiltrada.forEach(c => {
-                calendar.addEvent({
-                    id: c.id,
-                    title: c.title,
-                    start: c.start,
-                    color: c.color || '#1A73E8'
-                });
-            });
-        };
-
-        window.renderizarSidebar = () => {
-            const contenedor = document.getElementById('psico-list-render');
-            const mesSeleccionado = document.getElementById('report-date-picker').value;
-            contenedor.innerHTML = "";
-
-            dataPsicologas.forEach(p => {
-                // Conteo de citas por mes (Requisito recuperado)
-                const totalMes = dataCitas.filter(c => c.psicoEmail === p.email && c.start.startsWith(mesSeleccionado)).length;
-                
-                const div = document.createElement('div');
-                div.className = `psico-card ${filtroPsicoActual === p.email ? 'active' : ''}`;
-                div.onclick = () => filtrarPorPsicologa(p.email);
-                div.innerHTML = `
-                    <div class="dot-indicator" style="background:${p.color}"></div>
-                    <div class="psico-meta">
-                        <b>${p.name}</b>
-                        <span>${p.email}</span>
-                    </div>
-                    <div class="count-badge">${totalMes}</div>
-                `;
-                contenedor.appendChild(div);
-            });
-        };
-
-        // Acciones de UI
-        window.activarVista = (vista, btn) => {
-            calendar.changeView(vista);
+        // --- FUNCIONES DE INTERFAZ ---
+        window.switchView = (tipo, btn) => {
+            calendar.changeView(tipo);
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         };
 
-        window.filtrarContenido = () => {
-            busquedaTextoActual = document.getElementById('px-global-search').value;
-            actualizarVisualizacion();
+        window.ejecutarFiltros = () => {
+            busqueda = document.getElementById('global-search').value.toLowerCase();
+            renderizarCalendario();
         };
 
-        window.filtrarPorPsicologa = (email) => {
-            filtroPsicoActual = email;
-            document.getElementById('reset-filter-btn').style.display = email ? 'block' : 'none';
-            actualizarVisualizacion();
+        function renderizarCalendario() {
+            calendar.removeAllEvents();
+            let final = citas;
+
+            // Filtro por Rol: Usuarios normales solo ven sus px
+            if(auth.currentUser.email.toLowerCase() !== ADMIN_EMAIL) {
+                final = final.filter(c => c.psicoEmail === auth.currentUser.email.toLowerCase());
+            } else if(filtroAdminPsico) {
+                // Admin filtrando por una psicóloga específica
+                final = final.filter(c => c.psicoEmail === filtroAdminPsico);
+            }
+
+            // Filtro de búsqueda
+            if(busqueda) {
+                final = final.filter(c => c.title.toLowerCase().includes(busqueda));
+            }
+
+            final.forEach(c => {
+                calendar.addEvent({
+                    id: c.id,
+                    title: c.title,
+                    start: c.start,
+                    color: c.color || '#007AFF'
+                });
+            });
+        }
+
+        window.renderizarSidebar = () => {
+            const container = document.getElementById('psico-list-render');
+            const mesActivo = document.getElementById('rep-month').value;
+            container.innerHTML = "";
+
+            psicologas.forEach(p => {
+                const total = citas.filter(c => c.psicoEmail === p.email && c.start.startsWith(mesActivo)).length;
+                const pInfo = perfiles[p.email] || {};
+                
+                const div = document.createElement('div');
+                div.className = `psico-item-row ${filtroAdminPsico === p.email ? 'active' : ''}`;
+                div.onclick = () => filtrarAdmin(p.email);
+                div.innerHTML = `
+                    <img class="psico-thumb" src="${pInfo.photo || 'https://via.placeholder.com/50'}">
+                    <div class="psico-meta">
+                        <b>${p.name}</b>
+                        <span>${p.email}</span>
+                    </div>
+                    <div class="count-tag">${total}</div>
+                `;
+                container.appendChild(div);
+            });
+        };
+
+        window.filtrarAdmin = (email) => {
+            filtroAdminPsico = email;
+            document.getElementById('btn-clear-filter').style.display = email ? 'block' : 'none';
+            renderizarCalendario();
             renderizarSidebar();
         };
 
-        // Modales y Citas
-        window.abrirNuevaCita = (fecha) => {
-            citaIdActiva = null;
-            document.getElementById('modal-evt-title').innerText = "Nueva Cita";
-            document.getElementById('evt-px').value = "";
-            document.getElementById('evt-tel').value = "";
-            document.getElementById('evt-notas').value = "";
-            document.getElementById('evt-start').value = fecha;
-            document.getElementById('btn-evt-del').style.display = 'none';
-            document.getElementById('btn-evt-wpp').style.display = 'none';
-            document.getElementById('modal-evento').style.display = 'flex';
+        // --- GESTIÓN DE CITAS ---
+        window.nuevaCita = (fecha) => {
+            citaIdActual = null;
+            document.getElementById('m-title').innerText = "Nueva Sesión";
+            document.getElementById('m-px').value = "";
+            document.getElementById('m-tel').value = "";
+            document.getElementById('m-notas').value = "";
+            document.getElementById('m-start').value = fecha;
+            document.getElementById('btn-del-cita').style.display = 'none';
+            document.getElementById('btn-wpp-remind').style.display = 'none';
+            document.getElementById('modal-cita').style.display = 'flex';
         };
 
-        window.abrirEdicionCita = (id) => {
-            citaIdActiva = id;
-            const c = dataCitas.find(x => x.id === id);
-            document.getElementById('modal-evt-title').innerText = "Modificar Cita";
-            document.getElementById('evt-px').value = c.title;
-            document.getElementById('evt-tel').value = c.tel || "";
-            document.getElementById('evt-notas').value = c.notas || "";
-            document.getElementById('evt-start').value = c.start.substring(0,16);
-            document.getElementById('btn-evt-del').style.display = 'block';
-            document.getElementById('btn-evt-wpp').style.display = 'block';
-            document.getElementById('modal-evento').style.display = 'flex';
+        window.abrirCita = (id) => {
+            citaIdActual = id;
+            const c = citas.find(x => x.id === id);
+            document.getElementById('m-title').innerText = "Editar Cita";
+            document.getElementById('m-px').value = c.title;
+            document.getElementById('m-tel').value = c.tel || "";
+            document.getElementById('m-notas').value = c.notas || "";
+            document.getElementById('m-start').value = c.start.substring(0,16);
+            document.getElementById('btn-del-cita').style.display = 'block';
+            document.getElementById('btn-wpp-remind').style.display = 'block';
+            document.getElementById('modal-cita').style.display = 'flex';
         };
 
-        document.getElementById('btn-evt-save').onclick = async () => {
-            const user = auth.currentUser;
-            const miPsico = dataPsicologas.find(p => p.email === user.email.toLowerCase()) || { name: 'Resiliencia', color: '#1A73E8' };
+        document.getElementById('btn-save-cita').onclick = async () => {
+            const email = auth.currentUser.email.toLowerCase();
+            const psico = psicologas.find(p => p.email === email) || { name: 'Psicóloga', color: '#007AFF' };
             
-            const payload = {
-                title: document.getElementById('evt-px').value,
-                tel: document.getElementById('evt-tel').value,
-                notas: document.getElementById('evt-notas').value,
-                start: document.getElementById('evt-start').value,
-                psicoEmail: user.email.toLowerCase(),
-                psicoName: miPsico.name,
-                color: miPsico.color
+            const data = {
+                title: document.getElementById('m-px').value,
+                tel: document.getElementById('m-tel').value,
+                notas: document.getElementById('m-notas').value,
+                start: document.getElementById('m-start').value,
+                psicoEmail: email,
+                psicoName: psico.name,
+                color: psico.color
             };
 
-            if(citaIdActiva) {
-                await updateDoc(doc(db, "citas", citaIdActiva), payload);
+            if(citaIdActual) {
+                await updateDoc(doc(db, "citas", citaIdActual), data);
             } else {
-                await addDoc(collection(db, "citas"), payload);
-                notificarWhatsApp(payload, "confirmacion");
+                await addDoc(collection(db, "citas"), data);
+                dispararWhatsApp(data, "confirmacion");
             }
             cerrarModales();
         };
 
-        document.getElementById('btn-evt-del').onclick = async () => {
-            if(confirm("¿Eliminar cita?")) {
-                await deleteDoc(doc(db, "citas", citaIdActiva));
+        document.getElementById('btn-del-cita').onclick = async () => {
+            if(confirm("¿Desea eliminar este registro?")) {
+                await deleteDoc(doc(db, "citas", citaIdActual));
                 cerrarModales();
             }
         };
 
-        function notificarWhatsApp(c, tipo) {
-            const cod = document.getElementById('evt-code').value;
-            const msg = tipo === 'confirmacion' 
-                ? `Hola ${c.title}, tu cita con ${c.psicoName} ha sido agendada para el ${c.start.replace('T', ' a las ')}.`
-                : `Recordatorio: Hola ${c.title}, te esperamos hoy a las ${c.start.split('T')[1]} con ${c.psicoName}.`;
-            window.open(`https://wa.me/${cod}${c.tel}?text=${encodeURIComponent(msg)}`, '_blank');
+        document.getElementById('btn-wpp-remind').onclick = () => {
+            const c = citas.find(x => x.id === citaIdActual);
+            dispararWhatsApp(c, "recordatorio");
+        };
+
+        function dispararWhatsApp(c, tipo) {
+            const code = document.getElementById('m-code').value;
+            const fechaLimpia = c.start.replace('T', ' a las ');
+            let msg = "";
+            
+            if(tipo === "confirmacion") {
+                msg = `Hola ${c.title}, tu cita ha sido agendada exitosamente con la psicóloga ${c.psicoName} el día ${fechaLimpia}.`;
+            } else {
+                msg = `Recordatorio: Hola ${c.title}, te esperamos en tu sesión con ${c.psicoName} el día ${fechaLimpia}.`;
+            }
+
+            window.open(`https://wa.me/${code}${c.tel}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        window.abrirConfiguracion = () => {
-            const p = dataPerfiles[auth.currentUser.email.toLowerCase()] || {};
-            document.getElementById('cfg-name').value = p.displayName || "";
-            document.getElementById('cfg-photo').value = p.photo || "";
+        // --- AJUSTES Y PERFIL ---
+        window.updateProfileUI = () => {
+            const miEmail = auth.currentUser.email.toLowerCase();
+            const miP = perfiles[miEmail] || {};
+            document.getElementById('u-name').innerText = miP.displayName || miEmail;
+            document.getElementById('u-photo').src = miP.photo || 'https://via.placeholder.com/150';
+        };
+
+        window.abrirConfig = () => {
+            const miP = perfiles[auth.currentUser.email.toLowerCase()] || {};
+            document.getElementById('cfg-name').value = miP.displayName || "";
+            document.getElementById('cfg-photo').value = miP.photo || "";
             document.getElementById('modal-config').style.display = 'flex';
         };
 
-        window.actualizarDatosPerfil = async () => {
-            await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), {
+        window.salvarPerfil = async () => {
+            const email = auth.currentUser.email.toLowerCase();
+            await setDoc(doc(db, "perfiles", email), {
                 displayName: document.getElementById('cfg-name').value,
                 photo: document.getElementById('cfg-photo').value
             });
             cerrarModales();
         };
 
-        document.getElementById('btn-save-psico').onclick = async () => {
-            const n = document.getElementById('reg-name').value;
-            const e = document.getElementById('reg-email').value.toLowerCase();
+        document.getElementById('btn-add-psico').onclick = async () => {
+            const n = document.getElementById('new-name').value;
+            const e = document.getElementById('new-email').value.toLowerCase();
             if(n && e) {
                 await addDoc(collection(db, "psicologas"), {
-                    name: n, email: e, color: COLORES_EQUIPO[dataPsicologas.length % COLORES_EQUIPO.length]
+                    name: n, email: e, color: RAINBOW[psicologas.length % RAINBOW.length]
                 });
-                document.getElementById('reg-name').value = "";
-                document.getElementById('reg-email').value = "";
+                document.getElementById('new-name').value = "";
+                document.getElementById('new-email').value = "";
             }
         };
 
         window.cerrarModales = () => {
-            document.querySelectorAll('.lux-modal-overlay').forEach(m => m.style.display = 'none');
+            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
         };
 
-        document.getElementById('btn-logout-action').onclick = () => signOut(auth).then(() => location.reload());
+        // ACCIONES GLOBALES
+        document.getElementById('btn-do-login').onclick = () => {
+            const e = document.getElementById('log-email').value;
+            const p = document.getElementById('log-pass').value;
+            signInWithEmailAndPassword(auth, e, p).catch(err => alert("Error en credenciales"));
+        };
+
+        document.getElementById('btn-logout').onclick = () => signOut(auth).then(() => location.reload());
 
     </script>
 </body>
