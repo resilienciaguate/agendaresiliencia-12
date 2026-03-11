@@ -11,138 +11,141 @@
     
     <style>
         :root { 
-            --apple-bg: #f5f5f7;
-            --apple-blue: #007aff;
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --apple-shadow: 0 8px 32px rgba(0,0,0,0.08);
-            --text-main: #1d1d1f;
-            --text-secondary: #86868b;
-            --border-light: rgba(0,0,0,0.1);
+            --apple-black: #000000;
+            --apple-dark-gray: #1c1c1e;
+            --apple-light-gray: #2c2c2e;
+            --apple-red: #ff3b30;
+            --apple-blue: #0a84ff;
+            --text-white: #ffffff;
+            --text-dim: #8e8e93;
+            --border-color: #38383a;
         }
 
         body { 
             margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--apple-bg); color: var(--text-main); -webkit-font-smoothing: antialiased;
+            background: var(--apple-black); color: var(--text-white); -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
-        /* NAVBAR TIPO APPLE */
+        /* HEADER ELEGANTE */
         .top-nav { 
-            background: var(--glass-bg); backdrop-filter: blur(20px); 
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(20px); 
             display: none; justify-content: space-between; align-items: center; 
-            height: 55px; padding: 0 25px; position: sticky; top: 0; z-index: 1000;
-            border-bottom: 0.5px solid var(--border-light);
+            height: 60px; padding: 0 20px; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 0.5px solid var(--border-color);
         }
         
-        .nav-left img { height: 28px; }
+        #app-logo { height: 24px; cursor: pointer; filter: brightness(0) invert(1); }
         
         .profile-center { 
             position: absolute; left: 50%; transform: translateX(-50%); 
-            text-align: center; pointer-events: none;
+            display: flex; flex-direction: column; align-items: center;
         }
-        #user-photo { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; margin-bottom: 2px; border: 1px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        #display-profile-name { display: block; font-size: 10px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
+        #user-photo { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--border-color); }
+        #display-profile-name { font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; margin-top: 2px; }
 
         .nav-right { display: flex; align-items: center; gap: 15px; }
-        .nav-icon { font-size: 18px; color: var(--text-main); cursor: pointer; transition: 0.2s; }
-        .nav-icon:hover { color: var(--apple-blue); }
+        .nav-icon { font-size: 20px; color: var(--text-white); cursor: pointer; transition: 0.2s; }
 
-        /* TABS DE VISTA */
+        /* TABS (ESPAÑOL) */
         .view-tabs {
-            display: flex; justify-content: center; background: white; padding: 10px 0; border-bottom: 0.5px solid var(--border-light);
+            display: flex; justify-content: center; background: var(--apple-black); padding: 10px 0; border-bottom: 0.5px solid var(--border-color);
         }
         .tab-btn {
-            background: #e5e5ea; border: none; padding: 6px 20px; border-radius: 8px;
-            font-size: 13px; font-weight: 500; margin: 0 5px; cursor: pointer; transition: 0.3s;
+            background: transparent; border: none; color: var(--apple-blue); padding: 6px 15px; border-radius: 8px;
+            font-size: 14px; font-weight: 500; cursor: pointer;
         }
-        .tab-btn.active { background: var(--text-main); color: white; }
+        .tab-btn.active { background: var(--apple-light-gray); color: var(--text-white); }
 
         /* LAYOUT PRINCIPAL */
-        #app-content { display: none; padding: 25px; gap: 25px; max-width: 1400px; margin: 0 auto; }
-        .side-panel { width: 300px; flex-shrink: 0; }
+        #app-content { display: none; padding: 20px; gap: 20px; max-width: 1400px; margin: 0 auto; flex-wrap: wrap; }
+        .side-panel { width: 300px; }
         
         .apple-card { 
-            background: white; border-radius: 20px; padding: 25px; box-shadow: var(--apple-shadow);
-            border: 0.5px solid var(--border-light);
+            background: var(--apple-dark-gray); border-radius: 18px; padding: 20px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
-        /* INPUTS ESTILO APPLE */
+        /* INPUTS ESTILO APPLE DARK */
         input, select, textarea {
-            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #d2d2d7;
-            background: #fbfbfd; font-size: 14px; margin-bottom: 12px; box-sizing: border-box; outline: none;
+            width: 100%; padding: 12px; border-radius: 10px; border: none;
+            background: var(--apple-light-gray); color: white; font-size: 15px; margin-bottom: 12px; box-sizing: border-box;
         }
-        input:focus { border-color: var(--apple-blue); }
 
         .btn-apple {
-            width: 100%; padding: 12px; border-radius: 12px; border: none; font-weight: 600;
-            cursor: pointer; transition: 0.2s; font-size: 14px;
+            width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 600;
+            cursor: pointer; font-size: 15px; transition: opacity 0.2s;
         }
         .btn-primary { background: var(--apple-blue); color: white; }
-        .btn-primary:hover { opacity: 0.9; }
-        .btn-secondary { background: #f2f2f7; color: var(--text-main); }
+        .btn-secondary { background: var(--apple-light-gray); color: white; }
+        .btn-danger { background: transparent; color: var(--apple-red); }
 
-        /* CALENDARIO CUSTOM */
-        .calendar-container { flex-grow: 1; }
-        .fc { font-family: inherit; border: none; }
-        .fc-header-toolbar { display: none !important; } /* Ocultamos el nativo para usar nuestras pestañas */
-        .fc-daygrid-day-top { flex-direction: row-reverse !important; }
+        /* CALENDARIO CUSTOM DARK */
+        .calendar-container { flex: 1; min-width: 320px; }
+        .fc { background: transparent; color: white; border: none; }
+        .fc-header-toolbar { display: none !important; }
+        .fc-theme-standard td, .fc-theme-standard th { border: 0.5px solid var(--border-color) !important; }
+        .fc-daygrid-day-number { color: white; font-size: 14px; padding: 8px !important; }
+        .fc-day-today { background: rgba(10, 132, 255, 0.1) !important; }
+        .fc-day-today .fc-daygrid-day-number { color: var(--apple-red) !important; font-weight: bold; }
         
-        /* MODALES */
+        /* Ocultar días de otros meses */
+        .fc-day-other { opacity: 0; pointer-events: none; }
+
+        /* LISTA DE AGENDA (MOBILE STYLE) */
+        #agenda-viewer { margin-top: 20px; background: var(--apple-black); border-radius: 18px; padding: 10px; }
+        .event-ios-card { 
+            display: flex; align-items: center; padding: 12px 0; border-bottom: 0.5px solid var(--border-color); cursor: pointer;
+        }
+        .event-time { width: 60px; font-size: 12px; color: var(--text-white); font-weight: 600; }
+        .event-bar { width: 4px; height: 35px; border-radius: 4px; margin: 0 15px; }
+        .event-title { font-size: 15px; font-weight: 500; }
+        .event-sub { font-size: 12px; color: var(--text-dim); }
+
+        /* MODALES ELEGANTES */
         .modal-overlay { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.15); 
-            backdrop-filter: blur(15px); z-index: 10001; align-items: center; justify-content: center; 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); 
+            backdrop-filter: blur(10px); z-index: 10001; align-items: center; justify-content: center; 
         }
         .modal-box { 
-            background: white; width: 340px; border-radius: 24px; padding: 30px; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15); border: 0.5px solid rgba(255,255,255,0.4);
+            background: var(--apple-dark-gray); width: 90%; max-width: 350px; border-radius: 20px; padding: 25px; 
+            border: 0.5px solid var(--border-color);
         }
-        .modal-box h3 { margin: 0 0 20px; font-weight: 700; text-align: center; font-size: 19px; }
-        .modal-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 5px; display: block; }
-
-        /* LISTA PSICOLOGAS EN ADMIN */
-        .psi-item {
-            display: flex; align-items: center; padding: 10px; border-radius: 12px;
-            margin-bottom: 8px; cursor: pointer; transition: 0.2s; border: 0.5px solid transparent;
-        }
-        .psi-item:hover { background: #f5f5f7; }
-        .psi-color-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 12px; }
-        .psi-info h4 { margin: 0; font-size: 14px; }
-        .psi-info p { margin: 0; font-size: 11px; color: var(--text-secondary); }
+        .modal-label { font-size: 11px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; display: block; }
 
         /* TOAST */
         #toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: rgba(0,0,0,0.8); color: white; padding: 12px 25px; border-radius: 50px;
-            font-size: 13px; transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); z-index: 10002;
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: var(--apple-light-gray); color: white; padding: 12px 25px; border-radius: 50px;
+            font-size: 14px; transition: 0.5s; z-index: 10002; border: 0.5px solid var(--border-color);
         }
         #toast.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
 
-    <div id="toast">Cita guardada correctamente</div>
+    <div id="toast"></div>
 
-    <div id="login-screen" style="position:fixed; inset:0; background:#f5f5f7; display:flex; align-items:center; justify-content:center; z-index:10001;">
-        <div style="width: 320px; text-align: center;">
-            <img src="Resiliencia.png" style="width: 120px; margin-bottom: 30px;">
+    <div id="login-screen" style="position:fixed; inset:0; background:black; display:flex; align-items:center; justify-content:center; z-index:10001;">
+        <div style="width: 300px; text-align: center;">
+            <img src="Resiliencia.png" style="width: 100px; margin-bottom: 40px; filter: invert(1);">
             <div class="apple-card">
-                <input type="email" id="email" placeholder="Correo electrónico">
+                <input type="email" id="email" placeholder="Correo">
                 <input type="password" id="password" placeholder="Contraseña">
-                <button class="btn-apple btn-primary" id="login-btn">Continuar</button>
+                <button class="btn-apple btn-primary" id="login-btn">Entrar</button>
             </div>
         </div>
     </div>
 
     <div class="top-nav" id="nav-bar">
-        <div class="nav-left">
-            <img src="Resiliencia.png" alt="Logo">
-        </div>
+        <img id="app-logo" src="Resiliencia.png">
         <div class="profile-center">
-            <img id="user-photo" src="https://via.placeholder.com/150">
-            <span id="display-profile-name">Cargando...</span>
+            <img id="user-photo" src="">
+            <span id="display-profile-name"></span>
         </div>
         <div class="nav-right">
             <i class="fa-solid fa-gear nav-icon" onclick="abrirPerfilModal()"></i>
-            <i class="fa-solid fa-right-from-bracket nav-icon" style="color: #ff3b30;" id="logout-btn"></i>
+            <button id="logout-btn" class="btn-danger" style="background:none; border:none; font-weight:bold; cursor:pointer;">SALIR</button>
         </div>
     </div>
 
@@ -155,78 +158,76 @@
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
             <div class="apple-card">
-                <h3 style="margin-top:0; font-size:17px;">Gestión de Equipo</h3>
-                <input type="text" id="new-doc-name" placeholder="Nombre de Psicóloga">
-                <input type="email" id="new-doc-email" placeholder="Correo electrónico">
-                <button class="btn-apple btn-primary" id="add-doc-btn">Registrar Psicóloga</button>
+                <h3 style="margin:0 0 15px; font-size:18px;">Especialistas</h3>
+                <input type="text" id="new-doc-name" placeholder="Nombre">
+                <input type="email" id="new-doc-email" placeholder="Correo">
+                <button class="btn-apple btn-primary" id="add-doc-btn">Registrar</button>
                 
-                <hr style="border:0; border-top:0.5px solid #d2d2d7; margin: 20px 0;">
+                <hr style="border:0; border-top:0.5px solid var(--border-color); margin:20px 0;">
                 
                 <label class="modal-label">Reporte Mensual</label>
                 <input type="month" id="report-month" onchange="recalcularAdmin()">
                 
-                <div id="docs-list" style="margin-top:15px; max-height: 300px; overflow-y:auto;">
-                    </div>
-                <button id="btn-reset-filter" class="btn-apple btn-secondary" style="margin-top:10px; display:none;" onclick="filtrarPorEspecialista(null)">Ver Todos</button>
+                <div id="docs-list" style="margin-top:10px;"></div>
+                <button id="btn-reset-filter" class="btn-apple btn-secondary" style="margin-top:10px; display:none;" onclick="filtrarPorEspecialista(null)">Mostrar Todo</button>
             </div>
         </div>
 
         <div class="calendar-container">
-            <div class="apple-card" style="padding:15px;">
+            <div class="apple-card" style="padding:10px;">
                 <div id='calendar'></div>
+            </div>
+            
+            <div id="agenda-viewer">
+                <h3 id="agenda-title" style="margin:10px; font-size:16px; color:var(--text-dim);">Agenda del día</h3>
+                <div id="agenda-list"></div>
             </div>
         </div>
     </div>
 
     <div id="modal-cita" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modal-title">Nueva Sesión</h3>
+            <h3 id="modal-title" style="text-align:center; margin-bottom:20px;">Sesión</h3>
             
-            <label class="modal-label">Psicóloga Asignada</label>
+            <label class="modal-label">Psicóloga</label>
             <select id="select-psicologa-cita"></select>
             
-            <label class="modal-label">Paciente</label>
-            <input type="text" id="px-nombre" placeholder="Nombre completo">
+            <label class="modal-label">Nombre del Paciente</label>
+            <input type="text" id="px-nombre">
             
             <label class="modal-label">WhatsApp</label>
-            <div style="display: flex; gap: 5px;">
-                <select id="px-prefijo" style="width: 100px;">
+            <div style="display:flex; gap:5px;">
+                <select id="px-prefijo" style="width:110px;">
                     <option value="502">🇬🇹 +502</option>
-                    <option value="503">🇸🇻 +503</option>
-                    <option value="504">🇭🇳 +504</option>
-                    <option value="505">🇳🇮 +505</option>
-                    <option value="506">🇨🇷 +506</option>
-                    <option value="507">🇵🇦 +507</option>
                     <option value="52">🇲🇽 +52</option>
                     <option value="1">🇺🇸 +1</option>
+                    <option value="503">🇸🇻 +503</option>
+                    <option value="504">🇭🇳 +504</option>
+                    <option value="506">🇨🇷 +506</option>
                 </select>
-                <input type="number" id="px-whatsapp" placeholder="Número">
+                <input type="number" id="px-whatsapp">
             </div>
 
-            <label class="modal-label">Notas de la sesión</label>
-            <textarea id="px-notas" rows="3" placeholder="Anotaciones importantes..."></textarea>
+            <label class="modal-label">Notas</label>
+            <textarea id="px-notas" rows="2"></textarea>
 
             <label class="modal-label">Fecha y Hora</label>
             <input type="datetime-local" id="px-start">
             
-            <button class="btn-apple btn-primary" id="btn-guardar-cita">Guardar Cita</button>
-            <button class="btn-apple btn-secondary" style="margin-top:8px; display:none;" id="btn-confirmar-wpp">Confirmar WhatsApp</button>
+            <button class="btn-apple btn-primary" id="btn-guardar-cita">Guardar</button>
             <button class="btn-apple btn-secondary" style="margin-top:8px; display:none;" id="btn-recordatorio-wpp">Enviar Recordatorio</button>
-            
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button class="btn-apple btn-secondary" style="color: #ff3b30; flex:1; display:none;" id="btn-eliminar-cita">Eliminar</button>
-                <button class="btn-apple btn-secondary" style="flex:1" onclick="cerrarModalCita()">Cerrar</button>
-            </div>
+            <button class="btn-apple btn-danger" style="margin-top:15px; display:none; width:100%" id="btn-eliminar-cita">Eliminar Permanente</button>
+            <button class="btn-apple btn-secondary" style="margin-top:10px;" onclick="cerrarModalCita()">Cerrar</button>
         </div>
     </div>
 
     <div id="modal-perfil" class="modal-overlay">
         <div class="modal-box">
-            <h3>Configuración</h3>
-            <label class="modal-label">Nombre para mostrar</label>
+            <h3 style="text-align:center;">Configuración</h3>
+            <label class="modal-label">Nombre de Usuario</label>
             <input type="text" id="profile-name-input">
-            <label class="modal-label">Foto de perfil (URL)</label>
-            <input type="text" id="profile-photo-input" placeholder="https://...">
+            <label class="modal-label">Foto de Perfil (URL)</label>
+            <input type="text" id="profile-photo-input">
             <button class="btn-apple btn-primary" onclick="guardarPerfil()">Guardar Cambios</button>
             <button class="btn-apple btn-secondary" style="margin-top:10px" onclick="document.getElementById('modal-perfil').style.display='none'">Cancelar</button>
         </div>
@@ -237,7 +238,6 @@
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // TUS CREDENCIALES (MANTENIDAS)
         const firebaseConfig = { 
             apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA", 
             authDomain: "agendaresiliencia-12.firebaseapp.com", 
@@ -250,7 +250,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const ADMIN_EMAIL = "resilienciaguate@gmail.com";
-        const PALETA_APPLE = ["#ff9500", "#34c759", "#007aff", "#5856d6", "#ff2d55", "#af52de", "#5ac8fa"];
+        const PALETA = ["#ff9500", "#34c759", "#007aff", "#ff2d55", "#af52de", "#5856d6", "#ffcc00"];
         
         let equipoGlobal = [], citasGlobal = [], perfilesGlobal = {}, citaSeleccionadaId = null, globalIsAdmin = false, filtroEspecialista = null;
 
@@ -273,15 +273,15 @@
         });
 
         function iniciarEscuchas() {
-            const hoy = new Date();
-            document.getElementById('report-month').value = hoy.getFullYear() + '-' + String(hoy.getMonth() + 1).padStart(2, '0');
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('report-month').value = hoy.substring(0, 7);
 
             onSnapshot(collection(db, "perfiles"), (snap) => {
                 perfilesGlobal = {}; snap.forEach(d => { perfilesGlobal[d.id] = d.data(); });
                 const current = perfilesGlobal[auth.currentUser.email.toLowerCase()];
                 if(current) {
-                    document.getElementById('user-photo').src = current.photo || "https://via.placeholder.com/150";
-                    document.getElementById('display-profile-name').innerText = current.displayName || auth.currentUser.email.split('@')[0];
+                    document.getElementById('user-photo').src = current.photo || "";
+                    document.getElementById('display-profile-name').innerText = current.displayName || "";
                 }
             });
 
@@ -295,6 +295,7 @@
                 const todas = snap.docs.map(d => ({id: d.id, ...d.data()})); 
                 citasGlobal = globalIsAdmin ? todas : todas.filter(c => c.user === auth.currentUser.email.toLowerCase());
                 actualizarCalendario();
+                renderAgendaDia(new Date().toISOString().split('T')[0]);
             });
         }
 
@@ -304,13 +305,14 @@
                     initialView: 'dayGridMonth',
                     locale: 'es',
                     firstDay: 1,
+                    showNonCurrentDates: false, // REQUISITO: Solo mes actual
                     slotMinTime: '07:00:00',
                     slotMaxTime: '19:00:00',
                     slotDuration: '01:00:00',
-                    allDaySlot: false,
                     expandRows: true,
                     handleWindowResize: true,
                     selectable: true,
+                    dateClick: (info) => renderAgendaDia(info.dateStr),
                     eventClick: (info) => abrirModalCita(info.event.id),
                     select: (info) => {
                         abrirModalCita(null);
@@ -321,14 +323,27 @@
             }
             window.calendarObj.removeAllEvents();
             const filtradas = filtroEspecialista ? citasGlobal.filter(c => c.user === filtroEspecialista) : citasGlobal;
-            filtradas.forEach(c => window.calendarObj.addEvent({ 
-                id: c.id, 
-                title: c.title, 
-                start: c.start, 
-                end: c.end || c.start, // Podrías calcular 1h después
-                color: c.color || '#007aff'
-            }));
+            filtradas.forEach(c => window.calendarObj.addEvent({ id: c.id, title: c.title, start: c.start, color: c.color }));
         }
+
+        window.renderAgendaDia = (fecha) => {
+            const list = document.getElementById('agenda-list');
+            const filtradas = (filtroEspecialista ? citasGlobal.filter(c => c.user === filtroEspecialista) : citasGlobal)
+                .filter(c => c.start.startsWith(fecha))
+                .sort((a,b) => a.start.localeCompare(b.start));
+            
+            document.getElementById('agenda-title').innerText = "Agenda: " + fecha.split('-').reverse().join('/');
+            
+            list.innerHTML = filtradas.length ? filtradas.map(c => `
+                <div class="event-ios-card" onclick="abrirModalCita('${c.id}')">
+                    <div class="event-time">${c.start.split('T')[1].substring(0,5)}</div>
+                    <div class="event-bar" style="background:${c.color}"></div>
+                    <div style="flex:1;">
+                        <div class="event-title">${c.title}</div>
+                        <div class="event-sub">${c.user}</div>
+                    </div>
+                </div>`).join('') : '<p style="text-align:center; opacity:0.3; padding:20px;">Sin sesiones agendadas</p>';
+        };
 
         window.cambiarVista = (vista, btn) => {
             window.calendarObj.changeView(vista);
@@ -339,27 +354,22 @@
         window.abrirModalCita = (id = null) => {
             citaSeleccionadaId = id;
             const btnEliminar = document.getElementById('btn-eliminar-cita');
-            const btnWpp = document.getElementById('btn-confirmar-wpp');
             const btnRec = document.getElementById('btn-recordatorio-wpp');
 
             if(id) {
                 const c = citasGlobal.find(x => x.id === id);
-                document.getElementById('modal-title').innerText = "Editar Sesión";
                 document.getElementById('px-nombre').value = c.title;
                 document.getElementById('px-whatsapp').value = c.tel || "";
                 document.getElementById('px-notas').value = c.notas || "";
                 document.getElementById('px-start').value = c.start.substring(0, 16);
                 document.getElementById('select-psicologa-cita').value = c.user;
                 btnEliminar.style.display = 'block';
-                btnWpp.style.display = 'block';
                 btnRec.style.display = 'block';
             } else {
-                document.getElementById('modal-title').innerText = "Nueva Sesión";
                 document.getElementById('px-nombre').value = "";
                 document.getElementById('px-whatsapp').value = "";
                 document.getElementById('px-notas').value = "";
                 btnEliminar.style.display = 'none';
-                btnWpp.style.display = 'none';
                 btnRec.style.display = 'none';
             }
             document.getElementById('modal-cita').style.display = 'flex';
@@ -367,66 +377,58 @@
 
         window.cerrarModalCita = () => document.getElementById('modal-cita').style.display = 'none';
 
-        // LÓGICA DE WHATSAPP
-        function enviarWhatsApp(tipo) {
-            const nombre = document.getElementById('px-nombre').value;
-            const tel = document.getElementById('px-prefijo').value + document.getElementById('px-whatsapp').value;
-            const fecha = new Date(document.getElementById('px-start').value).toLocaleString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-            const psicologa = equipoGlobal.find(p => p.email === document.getElementById('select-psicologa-cita').value)?.name || "";
-            
+        function enviarWhatsApp(tipo, nombre, tel, fecha, psicologa) {
+            const prefijo = document.getElementById('px-prefijo').value;
+            const numero = prefijo + tel;
             let msg = "";
             if(tipo === 'confirmacion') msg = `Hola ${nombre}, tu cita ha sido agendada exitosamente con la psicóloga ${psicologa} para el día ${fecha}.`;
-            else msg = `Hola ${nombre}, te saludamos de Resiliencia para recordarte tu cita programada para el día ${fecha}.`;
-
-            window.open(`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`, '_blank');
+            else msg = `Recordatorio: Hola ${nombre}, tienes una cita programada para el día ${fecha} con la psicóloga ${psicologa}.`;
+            
+            window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, '_blank');
         }
-
-        document.getElementById('btn-confirmar-wpp').onclick = () => enviarWhatsApp('confirmacion');
-        document.getElementById('btn-recordatorio-wpp').onclick = () => enviarWhatsApp('recordatorio');
 
         document.getElementById('btn-guardar-cita').onclick = async () => {
             const email = document.getElementById('select-psicologa-cita').value;
             const psi = equipoGlobal.find(p => p.email.toLowerCase() === email);
+            const nombre = document.getElementById('px-nombre').value;
+            const tel = document.getElementById('px-whatsapp').value;
+            const fechaVal = document.getElementById('px-start').value;
+
             const data = { 
-                title: document.getElementById('px-nombre').value, 
-                tel: document.getElementById('px-whatsapp').value, 
-                notas: document.getElementById('px-notas').value,
-                start: document.getElementById('px-start').value, 
-                user: email, 
-                color: psi ? psi.color : "#007aff" 
+                title: nombre, tel: tel, notas: document.getElementById('px-notas').value,
+                start: fechaVal, user: email, color: psi ? psi.color : "#007aff" 
             };
+
             if(citaSeleccionadaId) await updateDoc(doc(db, "citas", citaSeleccionadaId), data);
             else {
                 await addDoc(collection(db, "citas"), data);
-                enviarWhatsApp('confirmacion'); // Auto enviar al crear
+                enviarWhatsApp('confirmacion', nombre, tel, fechaVal, psi?.name || "");
             }
             cerrarModalCita(); lanzarToast("Cita guardada");
         };
 
-        document.getElementById('btn-eliminar-cita').onclick = async () => {
-            if(confirm("¿Estás seguro de eliminar esta sesión?")) { 
-                await deleteDoc(doc(db, "citas", citaSeleccionadaId)); 
-                cerrarModalCita(); 
-                lanzarToast("Sesión eliminada");
-            }
+        document.getElementById('btn-recordatorio-wpp').onclick = () => {
+            const email = document.getElementById('select-psicologa-cita').value;
+            const psi = equipoGlobal.find(p => p.email.toLowerCase() === email);
+            enviarWhatsApp('recordatorio', document.getElementById('px-nombre').value, document.getElementById('px-whatsapp').value, document.getElementById('px-start').value, psi?.name || "");
         };
 
-        // ADMIN: FILTROS Y REGISTROS
+        document.getElementById('btn-eliminar-cita').onclick = async () => {
+            if(confirm("¿Eliminar sesión?")) { await deleteDoc(doc(db, "citas", citaSeleccionadaId)); cerrarModalCita(); }
+        };
+
         window.recalcularAdmin = () => {
             const mesSel = document.getElementById('report-month').value;
             const conteo = {};
             citasGlobal.forEach(c => { if(c.start.startsWith(mesSel)) conteo[c.user] = (conteo[c.user] || 0) + 1; });
-            document.getElementById('docs-list').innerHTML = equipoGlobal.map(p => {
-                const activa = filtroEspecialista === p.email.toLowerCase();
-                return `
-                <div class="psi-item" style="${activa ? 'background:#e5e5ea;' : ''}" onclick="filtrarPorEspecialista('${p.email.toLowerCase()}')">
-                    <div class="psi-color-dot" style="background:${p.color}"></div>
-                    <div class="psi-info">
-                        <h4>${p.name}</h4>
-                        <p>${conteo[p.email.toLowerCase()] || 0} sesiones este mes</p>
+            document.getElementById('docs-list').innerHTML = equipoGlobal.map(p => `
+                <div class="event-ios-card" style="border:none; ${filtroEspecialista === p.email.toLowerCase() ? 'background:rgba(255,255,255,0.1); border-radius:10px;' : ''}" onclick="filtrarPorEspecialista('${p.email.toLowerCase()}')">
+                    <div class="event-bar" style="background:${p.color}"></div>
+                    <div style="flex:1;">
+                        <div class="event-title">${p.name}</div>
+                        <div class="event-sub">${conteo[p.email.toLowerCase()] || 0} sesiones</div>
                     </div>
-                </div>`;
-            }).join('');
+                </div>`).join('');
         };
 
         window.filtrarPorEspecialista = (email) => {
@@ -440,17 +442,11 @@
             const n = document.getElementById('new-doc-name').value;
             const e = document.getElementById('new-doc-email').value;
             if(n && e) {
-                await addDoc(collection(db, "psicologas"), { 
-                    name: n, 
-                    email: e.toLowerCase(), 
-                    color: PALETA_APPLE[equipoGlobal.length % PALETA_APPLE.length] 
-                });
+                await addDoc(collection(db, "psicologas"), { name: n, email: e.toLowerCase(), color: PALETA[equipoGlobal.length % PALETA.length] });
                 document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
-                lanzarToast("Psicóloga registrada");
             }
         };
 
-        // PERFIL (GEAR)
         window.abrirPerfilModal = () => {
             const current = perfilesGlobal[auth.currentUser.email.toLowerCase()] || {};
             document.getElementById('profile-name-input').value = current.displayName || "";
@@ -459,19 +455,18 @@
         };
 
         window.guardarPerfil = async () => {
-            const name = document.getElementById('profile-name-input').value;
-            const photo = document.getElementById('profile-photo-input').value;
-            await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), { displayName: name, photo: photo });
+            await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), { 
+                displayName: document.getElementById('profile-name-input').value, 
+                photo: document.getElementById('profile-photo-input').value 
+            });
             document.getElementById('modal-perfil').style.display = 'none';
             lanzarToast("Perfil actualizado");
         };
 
-        // LOGIN / LOGOUT
         document.getElementById('login-btn').onclick = () => { 
-            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(() => alert("Credenciales incorrectas")); 
+            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(() => alert("Error")); 
         };
         document.getElementById('logout-btn').onclick = () => signOut(auth).then(() => location.reload());
-
     </script>
 </body>
 </html>
