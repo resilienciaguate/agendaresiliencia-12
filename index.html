@@ -13,161 +13,163 @@
         :root { 
             --brand-color: #a5c941; 
             --glass-bg: rgba(255, 255, 255, 0.85);
-            --apple-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            --apple-shadow: 0 10px 40px rgba(0,0,0,0.05);
             --text-dark: #1d1d1f;
+            --ios-gray: #f2f2f7;
         }
 
-        html, body { min-height: 100%; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #f5f5f7; color: var(--text-dark); overflow-x: hidden; }
+        html, body { min-height: 100%; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: #ffffff; color: var(--text-dark); overflow-x: hidden; }
 
-        /* REPARACIÓN LOGO GIGANTE EN PC */
+        /* REPARACIÓN DEFINITIVA LOGO PC */
+        .top-nav { 
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(20px); 
+            padding: 0 40px; 
+            display: none; 
+            justify-content: space-between; 
+            align-items: center; 
+            height: 70px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 999; 
+            border-bottom: 0.5px solid rgba(0,0,0,0.1); 
+        }
         #app-logo { 
-            max-width: 180px; 
-            height: auto; 
-            object-fit: contain;
-            transition: 0.3s ease;
+            height: 45px !important; 
+            width: auto !important; 
+            max-width: 160px !important; 
+            object-fit: contain; 
         }
 
-        /* NAVEGACIÓN APPLE */
-        .top-nav { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(25px); padding: 0 30px; display: none; justify-content: space-between; align-items: center; height: 85px; position: sticky; top: 0; z-index: 999; border-bottom: 0.5px solid rgba(0,0,0,0.1); }
         .profile-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; }
-        #user-photo { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; margin-bottom: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 2px solid white; }
-        #display-profile-name { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.8; }
+        #user-photo { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        #display-profile-name { font-size: 9px; font-weight: 700; text-transform: uppercase; margin-top: 2px; }
 
-        /* CONTENIDO PRINCIPAL */
-        #app-content { display: none; padding: 25px; gap: 25px; align-items: flex-start; }
-        .side-panel { width: 300px; position: sticky; top: 110px; }
-        .calendar-card { flex: 1; background: white; border-radius: 24px; padding: 20px; box-shadow: var(--apple-shadow); min-height: 650px; }
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(15px); padding: 25px; border-radius: 24px; box-shadow: var(--apple-shadow); border: 1px solid rgba(255,255,255,0.4); }
+        /* CONTENIDO */
+        #app-content { display: none; padding: 20px; gap: 20px; max-width: 1600px; margin: 0 auto; }
+        .side-panel { width: 320px; }
+        .calendar-card { flex: 1; background: white; border-radius: 20px; padding: 15px; }
         
-        /* ADMIN UI CON FOTOS */
-        .doc-item { padding: 12px 15px; border-radius: 14px; margin-bottom: 10px; display: flex; align-items: center; font-size: 13px; font-weight: 600; background: white; border-left: 6px solid; box-shadow: 0 2px 5px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; gap: 12px; }
-        .doc-item:hover { transform: translateX(5px); background: #fafafa; }
-        .doc-thumb { width: 35px; height: 35px; border-radius: 8px; object-fit: cover; background: #eee; }
-        .btn-del-doc { margin-left: auto; background: none; border: none; color: #ff3b30; cursor: pointer; font-size: 18px; opacity: 0.3; transition: 0.2s; padding: 0 5px; }
-        .btn-del-doc:hover { opacity: 1; transform: scale(1.2); }
+        /* ESTILO CALENDARIO IOS */
+        .fc { border: none !important; font-family: inherit; }
+        .fc-theme-standard td, .fc-theme-standard th { border: none !important; }
+        .fc-daygrid-day-number { font-size: 14px; font-weight: 400; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto !important; }
+        .fc-day-today .fc-daygrid-day-number { background: #ff3b30; color: white !important; border-radius: 50%; font-weight: 700; }
+        .fc-col-header-cell-cushion { font-size: 11px; text-transform: uppercase; color: #8e8e93; font-weight: 600; text-decoration: none !important; }
+        .fc-toolbar-title { font-size: 22px !important; font-weight: 700 !important; }
+        .fc .fc-button-primary { background: var(--ios-gray) !important; color: #007aff !important; border: none !important; border-radius: 8px !important; font-weight: 600 !important; font-size: 13px !important; }
+        .fc .fc-button-active { background: #007aff !important; color: white !important; }
         
-        .filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .btn-show-all { font-size: 10px; font-weight: 700; color: #007aff; cursor: pointer; text-transform: uppercase; background: rgba(0,122,255,0.1); padding: 4px 8px; border-radius: 6px; display: none; }
+        /* OCULTAR EVENTOS DENTRO DEL CALENDARIO PARA EL LOOK IPHONE */
+        .fc-daygrid-event-harness { display: none; }
+        .fc-daygrid-day-events { min-height: 10px !important; display: flex; justify-content: center; }
+        .has-event-dot::after { content: ''; width: 4px; height: 4px; background: #8e8e93; border-radius: 50%; display: block; margin: 2px auto; }
 
-        /* MODALES */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.25); backdrop-filter: blur(18px); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-box { background: white; padding: 35px; border-radius: 35px; width: 100%; max-width: 420px; box-shadow: 0 40px 80px rgba(0,0,0,0.15); text-align: center; border: 1px solid rgba(255,255,255,0.7); overflow-y: auto; max-height: 90vh; }
+        /* AGENDA DEL DÍA (ESTILO IPHONE) */
+        #agenda-viewer { margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+        .agenda-header { font-size: 18px; font-weight: 800; margin-bottom: 15px; color: #1d1d1f; display: flex; align-items: center; gap: 10px; }
+        .agenda-header span { font-weight: 400; color: #8e8e93; }
+        .event-ios-card { display: flex; align-items: center; padding: 12px 0; border-bottom: 0.5px solid #f2f2f7; cursor: pointer; transition: 0.2s; }
+        .event-ios-card:active { background: #f2f2f7; }
+        .event-time { width: 80px; font-size: 12px; font-weight: 600; color: #1d1d1f; }
+        .event-time span { display: block; font-size: 10px; color: #8e8e93; font-weight: 400; }
+        .event-bar { width: 4px; height: 35px; border-radius: 2px; margin: 0 15px; }
+        .event-info { flex: 1; }
+        .event-info h4 { margin: 0; font-size: 15px; font-weight: 600; }
+        .event-info p { margin: 2px 0 0; font-size: 12px; color: #8e8e93; }
 
-        input, select, textarea { width: 100%; padding: 14px; margin: 8px 0; border-radius: 14px; border: 1px solid #d2d2d7; font-family: inherit; box-sizing: border-box; font-size: 15px; outline: none; background: #fbfbfd; }
-        input:focus { border-color: var(--brand-color); background: white; }
-        .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 16px; border-radius: 14px; cursor: pointer; font-weight: 700; margin-top: 10px; font-size: 15px; transition: 0.3s; }
-        .btn-secondary { background: #f2f2f7; color: #1d1d1f; margin-top: 10px; }
-        .btn-danger { background: #fff5f5; color: #ff3b30; margin-top: 15px; border: none; font-weight: 700; cursor: pointer; padding: 10px; border-radius: 10px; width: 100%; }
+        /* ADMIN & MODALES */
+        .glass-card { background: #fbfbfd; padding: 20px; border-radius: 20px; border: 1px solid #efeff4; }
+        .doc-item { padding: 10px; border-radius: 12px; margin-bottom: 8px; display: flex; align-items: center; background: white; border: 1px solid #f2f2f7; font-size: 13px; gap: 10px; }
+        .doc-thumb { width: 35px; height: 35px; border-radius: 8px; object-fit: cover; }
         
-        /* CALENDARIO ESTILO APPLE */
-        .fc .fc-button-primary { background: #e8e8ed !important; border: none !important; color: #1d1d1f !important; font-size: 13px !important; font-weight: 600 !important; border-radius: 10px !important; text-transform: capitalize !important; padding: 10px 15px !important; }
-        .fc .fc-button-active { background: #1d1d1f !important; color: white !important; }
-        .fc-toolbar-title { font-size: 1.3em !important; font-weight: 800 !important; text-transform: capitalize !important; letter-spacing: -0.5px; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; }
+        .modal-box { background: white; padding: 30px; border-radius: 30px; width: 90%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
 
-        /* TOAST */
-        #toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%) translateY(120px); background: #1d1d1f; color: white; padding: 14px 28px; border-radius: 50px; font-size: 14px; z-index: 11000; transition: 0.6s cubic-bezier(0.23, 1, 0.32, 1); box-shadow: 0 15px 35px rgba(0,0,0,0.3); font-weight: 600; }
-        #toast.show { transform: translateX(-50%) translateY(0); }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid #d2d2d7; background: #f5f5f7; outline: none; }
+        .btn-action { width: 100%; background: var(--brand-color); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; font-weight: 700; margin-top: 10px; }
 
-        /* --- DISEÑO MÓVIL PROFESIONAL --- */
         @media (max-width: 768px) {
-            body { background: #ffffff; }
-            .top-nav { height: 65px; padding: 0 20px; border: none; background: rgba(255,255,255,0.9); }
-            #app-logo { max-width: 120px; }
-            
-            #app-content { flex-direction: column; padding: 10px; gap: 15px; }
-            .side-panel { width: 100%; position: relative; top: 0; margin-bottom: 10px; }
-            .glass-card { border-radius: 20px; padding: 18px; border: 1px solid #eee; background: #f9f9fb; box-shadow: none; }
-            
-            .calendar-card { border-radius: 0; padding: 10px; box-shadow: none; border-top: 1px solid #f0f0f2; }
-            .fc .fc-toolbar { display: flex; flex-direction: column; gap: 12px; padding: 10px 0; }
-            .fc-toolbar-title { font-size: 1.1em !important; order: -1; }
-            .fc .fc-button-group { width: 100%; display: flex; }
-            .fc .fc-button { flex: 1; font-size: 11px !important; }
-
-            .modal-box { padding: 25px 20px; border-radius: 25px 25px 0 0; position: fixed; bottom: 0; max-width: 100%; margin: 0; }
-            .modal-overlay { align-items: flex-end; padding: 0; }
-            input, select, textarea { font-size: 16px; padding: 16px; border-radius: 12px; }
-            .doc-item { border-radius: 12px; padding: 10px; background: white; border: 1px solid #f0f0f2; }
+            #app-content { flex-direction: column; padding: 10px; }
+            .side-panel { width: 100%; order: 2; }
+            .top-nav { padding: 0 15px; height: 60px; }
+            #app-logo { height: 35px !important; }
+            .modal-overlay { align-items: flex-end; }
+            .modal-box { border-radius: 30px 30px 0 0; max-width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <div id="toast">Acción completada</div>
+    <div id="toast" style="position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(100px); background:#1d1d1f; color:white; padding:12px 25px; border-radius:50px; z-index:11000; transition:0.5s;"></div>
 
-    <div id="login-screen" style="position:fixed; inset:0; background:#f5f5f7; display:flex; align-items:center; justify-content:center; z-index:9999;">
-        <div class="modal-box" style="background:transparent; box-shadow:none; border:none;">
-            <img src="Resiliencia.png" style="width:150px; margin-bottom: 30px;" onerror="this.src='https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png'">
-            <div style="background:white; padding:40px; border-radius:35px; box-shadow: var(--apple-shadow);">
-                <h2 style="font-size:24px; margin-bottom:25px; font-weight:800; letter-spacing: -1px;">BIENVENIDO</h2>
-                <input type="email" id="email" placeholder="Correo electrónico">
-                <input type="password" id="password" placeholder="Contraseña">
-                <button class="btn-action" id="login-btn">Entrar al Sistema</button>
-            </div>
+    <div id="login-screen" style="position:fixed; inset:0; background:#ffffff; display:flex; align-items:center; justify-content:center; z-index:9999;">
+        <div style="text-align:center; width: 320px;">
+            <img src="Resiliencia.png" style="width:180px; margin-bottom:40px;" onerror="this.src='https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png'">
+            <input type="email" id="email" placeholder="Correo electrónico">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button class="btn-action" id="login-btn">Entrar</button>
         </div>
     </div>
 
     <div class="top-nav" id="nav-bar">
         <img id="app-logo" src="Resiliencia.png" onerror="this.src='https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png'">
         <div class="profile-center">
-            <img id="user-photo" src="" alt="" style="display:none;">
+            <img id="user-photo" src="" style="display:none;">
             <span id="display-profile-name">Cargando...</span>
         </div>
-        <div style="display:flex; align-items:center; gap:20px;">
-            <div onclick="toggleUserConfig()" style="cursor:pointer; font-size:22px; opacity:0.8;">⚙️</div>
-            <button id="logout-btn" style="background:none; color:#ff3b30; border:none; font-weight:800; cursor:pointer; font-size:12px;">SALIR</button>
+        <div style="display:flex; gap:15px; align-items:center;">
+            <div onclick="toggleUserConfig()" style="cursor:pointer; font-size:20px;">⚙️</div>
+            <button id="logout-btn" style="border:none; background:none; color:#ff3b30; font-weight:700; font-size:12px;">SALIR</button>
         </div>
     </div>
 
     <div id="app-content">
         <div class="side-panel" id="side-panel-ui" style="display:none;">
             <div class="glass-card">
-                <h3 style="margin:0 0 15px 0; font-size:17px; font-weight:800;">Administración</h3>
+                <h3 style="margin:0 0 15px 0; font-size:16px;">Administración</h3>
                 <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
                 <input type="email" id="new-doc-email" placeholder="Correo">
-                <button class="btn-action" id="add-doc-btn">Añadir Psicóloga</button>
-                <hr style="opacity:0.1; margin:25px 0;">
-                <div class="filter-header">
-                    <label style="font-size:11px; font-weight:800; opacity:0.5; text-transform:uppercase;">Equipo Activo</label>
-                    <span id="btn-show-all" class="btn-show-all" onclick="filtrarPorPsicologa(null)">Ver Todo</span>
-                </div>
+                <button class="btn-action" id="add-doc-btn">Añadir</button>
+                <hr style="opacity:0.1; margin:20px 0;">
                 <input type="month" id="report-month" onchange="recalcularAdmin(true)">
-                <div id="docs-list" style="margin-top:15px;"></div>
+                <div id="docs-list" style="margin-top:10px;"></div>
             </div>
         </div>
-        <div class="calendar-card"><div id='calendar'></div></div>
+
+        <div class="calendar-card">
+            <div id='calendar'></div>
+            
+            <div id="agenda-viewer">
+                <div class="agenda-header" id="agenda-title">Agenda <span>Selecciona un día</span></div>
+                <div id="agenda-list">
+                    <p style="color:#8e8e93; font-size:13px; text-align:center; padding:20px;">No hay citas para este día.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="modal-cita" class="modal-overlay"><div class="modal-box">
-        <h3 id="modal-titulo" style="font-weight:800; margin-bottom:20px;">Agendar Cita</h3>
+        <h3 id="modal-titulo" style="margin-top:0;">Agendar Cita</h3>
         <select id="select-psicologa-cita"></select>
-        <input type="text" id="px-nombre" placeholder="Nombre del Paciente">
+        <input type="text" id="px-nombre" placeholder="Nombre Paciente">
         <div style="display:flex; gap:10px;">
-            <select id="px-area" style="width:115px;">
-                <option value="502">🇬🇹 +502</option>
-                <option value="503">🇸🇻 +503</option>
-                <option value="504">🇭🇳 +504</option>
-                <option value="52">🇲🇽 +52</option>
-                <option value="1">🇺🇸 +1</option>
-            </select>
-            <input type="number" id="px-whatsapp" placeholder="WhatsApp">
+            <select id="px-area" style="flex:1;"><option value="502">🇬🇹 +502</option><option value="1">🇺🇸 +1</option></select>
+            <input type="number" id="px-whatsapp" placeholder="WhatsApp" style="flex:2;">
         </div>
-        <label style="display:block; text-align:left; font-size:12px; margin-top:12px; font-weight:800; color:var(--brand-color);">FECHA Y HORA</label>
         <input type="datetime-local" id="px-start">
-        <textarea id="px-notas" placeholder="Notas de la sesión..." style="height: 90px;"></textarea>
-        
-        <button class="btn-action" id="btn-guardar-cita">Guardar Cita</button>
-        <button class="btn-danger" id="btn-eliminar-cita" style="display:none;">Eliminar Cita</button>
-        <button class="btn-action btn-secondary" onclick="cerrarModalCita()">Cerrar</button>
+        <textarea id="px-notas" placeholder="Notas..."></textarea>
+        <button class="btn-action" id="btn-guardar-cita">Guardar</button>
+        <button class="btn-action" style="background:#f2f2f7; color:#ff3b30;" id="btn-eliminar-cita">Eliminar</button>
+        <button class="btn-action" style="background:none; color:#8e8e93;" onclick="cerrarModalCita()">Cancelar</button>
     </div></div>
 
     <div id="user-config-modal" class="modal-overlay"><div class="modal-box">
-        <h3 style="font-weight:800;">Mi Perfil</h3>
-        <input type="text" id="user-custom-name" placeholder="Tu Nombre Público">
-        <label style="display:block; text-align:left; font-size:11px; margin-top:10px; font-weight:700;">FOTO DE PERFIL</label>
+        <h3>Mi Perfil</h3>
+        <input type="text" id="user-custom-name" placeholder="Nombre">
         <input type="file" id="user-photo-upload" accept="image/*">
-        <button class="btn-action" id="save-profile-btn">Actualizar Perfil</button>
-        <button class="btn-action btn-secondary" onclick="toggleUserConfig()">Cerrar</button>
+        <button class="btn-action" id="save-profile-btn">Actualizar</button>
+        <button class="btn-action" style="background:none; color:#8e8e93;" onclick="toggleUserConfig()">Cerrar</button>
     </div></div>
 
     <script type="module">
@@ -186,8 +188,8 @@
 
         const showToast = (msg) => {
             const t = document.getElementById('toast');
-            t.innerText = msg; t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
+            t.innerText = msg; t.style.transform = 'translateX(-50%) translateY(0)';
+            setTimeout(() => t.style.transform = 'translateX(-50%) translateY(100px)', 3000);
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -226,12 +228,19 @@
                 window.calendarObj = new FullCalendar.Calendar(document.getElementById('calendar'), {
                     initialView: 'dayGridMonth',
                     locale: 'es', firstDay: 1, 
-                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
-                    buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
-                    dateClick: (info) => { window.calendarObj.changeView('timeGridDay', info.dateStr); },
+                    headerToolbar: { left: 'title', center: '', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+                    selectable: true,
+                    dayCellDidMount: (info) => {
+                        const dateStr = info.date.toISOString().split('T')[0];
+                        const hasEvent = citasGlobal.some(c => c.start.startsWith(dateStr));
+                        if(hasEvent) info.el.classList.add('has-event-dot');
+                    },
+                    dateClick: (info) => {
+                        renderAgendaDia(info.dateStr);
+                    },
                     select: (info) => abrirModalCita(null, info),
                     eventClick: (info) => abrirModalCita(info.event.id),
-                    selectable: true, height: 'auto'
+                    height: 'auto'
                 });
                 window.calendarObj.render();
             }
@@ -245,6 +254,34 @@
             });
         }
 
+        function renderAgendaDia(fechaStr) {
+            const list = document.getElementById('agenda-list');
+            const tit = document.getElementById('agenda-title');
+            const citasDia = citasGlobal.filter(c => c.start.startsWith(fechaStr));
+            
+            tit.innerHTML = `Agenda <span>${fechaStr}</span>`;
+            
+            if(citasDia.length === 0) {
+                list.innerHTML = `<p style="color:#8e8e93; font-size:13px; text-align:center; padding:20px;">No hay citas para este día.</p>`;
+                return;
+            }
+
+            citasDia.sort((a,b) => a.start.localeCompare(b.start));
+            list.innerHTML = citasDia.map(c => {
+                const hora = c.start.split('T')[1].substring(0,5);
+                return `
+                    <div class="event-ios-card" onclick="abrirModalCita('${c.id}')">
+                        <div class="event-time">${hora} <span>Sesión</span></div>
+                        <div class="event-bar" style="background:${c.color}"></div>
+                        <div class="event-info">
+                            <h4>${c.title}</h4>
+                            <p>${perfilesGlobal[c.user]?.displayName || 'Psicóloga'}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         window.recalcularAdmin = (isAdmin) => {
             if(!isAdmin) return;
             const mesSel = document.getElementById('report-month').value || new Date().toISOString().substring(0, 7);
@@ -253,35 +290,28 @@
             document.getElementById('docs-list').innerHTML = equipoGlobal.map(p => {
                 const total = counts[p.email.toLowerCase()] || 0;
                 const perf = perfilesGlobal[p.email.toLowerCase()] || {};
-                const foto = perf.photo || 'https://via.placeholder.com/40';
-                return `<div class="doc-item" style="border-color:${p.color}" onclick="filtrarPorPsicologa('${p.email.toLowerCase()}')">
-                    <img src="${foto}" class="doc-thumb">
-                    <div style="display:flex; flex-direction:column;"><span>${p.name}</span><span style="opacity:0.6; font-size:11px;">${total} citas</span></div>
-                    <button class="btn-del-doc" onclick="event.stopPropagation(); eliminarPsicologa('${p.id}')">×</button>
+                return `<div class="doc-item" style="border-left:4px solid ${p.color}" onclick="filtrarPorPsicologa('${p.email.toLowerCase()}')">
+                    <img src="${perf.photo || 'https://via.placeholder.com/40'}" class="doc-thumb">
+                    <div style="flex:1"><b>${p.name}</b><br><small>${total} citas</small></div>
                 </div>`;
             }).join('');
         };
 
         function abrirModalCita(id = null, info = null) {
             citaSeleccionadaId = id;
-            const btnDel = document.getElementById('btn-eliminar-cita');
             if(id) {
                 const c = citasGlobal.find(x => x.id === id);
-                document.getElementById('modal-titulo').innerText = "Modificar Cita";
                 document.getElementById('px-nombre').value = c.title;
                 document.getElementById('px-whatsapp').value = c.tel || "";
                 document.getElementById('px-area').value = c.area || "502";
                 document.getElementById('px-notas').value = c.notas || "";
                 document.getElementById('px-start').value = c.start.substring(0, 16);
                 document.getElementById('select-psicologa-cita').value = c.user;
-                btnDel.style.display = 'block';
+                document.getElementById('btn-eliminar-cita').style.display = 'block';
             } else {
-                document.getElementById('modal-titulo').innerText = "Nueva Cita";
                 document.getElementById('px-nombre').value = "";
-                document.getElementById('px-whatsapp').value = "";
-                document.getElementById('px-notas').value = "";
-                document.getElementById('px-start').value = info.startStr.includes('T') ? info.startStr.substring(0, 16) : info.startStr + "T08:00";
-                btnDel.style.display = 'none';
+                document.getElementById('px-start').value = info.startStr.substring(0, 16);
+                document.getElementById('btn-eliminar-cita').style.display = 'none';
             }
             document.getElementById('modal-cita').style.display = 'flex';
         }
@@ -294,14 +324,11 @@
                 area: document.getElementById('px-area').value,
                 notas: document.getElementById('px-notas').value,
                 start: document.getElementById('px-start').value,
-                end: new Date(new Date(document.getElementById('px-start').value).getTime() + 3600000).toISOString().substring(0, 16),
                 user: psi.email.toLowerCase(),
                 color: psi.color
             };
-            if(!data.title) return showToast("Falta nombre");
             if(citaSeleccionadaId) await updateDoc(doc(db, "citas", citaSeleccionadaId), data);
             else await addDoc(collection(db, "citas"), data);
-            showToast("Agenda actualizada");
             cerrarModalCita();
         };
 
@@ -310,23 +337,19 @@
             let upd = { displayName: name };
             if(file) {
                 const r = new FileReader(); r.readAsDataURL(file);
-                r.onload = async (ev) => { upd.photo = ev.target.result; await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), upd, { merge: true }); toggleUserConfig(); showToast("Perfil actualizado"); };
-            } else { await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), upd, { merge: true }); toggleUserConfig(); showToast("Perfil actualizado"); }
+                r.onload = async (ev) => { upd.photo = ev.target.result; await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), upd, { merge: true }); toggleUserConfig(); };
+            } else { await setDoc(doc(db, "perfiles", auth.currentUser.email.toLowerCase()), upd, { merge: true }); toggleUserConfig(); }
         };
 
         document.getElementById('add-doc-btn').onclick = async () => {
             const n = document.getElementById('new-doc-name').value, e = document.getElementById('new-doc-email').value;
-            if(!n || !e) return showToast("Faltan datos");
-            const color = PALETA.find(c => !equipoGlobal.map(p => p.color).includes(c)) || PALETA[0];
+            const color = PALETA[equipoGlobal.length % PALETA.length];
             await addDoc(collection(db, "psicologas"), { name: n, email: e.toLowerCase(), color: color });
-            document.getElementById('new-doc-name').value = ""; document.getElementById('new-doc-email').value = "";
-            showToast("Psicóloga añadida");
         };
 
-        window.filtrarPorPsicologa = (e) => { filtroPsicologaActual = e; document.getElementById('btn-show-all').style.display = e ? 'block' : 'none'; actualizarCalendario(true); };
-        window.eliminarPsicologa = async (id) => { if(confirm("¿Eliminar psicóloga?")) await deleteDoc(doc(db, "psicologas", id)); };
-        document.getElementById('btn-eliminar-cita').onclick = async () => { if(confirm("¿Eliminar cita?")) { await deleteDoc(doc(db, "citas", citaSeleccionadaId)); cerrarModalCita(); showToast("Cita eliminada"); }};
-        document.getElementById('login-btn').onclick = () => { signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).then(() => showToast("Acceso correcto")).catch(() => showToast("Error")); };
+        window.filtrarPorPsicologa = (e) => { filtroPsicologaActual = e; actualizarCalendario(true); };
+        document.getElementById('btn-eliminar-cita').onclick = async () => { if(confirm("¿Eliminar?")) { await deleteDoc(doc(db, "citas", citaSeleccionadaId)); cerrarModalCita(); }};
+        document.getElementById('login-btn').onclick = () => { signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value); };
         document.getElementById('logout-btn').onclick = () => { signOut(auth).then(() => location.reload()); };
         window.cerrarModalCita = () => document.getElementById('modal-cita').style.display = 'none';
         window.toggleUserConfig = () => { const m = document.getElementById('user-config-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
