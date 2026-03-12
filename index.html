@@ -14,24 +14,53 @@
     <style>
         :root { --bg-page: #f4f7f6; --brand-main: #a5c941; --error-red: #e74c3c; --whatsapp-green: #25D366; }
         body { margin: 0; font-family: 'Montserrat', sans-serif; background: var(--bg-page); color: #333; }
+        
+        /* Estética base */
         .app-logo-clinic { width: 140px; height: auto; margin-bottom: 10px; border-radius: 10px; }
         .app-logo-dynamic { width: 110px; height: 110px; margin: 0 auto 10px; border-radius: 50%; object-fit: cover; border: 3px solid var(--brand-main); display: block; background: #fff; }
         .logo-text { font-weight: 600; color: #444; letter-spacing: 1px; font-size: 14px; margin-bottom: 20px; text-align: center; }
+        
         .top-nav { background: white; border-bottom: 1px solid #ddd; padding: 10px 20px; display: none; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 999; }
         #app-content { display: none; flex-direction: column; padding: 15px; gap: 20px; }
-        @media (min-width: 768px) { #app-content { flex-direction: row; } .side-panel { width: 320px; } }
-        .side-panel { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: fit-content; }
+        
+        /* Desktop */
+        @media (min-width: 769px) { 
+            #app-content { flex-direction: row; align-items: flex-start; } 
+            .side-panel { width: 320px; position: sticky; top: 80px; }
+        }
+
+        /* AJUSTES EXCLUSIVOS MÓVIL */
+        @media (max-width: 768px) {
+            #app-content { padding: 10px; gap: 15px; }
+            .side-panel { width: 100%; padding: 15px; box-sizing: border-box; }
+            .calendar-card { padding: 10px; border-radius: 10px; overflow-x: auto; }
+            /* Ajuste de fuente para el calendario en móvil */
+            .fc { font-size: 0.85em; } 
+            .fc .fc-toolbar-title { font-size: 1.1em; }
+            .fc .fc-button { padding: 4px 8px; font-size: 0.8em; }
+            /* Modales más anchos en móvil */
+            .modal-box { width: 92%; padding: 20px; }
+            .logo-text { font-size: 12px; }
+            .app-logo-dynamic { width: 90px; height: 90px; }
+        }
+        
+        .side-panel { background: white; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: fit-content; }
         .calendar-card { flex: 1; background: white; border-radius: 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        
         .item-cita-lista { display: flex; flex-direction: column; padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-left: 6px solid #ccc; }
         .item-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-family: inherit; font-size: 13px; }
-        .btn-action { width: 100%; background: #1d1d1f; color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: 500; margin-bottom: 8px; font-size: 12px; transition: all 0.2s; text-transform: uppercase; }
+        
+        input, select, textarea { width: 100%; padding: 12px; margin: 6px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; font-family: inherit; font-size: 14px; }
+        
+        .btn-action { width: 100%; background: #1d1d1f; color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 500; margin-bottom: 8px; font-size: 12px; transition: all 0.2s; text-transform: uppercase; }
         .btn-action:active { opacity: 0.7; transform: scale(0.98); }
         .btn-secondary { background: #f5f5f7; color: #1d1d1f; border: 1px solid #d2d2d7; }
         .btn-danger-ios { background: #fff; color: #ff3b30; border: none; font-weight: 600; }
         .btn-edit-small { width: auto; padding: 5px 12px; margin: 0; font-size: 10px; background: #f5f5f7; color: #1d1d1f; border: 1px solid #ddd; }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .modal-box { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 350px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-box { background: white; border-radius: 20px; max-width: 350px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        
         .report-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; text-align: left; align-items: center; cursor: pointer; border-radius: 8px; transition: background 0.2s; }
         .report-row:hover { background: #fafafa; }
         .active-filter { background: #f0f7e6 !important; border-left: 4px solid var(--brand-main); padding-left: 5px; }
@@ -56,7 +85,7 @@
     <nav class="top-nav" id="nav-bar">
         <div style="display: flex; align-items: center; gap: 10px;">
             <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" style="height: 35px; width: auto;">
-            <div id="display-profile-name" style="font-weight:600; font-size: 12px;"></div>
+            <div id="display-profile-name" style="font-weight:600; font-size: 11px;"></div>
         </div>
         <button id="logout-btn" style="background:none; color:#ff3b30; border:none; padding:5px 10px; cursor:pointer; font-size: 12px; font-weight: 600;">SALIR</button>
     </nav>
@@ -113,7 +142,7 @@
 
     <div id="modal-gestion" class="modal-overlay"><div class="modal-box">
         <h3>Gestionar Paciente</h3>
-        <button class="btn-action" id="btn-wa-directo">Enviar WhatsApp</button>
+        <button class="btn-action" id="btn-wa-directo" style="background:var(--whatsapp-green)">Enviar WhatsApp</button>
         <hr style="border: 0.5px solid #eee; margin: 15px 0;">
         <input type="text" id="edit-nombre">
         <div style="display: flex; gap: 5px;">
@@ -163,20 +192,15 @@
             }
         });
 
-        // Función unificada para refrescar la UI de perfil (Foto + Nombre Licda)
         function actualizarUIPerfil(isAdmin, emailActivo) {
             if (isAdmin) return;
-            
             const miPerfil = perfilesGlobal.find(p => p.email.toLowerCase() === emailActivo);
             const miDataEquipo = equipoGlobal.find(p => p.email.toLowerCase() === emailActivo);
-            
             if (miPerfil && miPerfil.photo) {
                 const logoImg = document.getElementById('main-app-logo');
                 logoImg.src = miPerfil.photo;
                 logoImg.className = 'app-logo-dynamic';
             }
-            
-            // Priorizamos el nombre asignado en la colección "psicologas"
             if (miDataEquipo && miDataEquipo.name) {
                 document.getElementById('welcome-text').innerText = "LICDA. " + miDataEquipo.name.toUpperCase();
             } else if (miPerfil && miPerfil.name) {
@@ -192,14 +216,12 @@
                 actualizarUIPerfil(isAdmin, emailActivo);
                 renderizarAdminUnified(isAdmin);
             });
-
             onSnapshot(collection(db, "psicologas"), (snap) => {
                 equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 document.getElementById('select-psicologa-cita').innerHTML = equipoGlobal.map(p => `<option value="${p.email.toLowerCase()}">${p.name}</option>`).join('');
                 actualizarUIPerfil(isAdmin, emailActivo);
                 renderizarAdminUnified(isAdmin);
             });
-
             onSnapshot(collection(db, "citas"), (snap) => {
                 citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
                 renderizarCalendario(isAdmin);
@@ -213,9 +235,9 @@
                 window.calendarObj = new FullCalendar.Calendar(document.getElementById('calendar'), {
                     initialView: 'dayGridMonth',
                     locale: 'es',
-                    buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
+                    buttonText: { today: 'Hoy', month: 'Mes', week: 'Sem', day: 'Día' },
                     firstDay: 1,
-                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+                    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridDay' },
                     selectable: true,
                     datesSet: () => { renderizarAdminUnified(isAdmin); },
                     dateClick: (info) => { diaSeleccionado = info.dateStr; filtrarCitasPorDia(diaSeleccionado, isAdmin); },
