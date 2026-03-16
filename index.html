@@ -739,7 +739,35 @@ window.renderizarTablaPacientes = () => {
 // Escuchar cambios en el buscador de la tabla
 document.getElementById('search-paciente-tab')?.addEventListener('input', window.renderizarTablaPacientes);
 
-</script>
+// ... busca esta última función que ya tienes ...
+    document.getElementById('search-paciente-tab')?.addEventListener('input', window.renderizarTablaPacientes);
+
+    // === PEGA AQUÍ EL CÓDIGO NUEVO ===
+    window.toggleSidebar = () => {
+        const side = document.querySelector('.side-panel');
+        const btn = document.querySelector('.toggle-panel');
+        if(side && btn) {
+            side.classList.toggle('open');
+            btn.innerText = side.classList.contains('open') ? '◀' : '▶';
+        }
+    };
+
+    window.cambiarVista = (nombre, elemento) => {
+        document.querySelectorAll('.nav-item-m').forEach(i => i.classList.remove('active'));
+        elemento.classList.add('active');
+        
+        const items = document.querySelectorAll('.nav-item');
+        items.forEach(item => {
+            if(item.innerText.trim() === nombre) item.click();
+        });
+
+        const side = document.querySelector('.side-panel');
+        const btn = document.querySelector('.toggle-panel');
+        if(side) side.classList.remove('open');
+        if(btn) btn.innerText = '▶';
+    };
+
+</script> 
 
 <div id="modal-confirm" class="modal-overlay">
   <div id="modal-confirm" class="modal-overlay">
