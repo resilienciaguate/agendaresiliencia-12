@@ -84,6 +84,7 @@
 
     <main id="app-content" style="display:none;">
         <aside class="side-panel">
+            <button class="toggle-panel" onclick="window.toggleSidebar()">▶</button>
             <img id="main-app-logo" src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" class="app-logo-clinic">
             <div id="welcome-text" class="logo-text">AGENDA RESILIENCIA 2026</div>
             <input type="text" id="search-input" placeholder="Buscar paciente...">
@@ -741,15 +742,28 @@ document.getElementById('search-paciente-tab')?.addEventListener('input', window
 </script>
 
 <div id="modal-confirm" class="modal-overlay">
-    <div class="modal-box" style="text-align: center;">
-        <h3 id="confirm-title">¿Estás segura?</h3>
-        <p id="confirm-body" style="color: #666; font-size: 14px;">Esta acción no se puede deshacer.</p>
-        <div class="grid-botones">
-            <button class="btn-grid" id="confirm-accept" style="background: #ff6b6b;">SÍ, ELIMINAR</button>
-            <button class="btn-grid" onclick="window.cerrarConfirm()">CANCELAR</button>
+  <div id="modal-confirm" class="modal-overlay">
+        <div class="modal-box" style="text-align: center;">
+            <h3 id="confirm-title">¿Estás segura?</h3>
+            <p id="confirm-body" style="color: #666; font-size: 14px;">Esta acción no se puede deshacer.</p>
+            <div class="grid-botones">
+                <button class="btn-grid" id="confirm-accept" style="background: #ff6b6b;">SÍ, ELIMINAR</button>
+                <button class="btn-grid" onclick="window.cerrarConfirm()">CANCELAR</button>
+            </div>
+        </div>
+    </div> <div class="mobile-nav">
+        <div class="nav-item-m active" onclick="window.cambiarVista('Agenda', this)">
+            <span>📅</span><p>Agenda</p>
+        </div>
+        <div class="nav-item-m" onclick="window.cambiarVista('Pacientes', this)">
+            <span>👥</span><p>Pacientes</p>
+        </div>
+        <div class="nav-item-m" onclick="window.cambiarVista('Reportes', this)">
+            <span>📊</span><p>Reportes</p>
+        </div>
+        <div class="nav-item-m" onclick="auth.signOut()">
+            <span>🚪</span><p>Salir</p>
         </div>
     </div>
-</div>
-
 </body>
 </html>
