@@ -60,8 +60,7 @@
         input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; font-size: 13px; box-sizing: border-box; }
         .btn-action { width: 100%; background: var(--brand-dark); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
         .btn-secondary { background: #f3f4f6; color: var(--brand-dark); border: 1px solid #d1d5db; }
-    /* AJUSTES PARA CELULAR (VISTA LIMPIA) */
-       /* --- PARCHE DE EMERGENCIA PARA MÓVIL --- */
+
     @media (max-width: 768px) {
         #app-content { padding: 5px !important; }
         
@@ -81,8 +80,7 @@
         /* Modales que sí caben */
         .modal-box, .modal-box-gestion { width: 95% !important; max-height: 90vh; overflow-y: auto; }
     }
-    
-    </style>
+</style>
 </head>
 <body>
 
@@ -759,20 +757,27 @@ window.renderizarTablaPacientes = () => {
     `).join('');
 };
 
-// Escuchar cambios en el buscador de la tabla
+// 1. Blindaje de la función principal
+const originalRenderizar = window.renderizarCalendario;
+window.renderizarCalendario = () => {
+    if (typeof FullCalendar === 'undefined') {
+        console.log("Esperando librería...");
+        return; 
+    }
+    if (typeof originalRenderizar === 'function') originalRenderizar();
+};
+
+// 2. Escuchador del buscador
 document.getElementById('search-paciente-tab')?.addEventListener('input', window.renderizarTablaPacientes);
 
-// Este bloque asegura que el calendario cargue aunque el internet esté lento
+// 3. Vigilante de carga (Tu código mejorado)
 const checkFC = setInterval(() => {
     if (typeof FullCalendar !== 'undefined') {
         clearInterval(checkFC);
-        console.log("FullCalendar listo, cargando agenda...");
-        if (typeof window.renderizarCalendario === 'function') {
-            window.renderizarCalendario();
-        }
+        console.log("✅ FullCalendar listo, cargando agenda...");
+        window.renderizarCalendario();
     }
 }, 500);
-
 </script>
 
 <div id="modal-confirm" class="modal-overlay">
