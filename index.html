@@ -738,113 +738,18 @@ window.renderizarTablaPacientes = () => {
 // Escuchar cambios en el buscador de la tabla
 document.getElementById('search-paciente-tab')?.addEventListener('input', window.renderizarTablaPacientes);
 
-<style>
-/* Solo se activa en pantallas menores a 768px */
-@media (max-width: 768px) {
-    /* 1. Aseguramos que el cuerpo sea visible y ocupe toda la pantalla */
-    body { 
-        display: flex !important; 
-        flex-direction: column !important; 
-        height: 100vh !important; 
-        overflow: hidden !important;
-    }
-
-    /* 2. El contenedor de la app debe ser visible */
-    #app-content {
-        display: flex !important; 
-        flex: 1 !important;
-        position: relative !important;
-        padding: 10px !important;
-    }
-
-    /* 3. Panel lateral como cajón (Drawer) */
-    .side-panel {
-        position: fixed !important;
-        left: 0 !important;
-        top: 0 !important;
-        bottom: 0 !important;
-        width: 280px !important;
-        background: white !important;
-        z-index: 5000 !important; /* Prioridad máxima */
-        transition: transform 0.3s ease-in-out !important;
-        box-shadow: 5px 0 15px rgba(0,0,0,0.2) !important;
-        display: flex !important; /* Para que se vean las psicólogas */
-    }
-
-    /* Estado cuando está cerrado */
-    .side-panel.collapsed {
-        transform: translateX(-100%) !important;
-    }
-
-    /* 4. El botón de la flecha (Visible sobre el fondo blanco) */
-    .panel-toggle {
-        display: flex !important;
-        position: absolute !important;
-        right: -40px !important;
-        top: 80px !important;
-        background: #8e8e93 !important; /* Gris profesional */
-        color: white !important;
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 0 8px 8px 0 !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 24px !important;
-        border: none !important;
-    }
-
-    /* 5. Calendario ocupando el resto de la pantalla */
-    .main-stage {
-        display: block !important;
-        width: 100% !important;
-        flex: 1 !important;
-        overflow-y: auto !important;
-    }
-
-    /* Ajuste para el Login en móvil */
-    #login-screen {
-        position: fixed !important;
-        inset: 0 !important;
-        z-index: 10000 !important;
-        background: #f1f3f6 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-    #login-screen .login-box {
-        margin: 0 !important;
-        width: 85% !important;
-    }
-}
-</style>
-
-<script>
-// Función para la flecha (Sin tocar nada de PC)
-window.toggleSidebar = () => {
-    const sb = document.getElementById('main-sidebar');
-    const btn = document.querySelector('.panel-toggle');
-    if (!sb) return;
-
-    sb.classList.toggle('collapsed');
-    
-    // Actualizar texto de la flecha
-    if (btn) {
-        btn.innerText = sb.classList.contains('collapsed') ? '›' : '‹';
-    }
-
-    // Forzar actualización del calendario
-    if (window.calendarObj) {
-        setTimeout(() => window.calendarObj.updateSize(), 300);
-    }
-};
-
-// Al cargar en móvil, el panel debe empezar oculto para ver el calendario
-if (window.innerWidth < 768) {
-    document.addEventListener('DOMContentLoaded', () => {
-        const sb = document.getElementById('main-sidebar');
-        if (sb) sb.classList.add('collapsed');
-    });
-}
 </script>
 
+<div id="modal-confirm" class="modal-overlay">
+    <div class="modal-box" style="text-align: center;">
+        <h3 id="confirm-title">¿Estás segura?</h3>
+        <p id="confirm-body" style="color: #666; font-size: 14px;">Esta acción no se puede deshacer.</p>
+        <div class="grid-botones">
+            <button class="btn-grid" id="confirm-accept" style="background: #ff6b6b;">SÍ, ELIMINAR</button>
+            <button class="btn-grid" onclick="window.cerrarConfirm()">CANCELAR</button>
+        </div>
+    </div>
+</div>
+
+</body>
 </html>
