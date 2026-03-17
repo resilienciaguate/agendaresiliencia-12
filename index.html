@@ -62,23 +62,18 @@
         .btn-secondary { background: #f3f4f6; color: var(--brand-dark); border: 1px solid #d1d5db; }
 
     @media (max-width: 768px) {
-        #app-content { padding: 5px !important; }
-        
-        /* La tabla ahora se desliza de lado y no se amontona */
+        /* Evita que las letras se monten: crea una zona de deslizamiento */
         #view-pacientes .calendar-card {
             overflow-x: auto !important;
             display: block !important;
             -webkit-overflow-scrolling: touch;
         }
-        table { min-width: 600px !important; } /* Mantiene el tamaño legible */
+        table { min-width: 600px !important; } 
         
-        /* Calendario miniatura */
+        /* Ajuste de fuente para el calendario */
         .fc { font-size: 10px !important; }
         .fc .fc-toolbar-title { font-size: 13px !important; }
         .fc .fc-button { padding: 2px 4px !important; font-size: 10px !important; }
-        
-        /* Modales que sí caben */
-        .modal-box, .modal-box-gestion { width: 95% !important; max-height: 90vh; overflow-y: auto; }
     }
 </style>
 </head>
