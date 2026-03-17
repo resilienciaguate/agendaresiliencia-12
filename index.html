@@ -58,6 +58,44 @@
         input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; font-size: 13px; box-sizing: border-box; }
         .btn-action { width: 100%; background: var(--brand-dark); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
         .btn-secondary { background: #f3f4f6; color: var(--brand-dark); border: 1px solid #d1d5db; }
+    /* AJUSTES PARA CELULAR (VISTA LIMPIA) */
+        @media (max-width: 768px) {
+            /* 1. Evitar que la tabla desborde la pantalla */
+            #view-pacientes .calendar-card {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 10px;
+            }
+            
+            table {
+                min-width: 500px; /* Mantiene un ancho mínimo para que sea legible */
+            }
+
+            /* 2. Ocultar columnas no vitales en móvil para ganar espacio */
+            th:nth-child(2), td:nth-child(2), /* Oculta "Último Contacto" */
+            th:nth-child(4), td:nth-child(4)  /* Oculta "Citas" */ {
+                display: none;
+            }
+
+            /* 3. Hacer el calendario más compacto */
+            .fc {
+                font-size: 0.85em;
+            }
+            
+            .fc .fc-toolbar {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            /* 4. Ajustar los modales para que no se corten */
+            .modal-box, .modal-box-gestion {
+                width: 95%;
+                padding: 20px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+        }
+    
     </style>
 </head>
 <body>
@@ -84,7 +122,6 @@
 
     <main id="app-content" style="display:none;">
         <aside class="side-panel">
-            <button class="toggle-panel" onclick="window.toggleSidebar()">▶</button>
             <img id="main-app-logo" src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" class="app-logo-clinic">
             <div id="welcome-text" class="logo-text">AGENDA RESILIENCIA 2026</div>
             <input type="text" id="search-input" placeholder="Buscar paciente...">
@@ -739,59 +776,18 @@ window.renderizarTablaPacientes = () => {
 // Escuchar cambios en el buscador de la tabla
 document.getElementById('search-paciente-tab')?.addEventListener('input', window.renderizarTablaPacientes);
 
-// ... busca esta última función que ya tienes ...
-    document.getElementById('search-paciente-tab')?.addEventListener('input', window.renderizarTablaPacientes);
-
-    // === PEGA AQUÍ EL CÓDIGO NUEVO ===
-    window.toggleSidebar = () => {
-        const side = document.querySelector('.side-panel');
-        const btn = document.querySelector('.toggle-panel');
-        if(side && btn) {
-            side.classList.toggle('open');
-            btn.innerText = side.classList.contains('open') ? '◀' : '▶';
-        }
-    };
-
-    window.cambiarVista = (nombre, elemento) => {
-        document.querySelectorAll('.nav-item-m').forEach(i => i.classList.remove('active'));
-        elemento.classList.add('active');
-        
-        const items = document.querySelectorAll('.nav-item');
-        items.forEach(item => {
-            if(item.innerText.trim() === nombre) item.click();
-        });
-
-        const side = document.querySelector('.side-panel');
-        const btn = document.querySelector('.toggle-panel');
-        if(side) side.classList.remove('open');
-        if(btn) btn.innerText = '▶';
-    };
-
-</script> 
+</script>
 
 <div id="modal-confirm" class="modal-overlay">
-  <div id="modal-confirm" class="modal-overlay">
-        <div class="modal-box" style="text-align: center;">
-            <h3 id="confirm-title">¿Estás segura?</h3>
-            <p id="confirm-body" style="color: #666; font-size: 14px;">Esta acción no se puede deshacer.</p>
-            <div class="grid-botones">
-                <button class="btn-grid" id="confirm-accept" style="background: #ff6b6b;">SÍ, ELIMINAR</button>
-                <button class="btn-grid" onclick="window.cerrarConfirm()">CANCELAR</button>
-            </div>
-        </div>
-    </div> <div class="mobile-nav">
-        <div class="nav-item-m active" onclick="window.cambiarVista('Agenda', this)">
-            <span>📅</span><p>Agenda</p>
-        </div>
-        <div class="nav-item-m" onclick="window.cambiarVista('Pacientes', this)">
-            <span>👥</span><p>Pacientes</p>
-        </div>
-        <div class="nav-item-m" onclick="window.cambiarVista('Reportes', this)">
-            <span>📊</span><p>Reportes</p>
-        </div>
-        <div class="nav-item-m" onclick="auth.signOut()">
-            <span>🚪</span><p>Salir</p>
+    <div class="modal-box" style="text-align: center;">
+        <h3 id="confirm-title">¿Estás segura?</h3>
+        <p id="confirm-body" style="color: #666; font-size: 14px;">Esta acción no se puede deshacer.</p>
+        <div class="grid-botones">
+            <button class="btn-grid" id="confirm-accept" style="background: #ff6b6b;">SÍ, ELIMINAR</button>
+            <button class="btn-grid" onclick="window.cerrarConfirm()">CANCELAR</button>
         </div>
     </div>
+</div>
+
 </body>
 </html>
