@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Resiliencia - Agenda Premium 2026</title>
-    
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1f2937">
-
-    <link rel="icon" href="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" type="image/png">
-    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png">
+    
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/es.global.min.js'></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     
     <style>
         :root { --bg-page: #f1f3f6; --brand-dark: #1f2937; --brand-main: #a5c941; --text-light: #f9fafb; --border-color: #e5e7eb; }
@@ -60,22 +58,7 @@
         input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; font-size: 13px; box-sizing: border-box; }
         .btn-action { width: 100%; background: var(--brand-dark); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
         .btn-secondary { background: #f3f4f6; color: var(--brand-dark); border: 1px solid #d1d5db; }
-
-    @media (max-width: 768px) {
-        /* Evita que las letras se monten: crea una zona de deslizamiento */
-        #view-pacientes .calendar-card {
-            overflow-x: auto !important;
-            display: block !important;
-            -webkit-overflow-scrolling: touch;
-        }
-        table { min-width: 600px !important; } 
-        
-        /* Ajuste de fuente para el calendario */
-        .fc { font-size: 10px !important; }
-        .fc .fc-toolbar-title { font-size: 13px !important; }
-        .fc .fc-button { padding: 2px 4px !important; font-size: 10px !important; }
-    }
-</style>
+    </style>
 </head>
 <body>
 
@@ -370,27 +353,26 @@
     }
 
     function renderizarCalendario(isAdmin) {
-        // MURO DE SEGURIDAD: Si la librería no ha cargado, salimos sin error
-        if (typeof FullCalendar === 'undefined') return;
-
         if(!window.calendarObj) {
-            const calendarEl = document.getElementById('calendar');
-            if (!calendarEl) return;
-
-            window.calendarObj = new FullCalendar.Calendar(calendarEl, {
-                initialView: window.innerWidth < 768 ? 'timeGridDay' : 'dayGridMonth',
+            window.calendarObj = new FullCalendar.Calendar(document.getElementById('calendar'), {
+                initialView: 'dayGridMonth',
                 locale: 'es',
                 buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
-                headerToolbar: { 
-                    left: 'prev,next today', 
-                    center: 'title', 
-                    right: window.innerWidth < 768 ? '' : 'dayGridMonth,timeGridWeek,timeGridDay' 
-                },
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+                
+                // === ACTIVACIÓN DE ARRASTRAR Y REAGENDAR ===
                 editable: true,
+                eventStartEditable: true,
+                eventDurationEditable: true,
+                eventDrop: (info) => { actualizarHorarioEvento(info); },
+                eventResize: (info) => { actualizarHorarioEvento(info); },
+                // ===========================================
+
                 selectable: true,
                 allDaySlot: false,
                 slotMinTime: "06:00:00",
                 slotMaxTime: "22:00:00",
+                editable: true,
                 eventDrop: (info) => { actualizarHorarioEvento(info); },
                 eventResize: (info) => { actualizarHorarioEvento(info); },
                 datesSet: () => { renderizarAdminUnified(isAdmin); },
@@ -753,27 +735,9 @@ window.renderizarTablaPacientes = () => {
     `).join('');
 };
 
-// 1. Blindaje de la función principal
-const originalRenderizar = window.renderizarCalendario;
-window.renderizarCalendario = () => {
-    if (typeof FullCalendar === 'undefined') {
-        console.log("Esperando librería...");
-        return; 
-    }
-    if (typeof originalRenderizar === 'function') originalRenderizar();
-};
-
-// 2. Escuchador del buscador
+// Escuchar cambios en el buscador de la tabla
 document.getElementById('search-paciente-tab')?.addEventListener('input', window.renderizarTablaPacientes);
 
-// 3. Vigilante de carga (Tu código mejorado)
-const checkFC = setInterval(() => {
-    if (typeof FullCalendar !== 'undefined') {
-        clearInterval(checkFC);
-        console.log("✅ FullCalendar listo, cargando agenda...");
-        window.renderizarCalendario();
-    }
-}, 500);
 </script>
 
 <div id="modal-confirm" class="modal-overlay">
