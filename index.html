@@ -370,26 +370,27 @@
     }
 
     function renderizarCalendario(isAdmin) {
+        // MURO DE SEGURIDAD: Si la librería no ha cargado, salimos sin error
+        if (typeof FullCalendar === 'undefined') return;
+
         if(!window.calendarObj) {
-            window.calendarObj = new FullCalendar.Calendar(document.getElementById('calendar'), {
-                initialView: 'dayGridMonth',
+            const calendarEl = document.getElementById('calendar');
+            if (!calendarEl) return;
+
+            window.calendarObj = new FullCalendar.Calendar(calendarEl, {
+                initialView: window.innerWidth < 768 ? 'timeGridDay' : 'dayGridMonth',
                 locale: 'es',
                 buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
-                
-                // === ACTIVACIÓN DE ARRASTRAR Y REAGENDAR ===
+                headerToolbar: { 
+                    left: 'prev,next today', 
+                    center: 'title', 
+                    right: window.innerWidth < 768 ? '' : 'dayGridMonth,timeGridWeek,timeGridDay' 
+                },
                 editable: true,
-                eventStartEditable: true,
-                eventDurationEditable: true,
-                eventDrop: (info) => { actualizarHorarioEvento(info); },
-                eventResize: (info) => { actualizarHorarioEvento(info); },
-                // ===========================================
-
                 selectable: true,
                 allDaySlot: false,
                 slotMinTime: "06:00:00",
                 slotMaxTime: "22:00:00",
-                editable: true,
                 eventDrop: (info) => { actualizarHorarioEvento(info); },
                 eventResize: (info) => { actualizarHorarioEvento(info); },
                 datesSet: () => { renderizarAdminUnified(isAdmin); },
