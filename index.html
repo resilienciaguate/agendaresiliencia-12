@@ -61,40 +61,53 @@
         .btn-action { width: 100%; background: var(--brand-dark); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
         .btn-secondary { background: #f3f4f6; color: var(--brand-dark); border: 1px solid #d1d5db; }
     /* AJUSTES PARA CELULAR (VISTA LIMPIA) */
-        @media (max-width: 768px) {
-            /* 1. Evitar que la tabla desborde la pantalla */
+       @media (max-width: 768px) {
+            /* 1. Forzar que el contenido no empuje hacia los lados */
+            #app-content { 
+                padding: 10px; 
+                width: 100vw; 
+                box-sizing: border-box;
+                overflow-x: hidden;
+            }
+
+            /* 2. TABLA DE PACIENTES: Convertirla en tarjetas o scroll total */
             #view-pacientes .calendar-card {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
                 padding: 10px;
+                overflow-x: auto; /* Permite deslizar la tabla */
+                -webkit-overflow-scrolling: touch;
+                border: 1px solid #eee;
             }
+
+            table { 
+                min-width: 600px; /* Evita que las celdas se colapsen y se monten letras sobre otras */
+            }
+
+            th, td { 
+                padding: 8px 5px !important; 
+                font-size: 12px !important; 
+            }
+
+            /* 3. CALENDARIO: Reducción drástica para que quepa */
+            .fc .fc-toolbar-title { font-size: 1.1em !important; }
+            .fc .fc-button { padding: 2px 5px !important; font-size: 11px !important; }
+            .fc th { font-size: 10px !important; } /* Días de la semana mas cortos */
             
-            table {
-                min-width: 500px; /* Mantiene un ancho mínimo para que sea legible */
-            }
+            /* Ocultar la palabra "Citas" en el header del calendario para ganar espacio */
+            .fc .fc-toolbar-chunk:nth-child(1) { display: flex; flex-direction: column; }
 
-            /* 2. Ocultar columnas no vitales en móvil para ganar espacio */
-            th:nth-child(2), td:nth-child(2), /* Oculta "Último Contacto" */
-            th:nth-child(4), td:nth-child(4)  /* Oculta "Citas" */ {
-                display: none;
-            }
-
-            /* 3. Hacer el calendario más compacto */
-            .fc {
-                font-size: 0.85em;
-            }
-            
-            .fc .fc-toolbar {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            /* 4. Ajustar los modales para que no se corten */
+            /* 4. MODALES: Que no se salgan de la pantalla */
             .modal-box, .modal-box-gestion {
-                width: 95%;
-                padding: 20px;
-                max-height: 90vh;
+                width: 92% !important;
+                margin: 0 4%;
+                padding: 15px;
+                max-height: 85vh;
                 overflow-y: auto;
+            }
+
+            /* 5. BOTONES DE GESTIÓN: Hacerlos más fáciles de tocar */
+            .btn-action {
+                padding: 15px; /* Más grandes para el dedo */
+                font-size: 14px;
             }
         }
     
