@@ -427,12 +427,20 @@
         });
 
         onSnapshot(collection(db, "psicologas"), (snap) => {
-            equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
-            const opts = equipoGlobal.map(p => `<option value="${p.email.toLowerCase()}">${p.name}</option>`).join('');
-            document.getElementById('select-psicologa-cita').innerHTML = opts;
-            document.getElementById('edit-psicologa-asignada').innerHTML = opts;
-            if (isAdmin && equipoGlobal.length > 0) {
-        renderizarAdminUnified(true); 
+    equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
+    
+    // ESTA LÍNEA ES NECESARIA para crear el contenido de la lista:
+    const opts = equipoGlobal.map(p => `<option value="${p.email.toLowerCase()}">${p.name}</option>`).join('');
+
+    const selectEdit = document.getElementById('edit-psicologa-asignada');
+    if (selectEdit) {
+        selectEdit.innerHTML = opts;
+    }
+    
+    // También es bueno actualizar el de "Nueva Cita" si existe
+    const selectCita = document.getElementById('select-psicologa-cita');
+    if (selectCita) {
+        selectCita.innerHTML = opts;
     }
 });
 
@@ -573,30 +581,27 @@ window.calendarObj.render();
     citaActiva = citasGlobal.find(c => c.id === id);
     if (!citaActiva) return;
 
-    // Aseguramos que el selector de edición tenga a todo el equipo
-    const editPsicoSelect = document.getElementById('edit-psicologa-asignada');
-    if (editPsicoSelect) {
-        editPsicoSelect.innerHTML = equipoGlobal.map(p => 
-            `<option value="${p.email.toLowerCase()}">${p.name}</option>`
-        ).join('');
-        editPsicoSelect.value = citaActiva.user;
+    // 1. Llenar los campos del modal
+    document.getElementById('edit-nombre').value = citaActiva.title || "";
+    document.getElementById('edit-notas').value = citaActiva.notas || "";
+    document.getElementById('edit-monto').value = citaActiva.monto || 0;
+    document.getElementById('edit-pagado').checked = (citaActiva.pagado === true);
+    
+    const elWhatsApp = document.getElementById('edit-whatsapp');
+    if (elWhatsApp) {
+        let fullTel = String(citaActiva.tel || "");
+        elWhatsApp.value = fullTel.slice(-8); // Muestra solo los 8 dígitos
     }
 
-    document.getElementById('edit-nombre').value = citaActiva.title;
-    document.getElementById('edit-psicologa-asignada').value = citaActiva.user;
-    document.getElementById('edit-notas').value = citaActiva.notas || "";
-    
-    let fullTel = String(citaActiva.tel || "");
-    document.getElementById('edit-whatsapp').value = fullTel.slice(-8);
-
-    // --- LÓGICA DE PAGOS ---
-    // Reseteamos el checkbox basado estrictamente en el dato de la cita
-    const inputMonto = document.getElementById('edit-monto');
-    const inputPagado = document.getElementById('edit-pagado');
-
-    if (inputMonto) inputMonto.value = citaActiva.monto || 0;
-    if (inputPagado) inputPagado.checked = (citaActiva.pagado === true);
-    // -----------------------
+    // 2. ACTIVAR EL BOTÓN (Justo aquí adentro)
+    document.getElementById('btn-wa-recordatorio').onclick = () => {
+        const tel = document.getElementById('edit-whatsapp').value;
+        const nombre = citaActiva.title;
+        const msj = encodeURIComponent(`Hola ${nombre}, te saludamos de Clínica Resiliencia para recordarte tu cita programada. ¡Te esperamos!`);
+        
+        // Usamos el tel del input por si lo corriges manualmente antes de enviar
+        window.open(`https://wa.me/502${tel}?text=${msj}`, '_blank');
+    };
 
     document.getElementById('modal-gestion').style.display = 'flex';
 };
