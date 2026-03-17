@@ -61,55 +61,26 @@
         .btn-action { width: 100%; background: var(--brand-dark); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
         .btn-secondary { background: #f3f4f6; color: var(--brand-dark); border: 1px solid #d1d5db; }
     /* AJUSTES PARA CELULAR (VISTA LIMPIA) */
-       @media (max-width: 768px) {
-            /* 1. Forzar que el contenido no empuje hacia los lados */
-            #app-content { 
-                padding: 10px; 
-                width: 100vw; 
-                box-sizing: border-box;
-                overflow-x: hidden;
-            }
-
-            /* 2. TABLA DE PACIENTES: Convertirla en tarjetas o scroll total */
-            #view-pacientes .calendar-card {
-                padding: 10px;
-                overflow-x: auto; /* Permite deslizar la tabla */
-                -webkit-overflow-scrolling: touch;
-                border: 1px solid #eee;
-            }
-
-            table { 
-                min-width: 600px; /* Evita que las celdas se colapsen y se monten letras sobre otras */
-            }
-
-            th, td { 
-                padding: 8px 5px !important; 
-                font-size: 12px !important; 
-            }
-
-            /* 3. CALENDARIO: Reducción drástica para que quepa */
-            .fc .fc-toolbar-title { font-size: 1.1em !important; }
-            .fc .fc-button { padding: 2px 5px !important; font-size: 11px !important; }
-            .fc th { font-size: 10px !important; } /* Días de la semana mas cortos */
-            
-            /* Ocultar la palabra "Citas" en el header del calendario para ganar espacio */
-            .fc .fc-toolbar-chunk:nth-child(1) { display: flex; flex-direction: column; }
-
-            /* 4. MODALES: Que no se salgan de la pantalla */
-            .modal-box, .modal-box-gestion {
-                width: 92% !important;
-                margin: 0 4%;
-                padding: 15px;
-                max-height: 85vh;
-                overflow-y: auto;
-            }
-
-            /* 5. BOTONES DE GESTIÓN: Hacerlos más fáciles de tocar */
-            .btn-action {
-                padding: 15px; /* Más grandes para el dedo */
-                font-size: 14px;
-            }
+       /* --- PARCHE DE EMERGENCIA PARA MÓVIL --- */
+    @media (max-width: 768px) {
+        #app-content { padding: 5px !important; }
+        
+        /* La tabla ahora se desliza de lado y no se amontona */
+        #view-pacientes .calendar-card {
+            overflow-x: auto !important;
+            display: block !important;
+            -webkit-overflow-scrolling: touch;
         }
+        table { min-width: 600px !important; } /* Mantiene el tamaño legible */
+        
+        /* Calendario miniatura */
+        .fc { font-size: 10px !important; }
+        .fc .fc-toolbar-title { font-size: 13px !important; }
+        .fc .fc-button { padding: 2px 4px !important; font-size: 10px !important; }
+        
+        /* Modales que sí caben */
+        .modal-box, .modal-box-gestion { width: 95% !important; max-height: 90vh; overflow-y: auto; }
+    }
     
     </style>
 </head>
@@ -790,6 +761,17 @@ window.renderizarTablaPacientes = () => {
 
 // Escuchar cambios en el buscador de la tabla
 document.getElementById('search-paciente-tab')?.addEventListener('input', window.renderizarTablaPacientes);
+
+// Este bloque asegura que el calendario cargue aunque el internet esté lento
+const checkFC = setInterval(() => {
+    if (typeof FullCalendar !== 'undefined') {
+        clearInterval(checkFC);
+        console.log("FullCalendar listo, cargando agenda...");
+        if (typeof window.renderizarCalendario === 'function') {
+            window.renderizarCalendario();
+        }
+    }
+}, 500);
 
 </script>
 
