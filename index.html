@@ -11,10 +11,11 @@
 
     <link rel="icon" href="data:;base64,iVBORw0KGgoable=">
 
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/es.global.min.js'></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/es.global.min.js'></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.11/interact.min.js"></script>
     
     <style>
         :root { --bg-page: #f1f3f6; --brand-dark: #1f2937; --brand-main: #a5c941; --text-light: #f9fafb; --border-color: #e5e7eb; }
@@ -48,6 +49,45 @@
         .grid-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 25px; }
         .btn-grid { background: #1f2937; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; text-transform: uppercase; }
 
+.nav-links {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    gap: 25px; /* Un poco más de espacio entre palabras para que se vea elegante */
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.05); /* Un fondo sutil para la barra */
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.nav-item.active {
+    background: white !important; /* El cuadrito blanco */
+    color: var(--brand-dark) !important; /* Texto oscuro para que resalte en el blanco */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    font-weight: 700;
+}
+
         /* EQUIPO */
         .report-row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #f3f4f6; font-size: 12px; color: #555; align-items: center; cursor: pointer; border-radius: 6px; width: 100%; margin-bottom: 4px; }
         .active-filter { background: #f0f7e6 !important; border-left: 3px solid var(--brand-main); }
@@ -63,158 +103,349 @@
         input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; font-size: 13px; box-sizing: border-box; }
         .btn-action { width: 100%; background: var(--brand-dark); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
         .btn-secondary { background: #f3f4f6; color: var(--brand-dark); border: 1px solid #d1d5db; }
-    </style>
+
+        /* --- ESTILOS EXCLUSIVOS DE ESTIMULACIÓN (Copiados fielmente) --- */
+:root { --color-clinica: #a5c941; }
+@page { size: letter; margin: 0; }
+
+#controlPanel {
+    background: white; padding: 20px; border-radius: 12px;
+    margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    color: #333; width: 100%; box-sizing: border-box;
+}
+
+/* --- HOJA CARTA (ESTRUCTURA ESTABLE) --- */
+.hoja-carta {
+    width: 21.59cm; 
+    height: 27.94cm;
+    background: white;
+    /* ESTO ES VITAL: permite que el pie de página se pegue al fondo de la hoja */
+    position: relative; 
+    
+    margin: 0 auto 50px auto; 
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    box-sizing: border-box;
+    overflow: visible; /* Mantén esto visible para el scroll */
+    padding: 1.5cm;
+}
+
+html, body {
+    height: auto !important;
+    overflow: auto !important;
+}
+
+/* Bloqueamos el mouse en la hoja para que no se mueva nada */
+#canvas {
+    pointer-events: none; 
+}
+
+/* Esto "perfora" el bloqueo para que tu panel y gráfico sí reciban clics */
+#mpp-data-panel, #mpp-data-panel *, #graficoAvances, .no-bloquear {
+    pointer-events: auto !important;
+}
+
+/* Permitimos interacción solo donde es necesaria */
+#contenedor-grafico, #graficoAvances, #mpp-data-panel, .no-bloquear {
+    pointer-events: auto !important;
+}
+
+.linea-decorativa { 
+    height: 2px; 
+    background-color: #a5c941; 
+    margin: 15px auto; 
+    width: 85%; 
+    border-radius: 2px;
+}
+
+/* --- VISTA DE PANTALLA --- */
+#view-estimulacion {
+    display: none; /* Se activa con JS */
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh; /* Ocupa al menos toda la pantalla */
+    height: auto;      /* Permite que crezca según el contenido */
+    padding-top: 40px;
+    padding-bottom: 100px; /* Espacio extra para ver el pie de página */
+    background-color: #1e293b;
+    overflow-y: auto !important; /* Habilita el scroll vertical */
+    overflow-x: hidden;
+}
+
+/* PANEL MODERNO DELGADO - FLOTANTE */
+#mpp-data-panel {
+    position: fixed;
+    right: 30px;
+    top: 160px; 
+    width: 260px;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    padding: 20px;
+    z-index: 1000; 
+    border: 1px solid #f0f0f0;
+    display: none; /* Se activa vía JS en showView */
+}
+
+/* Estilos de Sliders y Panel (Tus estilos actuales están bien) */
+.panel-header-mpp { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+.slider-group { margin-bottom: 12px; }
+.slider-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: #444; margin-bottom: 4px; }
+.slider-info span:last-child { color: #a5c941; background: #f0fdf4; padding: 1px 5px; border-radius: 4px; }
+.premium-range { -webkit-appearance: none; width: 100%; height: 5px; background: #e5e7eb; border-radius: 10px; outline: none; }
+.premium-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: white; border: 2px solid #a5c941; border-radius: 50%; cursor: pointer; }
+.btn-mpp-save { width: 100%; background: #2c3e50; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 10px; cursor: pointer; }
+
+/* --- CONFIGURACIÓN DE IMPRESIÓN (PDF PERFECTO) --- */
+@media print {
+    /* 1. Limpieza absoluta de fondos y márgenes del navegador */
+    @page {
+        size: letter;
+        margin: 0 !important;
+    }
+
+    /* 2. Forzamos blanco en TODO el árbol de elementos */
+    html, body, #view-estimulacion, .hoja-carta {
+        background: white !important;
+        background-color: white !important;
+        color: black;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* 3. Ocultamos TODA la interfaz de usuario */
+    #mpp-data-panel, 
+    .no-print, 
+    button, 
+    .navbar, 
+    header, 
+    nav,
+    .header-blue,
+    #header-main {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* 4. Ajuste de la hoja para que ocupe todo el PDF */
+    #view-estimulacion {
+        display: block !important;
+        width: 21.59cm !important;
+        height: 27.94cm !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+    }
+}
+
+   * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+</style>
+
 </head>
 <body>
 
-    <div id="login-screen">
-        <div style="text-align:center; background:white; padding:50px; border-radius:20px; width:80%; max-width:320px; margin: 100px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.08);">
-            <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" width="100">
-            <div class="logo-text">AGENDA RESILIENCIA 2026</div>
-            <input type="email" id="email" placeholder="Correo corporativo">
-            <input type="password" id="password" placeholder="Contraseña">
-            <button class="btn-action" id="login-btn">ENTRAR</button>
-        </div>
+<div id="login-screen">
+    <div style="text-align:center; background:white; padding:50px; border-radius:20px; width:80%; max-width:320px; margin: 100px auto; box-shadow: 0 10px 25px rgba(0,0,0,0.08);">
+        <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" width="100">
+        <div class="logo-text">AGENDA RESILIENCIA 2026</div>
+        <input type="email" id="email" placeholder="Correo corporativo">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button class="btn-action" id="login-btn">ENTRAR</button>
     </div>
+</div>
 
-   <nav class="top-nav" id="nav-bar" style="display:none;">
+<nav class="top-nav" id="nav-bar" style="display:none;">
     <div id="display-profile-name" style="font-weight:600; font-size: 13px;"></div>
     <div class="nav-links">
-        <a href="#" class="nav-item active" onclick="window.showView('Agenda')">Agenda</a>
-        <a href="#" class="nav-item" onclick="window.showView('Pacientes')">Pacientes</a>
-        <a href="#" class="nav-item" onclick="window.showView('Reportes')">Reportes</a>
+        <div class="nav-item active" onclick="showView('view-agenda', this)">Agenda</div>
+        <div class="nav-item" onclick="showView('view-pacientes', this)">Pacientes</div>
+        <div class="nav-item" onclick="showView('view-reportes', this)">Reportes</div>
+        <div class="nav-item" onclick="showView('view-estimulacion', this)">Estimulación</div>
+        <div class="nav-item" onclick="showView('view-recibo', this)">Recibo</div>
     </div>
     <button id="logout-btn">SALIR</button>
 </nav>
 
-    <main id="app-content" style="display:none;">
-        <aside class="side-panel">
-            <img id="main-app-logo" src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" class="app-logo-clinic">
-            <div id="welcome-text" class="logo-text">AGENDA RESILIENCIA 2026</div>
-            <input type="text" id="search-input" placeholder="Buscar paciente...">
-            <button id="btn-reset-search" class="btn-action btn-secondary" style="display:none; font-size: 10px; margin-bottom:10px;">MOSTRAR TODOS</button>
-            
-            <div id="psico-view-only" style="display:none; margin-top: 25px;">
-                <h3 style="font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; border-top: 1px solid #eee; padding-top: 20px;">
-                    Próximas citas de hoy
-                </h3>
-                <div id="lista-pendientes-dia" style="display: flex; flex-direction: column; gap: 12px;"></div>
-            </div>
-
-            <div id="side-panel-ui" style="display:none; width: 100%;">
-                <h4 style="font-size:11px; margin-bottom:10px; color:#999; text-transform:uppercase;">Equipo</h4>
-                <div id="admin-unified-list"></div>
-                <hr style="margin:20px 0; border:0.5px solid #eee;">
-                <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
-                <input type="email" id="new-doc-email" placeholder="Correo">
-                <button class="btn-action btn-secondary" id="add-doc-btn">AÑADIR AL EQUIPO</button>
-            </div>
-        </aside>
-
-        <div id="view-agenda" class="main-stage">
-            <section class="calendar-card">
-                <div id='calendar'></div>
-            </section>
+<main id="app-content" style="display:none;">
+    <aside class="side-panel">
+        <img id="main-app-logo" src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" class="app-logo-clinic">
+        <div id="welcome-text" class="logo-text">AGENDA RESILIENCIA 2026</div>
+        <input type="text" id="search-input" placeholder="Buscar paciente...">
+        <button id="btn-reset-search" class="btn-action btn-secondary" style="display:none; font-size: 10px; margin-bottom:10px;">MOSTRAR TODOS</button>
+        
+        <div id="psico-view-only" style="display:none; margin-top: 25px;">
+            <h3 style="font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; border-top: 1px solid #eee; padding-top: 20px;">
+                Próximas citas de hoy
+            </h3>
+            <div id="lista-pendientes-dia" style="display: flex; flex-direction: column; gap: 12px;"></div>
         </div>
 
-        <div id="view-pacientes" class="main-stage" style="display:none;">
-            <section class="calendar-card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h2 style="margin:0; font-size:18px; color:var(--brand-dark);">Directorio de Pacientes</h2>
-                    <input type="text" id="search-paciente-tab" placeholder="Filtrar por nombre o teléfono..." style="width:300px; margin:0;">
+        <div id="side-panel-ui" style="display:none; width: 100%;">
+            <h4 style="font-size:11px; margin-bottom:10px; color:#999; text-transform:uppercase;">Equipo</h4>
+            <div id="admin-unified-list"></div>
+            <hr style="margin:20px 0; border:0.5px solid #eee;">
+            <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
+            <input type="email" id="new-doc-email" placeholder="Correo">
+            <button class="btn-action btn-secondary" id="add-doc-btn">AÑADIR AL EQUIPO</button>
+        </div>
+    </aside>
+
+    <div id="view-agenda" class="main-stage">
+        <section class="calendar-card">
+            <div id='calendar'></div>
+        </section>
+    </div>
+
+    <div id="view-pacientes" class="main-stage" style="display:none;">
+        <section class="calendar-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0; font-size:18px; color:var(--brand-dark);">Directorio de Pacientes</h2>
+                <input type="text" id="search-paciente-tab" placeholder="Filtrar por nombre o teléfono..." style="width:300px; margin:0;">
+            </div>
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse: collapse; font-size:13px;">
+                    <thead>
+                        <tr style="text-align:left; border-bottom:2px solid var(--bg-page); color:#888;">
+                            <th style="padding:12px;">PACIENTE</th>
+                            <th style="padding:12px;">ÚLTIMO CONTACTO</th>
+                            <th style="padding:12px;">TELÉFONO</th>
+                            <th style="padding:12px; text-align:center;">CITAS</th>
+                            <th style="padding:12px;">ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-pacientes-body"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <div id="view-reportes" class="main-stage" style="display:none;">
+        <section class="calendar-card">
+            <h2 style="font-size:18px; color:var(--brand-dark); margin-bottom: 20px;">Dashboard de Rendimiento</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                <div style="background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center;">
+                    <span style="font-size: 10px; color: #666; text-transform: uppercase; font-weight: 700;">Citas Mes</span>
+                    <div id="stat-citas-mes" style="font-size: 22px; font-weight: 800; color: var(--brand-dark);">0</div>
                 </div>
-                <div style="overflow-x:auto;">
-                    <table style="width:100%; border-collapse: collapse; font-size:13px;">
+                <div style="background: #f0fdf4; padding: 15px; border-radius: 12px; border: 1px solid #bbf7d0; text-align: center;">
+                    <span style="font-size: 10px; color: #166534; text-transform: uppercase; font-weight: 700;">Recaudado Real</span>
+                    <div id="stat-ingreso-real" style="font-size: 22px; font-weight: 800; color: #166534;">Q0</div>
+                </div>
+                <div style="background: #fff1f2; padding: 15px; border-radius: 12px; border: 1px solid #fecdd3; text-align: center;">
+                    <span style="font-size: 10px; color: #9f1239; text-transform: uppercase; font-weight: 700;">Por Cobrar</span>
+                    <div id="stat-por-cobrar" style="font-size: 22px; font-weight: 800; color: #9f1239;">Q0</div>
+                </div>
+                <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+                    <span style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700;">Pacientes Únicos</span>
+                    <div id="stat-total-px" style="font-size: 22px; font-weight: 800; color: var(--brand-dark);">0</div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div style="background: white; padding: 15px; border: 1px solid #eee; border-radius: 10px; min-height: 300px;"><canvas id="chartCitasPsicologa"></canvas></div>
+                <div style="background: white; padding: 15px; border: 1px solid #eee; border-radius: 10px; min-height: 300px;"><canvas id="chartCitasPais"></canvas></div>
+            </div>
+            <div style="margin-top: 30px; background: white; padding: 20px; border-radius: 12px; border: 1px solid #fee2e2;">
+                <h3 style="font-size: 16px; color: #9f1239; margin-bottom: 15px;">⚠️ Cuentas por Cobrar</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                         <thead>
-                            <tr style="text-align:left; border-bottom:2px solid var(--bg-page); color:#888;">
-                                <th style="padding:12px;">PACIENTE</th>
-                                <th style="padding:12px;">ÚLTIMO CONTACTO</th>
-                                <th style="padding:12px;">TELÉFONO</th>
-                                <th style="padding:12px; text-align:center;">CITAS</th>
-                                <th style="padding:12px;">ACCIONES</th>
+                            <tr style="border-bottom: 2px solid #f1f5f9; text-align: left; color: #64748b;">
+                                <th style="padding: 10px;">Paciente</th>
+                                <th style="padding: 10px;">Monto</th>
+                                <th style="padding: 10px;">Acción</th>
                             </tr>
                         </thead>
-                        <tbody id="tabla-pacientes-body"></tbody>
+                        <tbody id="lista-pendientes-body"></tbody>
                     </table>
                 </div>
-            </section>
+            </div>
+        </section>
+    </div>
+
+    <div id="view-recibo" class="main-stage" style="display:none;">
+        <div class="calendar-card">
+            <h2 style="color: var(--brand-dark); text-align: center;">Módulo de Recibos</h2>
+            <div id="contenedor-recibo">
+                <p style="text-align: center; color: #999; margin-top: 20px;">Área lista para nuevo contenido.</p>
+            </div>
+        </div>
+</div> <div id="view-estimulacion" class="main-stage" style="display:none; width: 100%; min-height: 100vh; background: #f4f7f6; flex-direction: column; align-items: center; position: relative;">
+    <button class="no-print" onclick="window.print();" 
+        style="position: absolute; top: 20px; right: 20px; z-index: 3000; background: #a5c941; color: white; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px;">
+        <span>📄</span> EXPORTAR REPORTE PDF
+    </button>
+
+    <div class="hoja-carta" id="canvas">
+        <div style="position: absolute; top: 30px; left: 0; width: 100%;" id="areaMembrete">
+            <div style="text-align: center;">
+                <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/mpp.png" style="width: 310px; margin-bottom: 10px;">
+                <div style="font-size: 18px; font-weight: bold; color: oklab(72.298% -0.08516 0.09645); font-family: 'Montserrat', sans-serif;">Clínica de Psicología RESILIENCIA</div>
+                <div style="font-size: 16px; color: #333; font-weight: 600;">Programa de Estimulación Temprana MIS PRIMEROS PASOS</div>
+                <div style="font-size: 9px; color: #666; font-style: normal;">www.resilienciaguate.com • Tel: +(502) 3360 8429 • resilienciaguate@gmail.com</div>
+                <div class="linea-decorativa"></div>
+            </div>
+        </div> 
+
+        <div style="position: absolute; top: 320px; left: 80px; width: 650px;">
+            <h2 contenteditable="true" id="pacienteTitulo" style="text-align: center; color: #222; font-size: 26px;">Reporte Evolutivo de Desarrollo</h2>
+            <p style="text-align: center; font-size: 15px; color: #555; margin-bottom: 25px;">Análisis de hitos alcanzados por el paciente</p>
+            <div style="width: 100%; height: 420px;"><canvas id="graficoAvances"></canvas></div>
         </div>
 
-       <div id="view-reportes" class="main-stage" style="display:none;">
-    <section class="calendar-card">
-        <h2 style="font-size:18px; color:var(--brand-dark); margin-bottom: 20px;">Dashboard de Rendimiento</h2>
+        <div style="position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center;">
+            <div style="width: 40%; height: 1px; background: #ccc; margin: 0 auto 10px auto;"></div>
+            <div contenteditable="true" style="font-size: 11px; color: #888; padding: 0 40px;">Este documento es de carácter estrictamente clínico y confidencial.</div>
+        </div>
+    </div>
+
+    <div id="mpp-data-panel" class="no-print">
+        <div class="panel-header-mpp"><span style="font-size: 18px;">👶</span><h4 style="margin:0; font-size:13px; color: #333;">Evaluación del Bebé</h4></div>
+        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 15px;">
+            <select id="select-bebe-mpp" style="flex: 1;"><option value="">Seleccionar Bebé...</option></select>
+            <button onclick="abrirModalNuevoBebe()" class="btn-action" style="width: 35px; height: 35px; border-radius: 8px;">+</button>
+            <button onclick="eliminarBebeSeleccionado()" class="btn-action" style="background: #ff4d4d; width: 35px; height: 35px; border-radius: 8px;">✕</button>
+        </div>
+        <div class="slider-group">
+            <div class="slider-info"><span>Motor</span><span id="txt-motor">0%</span></div>
+            <input type="range" class="premium-range" id="score-motor" min="0" max="100" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
+        </div>
+        <div class="slider-group">
+            <div class="slider-info"><span>Cognitivo</span><span id="txt-cognitivo">0%</span></div>
+            <input type="range" class="premium-range" id="score-cognitivo" min="0" max="100" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
+        </div>
+        <div class="slider-group">
+            <div class="slider-info"><span>Lenguaje</span><span id="txt-lenguaje">0%</span></div>
+            <input type="range" class="premium-range" id="score-lenguaje" min="0" max="100" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
+        </div>
+        <div class="slider-group">
+            <div class="slider-info"><span>Social</span><span id="txt-social">0%</span></div>
+            <input type="range" class="premium-range" id="score-social" min="0" max="100" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
+        </div>
+        <button class="btn-mpp-save" onclick="window.mppControlador.guardarEnFirebase()">💾 Guardar Evaluación</button>
+    </div>
+    </div>
+</main>
+
+<div id="modal-cita" class="modal-overlay" style="display:none; z-index: 11000;">
+    <div class="modal-box">
+        <h3>Nueva Cita</h3>
+        <div id="admin-selector-wrapper" style="display:block; margin-bottom: 15px;">
+            <label class="label-modal">Asignar a Psicóloga:</label>
+            <select id="select-psicologa-cita"></select>
+        </div>
         
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 25px;">
-            
-            <div style="background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); text-align: center;">
-                <span style="font-size: 10px; color: #666; text-transform: uppercase; font-weight: 700;">Citas Mes</span>
-                <div id="stat-citas-mes" style="font-size: 22px; font-weight: 800; color: var(--brand-dark);">0</div>
-            </div>
+        <label class="label-modal">Datos del Paciente</label>
+        <input type="text" id="px-nombre" list="lista-sugerencias-px" placeholder="Escribe nombre para buscar..." autocomplete="off">
+        <datalist id="lista-sugerencias-px"></datalist>
 
-            <div style="background: #f0fdf4; padding: 15px; border-radius: 12px; border: 1px solid #bbf7d0; text-align: center;">
-                <span style="font-size: 10px; color: #166534; text-transform: uppercase; font-weight: 700;">Recaudado Real</span>
-                <div id="stat-ingreso-real" style="font-size: 22px; font-weight: 800; color: #166534;">Q0</div>
-            </div>
-
-            <div style="background: #fff1f2; padding: 15px; border-radius: 12px; border: 1px solid #fecdd3; text-align: center;">
-                <span style="font-size: 10px; color: #9f1239; text-transform: uppercase; font-weight: 700;">Por Cobrar</span>
-                <div id="stat-por-cobrar" style="font-size: 22px; font-weight: 800; color: #9f1239;">Q0</div>
-            </div>
-
-            <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
-                <span style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700;">Pacientes Únicos</span>
-                <div id="stat-total-px" style="font-size: 22px; font-weight: 800; color: var(--brand-dark);">0</div>
-            </div>
-
-            <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
-                <span style="font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700;">Nuevos Pacientes</span>
-                <div id="stat-nuevos-px" style="font-size: 22px; font-weight: 800; color: #a5c941;">0</div>
-            </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-            <div style="background: white; padding: 15px; border: 1px solid #eee; border-radius: 10px; min-height: 300px;">
-                <canvas id="chartCitasPsicologa"></canvas>
-            </div>
-            <div style="background: white; padding: 15px; border: 1px solid #eee; border-radius: 10px; min-height: 300px;">
-                <canvas id="chartCitasPais"></canvas>
-            </div>
-        </div>
-<div style="margin-top: 30px; background: white; padding: 20px; border-radius: 12px; border: 1px solid #fee2e2;">
-    <h3 style="font-size: 16px; color: #9f1239; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-        ⚠️ Cuentas por Cobrar (Mes Actual)
-    </h3>
-    <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-            <thead>
-                <tr style="border-bottom: 2px solid #f1f5f9; text-align: left; color: #64748b;">
-                    <th style="padding: 10px;">Paciente</th>
-                    <th style="padding: 10px;">Psicóloga</th>
-                    <th style="padding: 10px;">Monto</th>
-                    <th style="padding: 10px;">Acción</th>
-                </tr>
-            </thead>
-            <tbody id="lista-pendientes-body">
-                </tbody>
-        </table>
-    </div>
-</div>
-    </section>
-</div>
-
-    <div id="modal-cita" class="modal-overlay"><div class="modal-box">
-    <h3>Nueva Cita</h3>
-    <div id="admin-selector-wrapper" style="display:block; margin-bottom: 15px;">
-        <label class="label-modal">Asignar a Psicóloga:</label>
-        <select id="select-psicologa-cita"></select>
-    </div>
-<label class="label-modal">Datos del Paciente</label>
-<input type="text" id="px-nombre" list="lista-sugerencias-px" placeholder="Escribe nombre para buscar..." autocomplete="off">
-
-<datalist id="lista-sugerencias-px"></datalist>
-
-<div style="display: flex; gap: 5px;">
-    <select id="px-pais" style="width: 125px;">
+        <div style="display: flex; gap: 5px;">
+            <select id="px-pais" style="width: 125px;">
                 <option value="502">🇬🇹 +502</option>
                 <option value="503">🇸🇻 +503</option>
                 <option value="504">🇭🇳 +504</option>
@@ -227,22 +458,26 @@
             </select>
             <input type="number" id="px-whatsapp" placeholder="WhatsApp">
         </div>
+
         <textarea id="px-notas" placeholder="Notas clínicas..." rows="3"></textarea>
+
         <div style="display: flex; gap: 10px; margin-top: 10px;">
-    <div style="flex: 1;">
-        <label class="label-modal">Monto (Q)</label>
-        <input type="number" id="px-monto" placeholder="0.00">
-    </div>
-    <div style="flex: 1; display: flex; align-items: center; gap: 5px; margin-top: 25px;">
-        <input type="checkbox" id="px-pagado" style="width: 20px; margin: 0;">
-        <label style="font-size: 12px; font-weight: 600;">¿PAGADO?</label>
-    </div>
-</div>
+            <div style="flex: 1;">
+                <label class="label-modal">Monto (Q)</label>
+                <input type="number" id="px-monto" placeholder="0.00">
+            </div>
+            <div style="flex: 1; display: flex; align-items: center; gap: 5px; margin-top: 25px;">
+                <input type="checkbox" id="px-pagado" style="width: 20px; margin: 0;">
+                <label style="font-size: 12px; font-weight: 600;">¿PAGADO?</label>
+            </div>
+        </div>
+        
         <button class="btn-action" id="btn-guardar-cita">GUARDAR CITA</button>
         <button class="btn-action btn-secondary" onclick="cerrarTodo()" style="margin-top:10px;">CANCELAR</button>
-    </div></div>
+    </div>
+</div>
 
-   <div id="modal-gestion" class="modal-overlay">
+<div id="modal-gestion" class="modal-overlay" style="display:none; z-index: 11500;">
     <div class="modal-box-gestion">
         <h3>Gestionar Paciente</h3>
         <span class="label-modal">Psicóloga Asignada:</span>
@@ -278,15 +513,59 @@
                 <label style="font-size: 12px; font-weight: 600; color: var(--brand-dark); cursor: pointer;" for="edit-pagado">¿PAGADO?</label>
             </div>
         </div>
+
         <div class="grid-botones" style="margin-top: 15px;">
             <button class="btn-grid" id="btn-actualizar-cita">ACTUALIZAR</button>
             <button class="btn-grid" id="btn-eliminar-cita" style="color:#ff6b6b;">ELIMINAR</button>
-            <button class="btn-grid" id="btn-wa-recordatorio">ENVIAR RECORDATORIO</button>
+            <button class="btn-grid" id="btn-wa-recordatorio">RECORDATORIO WA</button>
             <button class="btn-grid" onclick="cerrarTodo()">CERRAR</button>
         </div>
     </div>
 </div>
 
+<div id="modal-nuevo-bebe" class="modal-overlay" style="display:none; z-index: 11000;">
+    <div class="modal-box" style="max-width: 400px; padding: 30px;">
+        <h3 style="color: var(--brand-dark); margin-bottom: 20px; text-align: center;">Registrar Nuevo Bebé</h3>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="display:block; font-size: 12px; color: #666; margin-bottom: 5px;">Nombre Completo</label>
+            <input type="text" id="reg-bebe-nombre" class="input-moderno" placeholder="Ej. Juanito Pérez" style="width: 100%;">
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <label style="display:block; font-size: 12px; color: #666; margin-bottom: 5px;">Edad (en meses)</label>
+            <input type="number" id="reg-bebe-edad" class="input-moderno" placeholder="Ej. 12" style="width: 100%;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="btn-grid" onclick="cerrarModalBebe()" style="background: #eee; color: #333; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">CANCELAR</button>
+            <button class="btn-grid" onclick="procesarNuevoBebe()" style="background: var(--brand-dark); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">GUARDAR</button>
+        </div>
+    </div>
+</div> 
+
+<div id="modal-confirm" class="modal-overlay" style="display:none; z-index: 12000;">
+    <div class="modal-box" style="max-width: 350px; padding: 30px; text-align: center;">
+        <div style="font-size: 40px; margin-bottom: 10px;">⚠️</div>
+        <h3 id="confirm-title" style="color: #d9534f; margin-bottom: 10px;">¿Eliminar Registro?</h3>
+        <p id="confirm-body" style="color: #666; font-size: 14px; margin-bottom: 25px;">Esta acción no se puede deshacer.</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="btn-grid" onclick="cerrarConfirm()" style="background: #eee; color: #333; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">CANCELAR</button>
+            <button class="btn-grid" id="confirm-accept" style="background: #ff6b6b; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">SÍ, ELIMINAR</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-restricted" class="modal-overlay" style="display:none; z-index: 10000;">
+    <div class="modal-box" style="text-align: center; max-width: 350px;">
+        <div style="font-size: 50px; margin-bottom: 15px;">🚫</div>
+        <h3 style="color: var(--brand-dark); margin-bottom: 10px;">Acceso Restringido</h3>
+        <p style="color: #666; font-size: 14px;">Esta sección es exclusiva para el administrador.</p>
+        <button class="btn-action" style="margin-top: 20px;" onclick="document.getElementById('modal-restricted').style.display='none'">Entendido</button>
+    </div>
+</div>
+   
    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -302,19 +581,35 @@
     let filtroBusqueda = null, filtroPsicologaAdmin = null;
 
     // MOTOR DE NOTIFICACIONES ELEGANTES (TOAST)
-    window.showToast = (mensaje, icono = "ℹ️") => {
-        let container = document.querySelector('.toast-container');
-        if (!container) {
-            container = document.createElement('div');
-            container.className = 'toast-container';
-            document.body.appendChild(container);
-        }
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.innerHTML = `<span>${icono}</span> <span>${mensaje}</span>`;
-        container.appendChild(toast);
-        setTimeout(() => { toast.remove(); }, 3000);
-    };
+   window.showToast = (mensaje, icono = "✅") => {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    
+    // Forzamos un estilo limpio para que no herede iconos extra
+    toast.style.display = 'flex';
+    toast.style.alignItems = 'center';
+    toast.style.gap = '10px';
+
+    // IMPORTANTE: Aquí solo ponemos el icono que recibimos, nada más.
+    toast.innerHTML = `<span>${icono}</span> <span>${mensaje}</span>`;
+    
+    container.appendChild(toast);
+
+    // Animación de salida suave
+    setTimeout(() => { 
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        toast.style.transition = 'all 0.5s ease';
+        setTimeout(() => { toast.remove(); }, 500);
+    }, 3000);
+};
 
     // --- LÓGICA DEL MODAL DE CONFIRMACIÓN ELEGANTE ---
     let accionConfirmar = null;
@@ -337,80 +632,46 @@
     // -----------------------------------------------
 
    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            // CENTRALIZAMOS EL CORREO DE ADMIN (Usa el que necesites aquí)
-            const CORREO_ADMIN_OFICIAL = "resilienciaguate@gmail.com"; 
-            const userEmail = user.email.toLowerCase().trim();
-            const isAdmin = userEmail === CORREO_ADMIN_OFICIAL;
-            
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('nav-bar').style.display = 'flex';
-            document.getElementById('app-content').style.display = 'flex';
-            document.getElementById('display-profile-name').innerText = user.email;
+    if (user) {
+        const CORREO_ADMIN_OFICIAL = "resilienciaguate@gmail.com"; 
+        const userEmail = user.email.toLowerCase().trim();
+        const isAdmin = userEmail === CORREO_ADMIN_OFICIAL;
+        
+        // 1. ENCENDIDO DE LA INTERFAZ
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('nav-bar').style.display = 'flex';
+        document.getElementById('app-content').style.display = 'flex';
+        document.getElementById('display-profile-name').innerText = user.email;
 
-            // CONFIGURACIÓN DE PANELES SEGÚN ROL
-           if (isAdmin) {
-    document.getElementById('side-panel-ui').style.display = 'block';
-    document.getElementById('admin-selector-wrapper').style.display = 'block'; 
-    if(document.getElementById('psico-view-only')) document.getElementById('psico-view-only').style.display = 'none';
-} else {
-    document.getElementById('side-panel-ui').style.display = 'none';
-    
-    // CAMBIO AQUÍ: Comenta o borra la línea de abajo para que NO se oculte el selector
-    // document.getElementById('admin-selector-wrapper').style.display = 'none'; 
-    
-    // Aseguramos que se vea el selector incluso si no es admin
-    document.getElementById('admin-selector-wrapper').style.display = 'block';
+        // 2. CONFIGURACIÓN UNIFICADA (Sin repeticiones innecesarias)
+        // El selector siempre se muestra, así que lo sacamos del IF
+        document.getElementById('admin-selector-wrapper').style.display = 'block';
 
-    if(document.getElementById('psico-view-only')) {
-        document.getElementById('psico-view-only').style.display = 'block';
-        setTimeout(actualizarPendientesPsicologa, 1000); 
-    }
-}
-
-            // LÓGICA DE NAVEGACIÓN ÚNICA Y SEGURA
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => {
-                item.onclick = (e) => {
-                    e.preventDefault();
-                    const targetView = item.innerText.trim();
-                    
-                    // BLOQUEO DE SEGURIDAD PARA REPORTES
-                    if (targetView === 'Reportes' && !isAdmin) {
-                        document.getElementById('modal-restricted').style.display = 'flex';
-                        return; // No hace nada más
-                    }
-
-                    // Cambiar estado visual de los botones
-                    navItems.forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-
-                    // Ocultar todas las vistas
-                    document.getElementById('view-agenda').style.display = 'none';
-                    document.getElementById('view-pacientes').style.display = 'none';
-                    document.getElementById('view-reportes').style.display = 'none';
-
-                    // Mostrar la vista correcta
-                    if (targetView === 'Agenda') {
-                        document.getElementById('view-agenda').style.display = 'flex';
-                        if(window.calendarObj) window.calendarObj.render(); 
-                    } else if (targetView === 'Pacientes') {
-                        document.getElementById('view-pacientes').style.display = 'flex';
-                        if(window.renderizarTablaPacientes) window.renderizarTablaPacientes();
-                    } else if (targetView === 'Reportes') {
-                        document.getElementById('view-reportes').style.display = 'flex';
-                        if(window.generarReportes) window.generarReportes();
-                    }
-                };
-            });
-
-            iniciarApp(isAdmin, userEmail);
+        if (isAdmin) {
+            document.getElementById('side-panel-ui').style.display = 'block';
+            if(document.getElementById('psico-view-only')) {
+                document.getElementById('psico-view-only').style.display = 'none';
+            }
         } else {
-            document.getElementById('login-screen').style.display = 'block';
-            document.getElementById('nav-bar').style.display = 'none';
-            document.getElementById('app-content').style.display = 'none';
+            document.getElementById('side-panel-ui').style.display = 'none';
+            if(document.getElementById('psico-view-only')) {
+                document.getElementById('psico-view-only').style.display = 'block';
+                setTimeout(actualizarPendientesPsicologa, 1000); 
+            }
         }
-    });
+
+        // 3. CARGA INICIAL (Vital para que no se vea blanco)
+        showView('view-agenda'); 
+
+        iniciarApp(isAdmin, userEmail);
+
+    } else {
+        // CIERRE DE SESIÓN
+        document.getElementById('login-screen').style.display = 'block';
+        document.getElementById('nav-bar').style.display = 'none';
+        document.getElementById('app-content').style.display = 'none';
+    }
+});
 
 
     function iniciarApp(isAdmin, emailActivo) {
@@ -1064,7 +1325,6 @@ window.renderizarTablaPacientes = () => {
     const mailLogueado = auth.currentUser.email.toLowerCase();
     
     const pacientesMap = {};
-    // Filtramos las citas según el usuario logueado o si es admin
     const citasFiltradas = citasGlobal.filter(c => isAdmin || (c.user && c.user.toLowerCase() === mailLogueado));
     
     citasFiltradas.forEach(c => {
@@ -1085,15 +1345,12 @@ window.renderizarTablaPacientes = () => {
         }
     });
 
-    // 1. Filtramos los pacientes según la búsqueda
     let listaUnica = Object.values(pacientesMap).filter(p => 
         p.nombre.toLowerCase().includes(busqueda) || p.tel.includes(busqueda)
     );
 
-    // 2. ORDENAMOS ALFABÉTICAMENTE (Agregamos esta parte)
     listaUnica.sort((a, b) => a.nombre.localeCompare(b.nombre));
 
-    // 3. Verificamos si hay resultados para mostrar
     if (listaUnica.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#999;">No hay pacientes que coincidan.</td></tr>`;
         return;
@@ -1113,30 +1370,327 @@ window.renderizarTablaPacientes = () => {
     `).join('');
 };
 
-// Escuchar cambios en el buscador de la tabla
 document.getElementById('search-paciente-tab')?.addEventListener('input', window.renderizarTablaPacientes);
 
+window.showView = function(viewId, element) {
+    const ADMIN_EMAIL = "resilienciaguate@gmail.com";
+    const perfilElem = document.getElementById('display-profile-name');
+    const correoActual = perfilElem ? perfilElem.innerText.toLowerCase().trim() : "";
+    const esAdmin = (correoActual === ADMIN_EMAIL);
+
+    // 1. SEGURIDAD Y MODALES
+    const modal = document.getElementById('modal-restricted');
+    if (viewId === 'view-reportes' && !esAdmin) {
+        if (modal) { modal.style.display = 'flex'; modal.style.pointerEvents = 'auto'; }
+        return; 
+    }
+    if (modal) { modal.style.display = 'none'; modal.style.pointerEvents = 'none'; }
+
+    // 2. NORMALIZAR ID (Aseguramos que empiece con view-)
+    if (!viewId.startsWith('view-')) viewId = 'view-' + viewId;
+
+    // 3. LIMPIEZA TOTAL (Apagamos todo primero)
+    document.querySelectorAll('.main-stage').forEach(v => {
+        v.style.setProperty('display', 'none', 'important');
+    });
+
+    // 4. ENCENDIDO DE LA VISTA SELECCIONADA
+    const target = document.getElementById(viewId);
+    const sidePanelGeneral = document.querySelector('.side-panel');
+    const panelEstimulacion = document.getElementById('mpp-data-panel');
+
+    if (target) {
+        if (viewId === 'view-estimulacion') {
+            // Configuramos Estimulación (FLEX para centrar la hoja)
+            target.style.setProperty('display', 'flex', 'important');
+            target.style.flexDirection = 'column';
+            target.style.alignItems = 'center';
+            target.style.width = '100%';
+
+            // Manejo de paneles específicos
+            if (sidePanelGeneral) sidePanelGeneral.style.display = 'none'; // Ocultar lateral
+            if (panelEstimulacion) panelEstimulacion.style.display = 'block'; // Mostrar panel bebés
+            
+            if (typeof window.cargarBebesEstimulacion === 'function') window.cargarBebesEstimulacion();
+        } else {
+            // Vistas normales (Agenda, Pacientes, etc.)
+            target.style.setProperty('display', (viewId === 'view-agenda' ? 'flex' : 'block'), 'important');
+            
+            if (sidePanelGeneral) sidePanelGeneral.style.display = 'flex';
+            if (panelEstimulacion) panelEstimulacion.style.display = 'none';
+        }
+    }
+
+    // 5. ESTADO DEL MENÚ Y REFRESH
+    document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+    if (element) element.classList.add('active');
+
+    // Refrescar componentes con un pequeño delay para asegurar que el DOM ya es visible
+    setTimeout(() => {
+        if (viewId === 'view-agenda' && window.calendarObj) window.calendarObj.render();
+        if (viewId === 'view-pacientes' && typeof window.renderizarTablaPacientes === 'function') window.renderizarTablaPacientes();
+        if (viewId === 'view-reportes' && esAdmin && typeof window.generarReportes === 'function') window.generarReportes();
+        if (viewId === 'view-estimulacion' && typeof window.dibujarGraficoEstimulacion === 'function') window.dibujarGraficoEstimulacion();
+    }, 150);
+};
+
+/* --- LÓGICA DE ESTIMULACIÓN Y ARRASTRE --- */
+let miGrafico;
+
+// Configuración de movimiento (InteractJS)
+if (typeof interact !== 'undefined') {
+    interact('.draggable').draggable({
+        listeners: {
+            move(event) {
+                const t = event.target;
+                const x = (parseFloat(t.getAttribute('data-x')) || 0) + event.dx;
+                const y = (parseFloat(t.getAttribute('data-y')) || 0) + event.dy;
+                t.style.transform = `translate(${x}px, ${y}px)`;
+                t.setAttribute('data-x', x);
+                t.setAttribute('data-y', y);
+            }
+        }
+    });
+}
+
+// Funciones de personalización del reporte
+window.ajustarLogo = function() {
+    const img = document.getElementById('logoImg');
+    const size = document.getElementById('logoSize');
+    if (img && size) img.style.width = size.value + "px";
+};
+
+window.actualizarEstilo = function() {
+    const colorPicker = document.getElementById('colorPicker');
+    if (!colorPicker) return;
+    const color = colorPicker.value;
+    document.documentElement.style.setProperty('--color-clinica', color);
+    if(miGrafico) {
+        miGrafico.data.datasets[0].borderColor = color;
+        miGrafico.update();
+    }
+};
+
+window.cambiarLogo = function(event) {
+    const reader = new FileReader();
+    reader.onload = function() {
+        document.getElementById('logoImg').src = reader.result;
+    }
+    reader.readAsDataURL(event.target.files[0]);
+};
+
+// Función para inicializar el gráfico de Radar
+window.dibujarGraficoEstimulacion = function(datos = [80, 75, 90, 70]) {
+    const canvas = document.getElementById('graficoAvances');
+    if (!canvas) return; // Seguridad por si no encuentra el canvas
+    
+    const ctx = canvas.getContext('2d');
+    
+    if (window.miGraficoRadar) {
+        window.miGraficoRadar.destroy();
+    }
+
+    const celesteSolido = '#00b6ff'; // El celeste de tu ejemplo
+    const celesteFondo = 'rgba(0, 182, 255, 0.2)';
+
+    window.miGraficoRadar = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Motor', 'Cognitivo', 'Lenguaje', 'Social'],
+            datasets: [{
+                label: 'Desarrollo Actual',
+                data: datos.map(v => parseInt(v)), // Asegura que sean números
+                backgroundColor: celesteFondo,
+                borderColor: celesteSolido,
+                borderWidth: 3,
+                pointBackgroundColor: celesteSolido,
+                pointRadius: 5
+            }]
+        },
+        options: {
+            scales: {
+                r: {
+                    angleLines: { display: true },
+                    suggestedMin: 0,
+                    suggestedMax: 100,
+                    ticks: { display: false, stepSize: 20 },
+                    pointLabels: {
+                        font: { size: 14, weight: 'bold' },
+                        color: '#333'
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+};
+
+// Inicialización al cargar el documento
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('search-paciente-tab')?.addEventListener('input', window.renderizarTablaPacientes);
+    console.log("Sistema Resiliencia: Listo.");
+});
+
+window.mppControlador = {
+    actualizarGraficoDesdePanel: function() {
+        // 1. Obtener los valores de los 4 sliders como números enteros
+        const m = parseInt(document.getElementById('score-motor').value);
+        const c = parseInt(document.getElementById('score-cognitivo').value);
+        const l = parseInt(document.getElementById('score-lenguaje').value);
+        const s = parseInt(document.getElementById('score-social').value);
+
+        // 2. Actualizar los textos de porcentaje en el panel derecho
+        // Usamos comprobación (if) por si algún ID cambió de nombre
+        if(document.getElementById('txt-motor')) document.getElementById('txt-motor').innerText = m + "%";
+        if(document.getElementById('txt-cognitivo')) document.getElementById('txt-cognitivo').innerText = c + "%";
+        if(document.getElementById('txt-lenguaje')) document.getElementById('txt-lenguaje').innerText = l + "%";
+        if(document.getElementById('txt-social')) document.getElementById('txt-social').innerText = s + "%";
+
+        // 3. Mover el gráfico enviando ÚNICAMENTE los 4 puntos (Rombo)
+        if (typeof window.dibujarGraficoEstimulacion === 'function') {
+            // Enviamos el array con 4 datos: [Motor, Cognitivo, Lenguaje, Social]
+            window.dibujarGraficoEstimulacion([m, c, l, s]);
+        }
+    },
+    
+    // Nueva función para actualizar el nombre del bebé en la hoja al elegirlo
+    seleccionarPaciente: function(selectElement) {
+        const nombreSeleccionado = selectElement.options[selectElement.selectedIndex].text;
+        const nombreEnHoja = document.getElementById('pacienteNombreReporte'); // Asegúrate que el H2 tenga este ID
+        
+        if (nombreEnHoja && nombreSeleccionado !== "Buscar bebé...") {
+            nombreEnHoja.innerText = nombreSeleccionado;
+        }
+    },
+
+    guardarEnFirebase: function() {
+        alert("¡Datos listos! Guardando evaluación en el historial del paciente...");
+        // Próximo paso: Aquí conectaremos tu db.collection('estimulacion').add(...)
+    }
+};
+
+// 1. Función para cargar los bebés en el menú desplegable
+// ==========================================
+// GESTIÓN DE BEBÉS (ESTIMULACIÓN)
+// ==========================================
+
+// 1. Cargar lista de bebés en tiempo real
+window.cargarBebesEstimulacion = function() {
+    const select = document.getElementById('select-bebe-mpp');
+    if (!select) return;
+
+    onSnapshot(collection(db, "pacientes_estimulacion"), (snap) => {
+        let html = '<option value="">Seleccionar Bebé...</option>';
+        snap.forEach(doc => {
+            html += `<option value="${doc.id}">${doc.data().nombre}</option>`;
+        });
+        select.innerHTML = html;
+    });
+};
+
+// 2. Funciones para el Modal de Registro
+window.abrirModalNuevoBebe = function() {
+    document.getElementById('reg-bebe-nombre').value = "";
+    document.getElementById('reg-bebe-edad').value = "";
+    const modal = document.getElementById('modal-nuevo-bebe');
+    if (modal) modal.style.display = 'flex';
+};
+
+window.cerrarModalBebe = function() {
+    const modal = document.getElementById('modal-nuevo-bebe');
+    if (modal) modal.style.display = 'none';
+};
+
+window.procesarNuevoBebe = async function() {
+    const nombre = document.getElementById('reg-bebe-nombre').value.trim();
+    const edad = document.getElementById('reg-bebe-edad').value;
+
+    // --- Dentro de window.procesarNuevoBebe ---
+    if (!nombre || !edad) {
+        if(typeof showToast === 'function') showToast("Completa todos los campos", "⚠️");
+        return;
+    }
+
+    try {
+        await addDoc(collection(db, "pacientes_estimulacion"), {
+            nombre: nombre,
+            edadMeses: parseInt(edad),
+            fechaRegistro: new Date().toISOString()
+        });
+        
+        cerrarModalBebe();
+        
+        if(typeof showToast === 'function') {
+            showToast("Bebé registrado con éxito", "✅");
+        }
+    } catch (e) {
+        console.error("Error:", e);
+        if(typeof showToast === 'function') {
+            showToast("Error al guardar", "❌");
+        }
+    }
+};
+
+// 3. Funciones para el Modal de Eliminación (ELIMINAR X)
+let idParaBorrar = null;
+
+window.eliminarBebeSeleccionado = function() {
+    const select = document.getElementById('select-bebe-mpp');
+    if (!select || !select.value) {
+        if(typeof showToast === 'function') showToast("Selecciona un bebé primero", "⚠️");
+        return;
+    }
+
+    idParaBorrar = select.value;
+    const nombre = select.options[select.selectedIndex].text;
+    
+    const confirmBody = document.getElementById('confirm-body');
+    if (confirmBody) confirmBody.innerText = `¿Estás seguro de eliminar a "${nombre}"?`;
+    
+    const modalConfirm = document.getElementById('modal-confirm');
+    if (modalConfirm) modalConfirm.style.display = 'flex';
+};
+
+window.cerrarConfirm = function() {
+    const modalConfirm = document.getElementById('modal-confirm');
+    if (modalConfirm) modalConfirm.style.display = 'none';
+    idParaBorrar = null;
+};
+
+// Evento para el botón del modal de confirmación
+document.getElementById('confirm-accept').onclick = async function() {
+    if (!idParaBorrar) return;
+    try {
+        await deleteDoc(doc(db, "pacientes_estimulacion", idParaBorrar));
+        
+        cerrarConfirm();
+        
+        const select = document.getElementById('select-bebe-mpp');
+        if (select) select.value = "";
+        
+        if(typeof showToast === 'function') {
+            showToast("Registro eliminado", "❌");
+        }
+    } catch (e) {
+        console.error(e);
+        if(typeof showToast === 'function') {
+            showToast("Error al eliminar", "⚠️");
+        }
+    }
+};
+
+// 4. Actualizar título de la hoja al seleccionar
+document.getElementById('select-bebe-mpp').addEventListener('change', function(e) {
+    const nombre = e.target.options[e.target.selectedIndex].text;
+    const titulo = document.getElementById('pacienteTitulo');
+    if (e.target.value !== "" && titulo) {
+        titulo.innerText = "Reporte de Estimulación: " + nombre;
+    }
+});
 </script>
-
-<div id="modal-restricted" class="modal-overlay" style="display:none; z-index: 10000;">
-    <div class="modal-box" style="text-align: center; max-width: 350px;">
-        <div style="font-size: 50px; margin-bottom: 15px;">🚫</div>
-        <h3 style="color: var(--brand-dark); margin-bottom: 10px;">Acceso Restringido</h3>
-        <p style="color: #666; font-size: 14px; line-height: 1.5;">Esta sección es exclusiva para el administrador de Clínica Resiliencia.</p>
-        <button class="btn-action btn-main" style="margin-top: 20px;" onclick="document.getElementById('modal-restricted').style.display='none'">Entendido</button>
-    </div>
-</div>
-
-<div id="modal-confirm" class="modal-overlay">
-    <div class="modal-box" style="text-align: center;">
-        <h3 id="confirm-title">¿Estás segura?</h3>
-        <p id="confirm-body" style="color: #666; font-size: 14px;">Esta acción no se puede deshacer.</p>
-        <div class="grid-botones">
-            <button class="btn-grid" id="confirm-accept" style="background: #ff6b6b;">SÍ, ELIMINAR</button>
-            <button class="btn-grid" onclick="window.cerrarConfirm()">CANCELAR</button>
-        </div>
-    </div>
-</div>
-
 </body>
 </html>
