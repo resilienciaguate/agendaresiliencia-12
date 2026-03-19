@@ -405,30 +405,44 @@ html, body {
     </div>
 
     <div id="mpp-data-panel" class="no-print">
-        <div class="panel-header-mpp"><span style="font-size: 18px;">👶</span><h4 style="margin:0; font-size:13px; color: #333;">Evaluación del Bebé</h4></div>
-        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 15px;">
-            <select id="select-bebe-mpp" style="flex: 1;"><option value="">Seleccionar Bebé...</option></select>
-            <button onclick="abrirModalNuevoBebe()" class="btn-action" style="width: 35px; height: 35px; border-radius: 8px;">+</button>
-            <button onclick="eliminarBebeSeleccionado()" class="btn-action" style="background: #ff4d4d; width: 35px; height: 35px; border-radius: 8px;">✕</button>
-        </div>
-        <div class="slider-group">
-            <div class="slider-info"><span>Motor</span><span id="txt-motor">0%</span></div>
-            <input type="range" class="premium-range" id="score-motor" min="0" max="100" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
-        </div>
-        <div class="slider-group">
-            <div class="slider-info"><span>Cognitivo</span><span id="txt-cognitivo">0%</span></div>
-            <input type="range" class="premium-range" id="score-cognitivo" min="0" max="100" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
-        </div>
-        <div class="slider-group">
-            <div class="slider-info"><span>Lenguaje</span><span id="txt-lenguaje">0%</span></div>
-            <input type="range" class="premium-range" id="score-lenguaje" min="0" max="100" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
-        </div>
-        <div class="slider-group">
-            <div class="slider-info"><span>Social</span><span id="txt-social">0%</span></div>
-            <input type="range" class="premium-range" id="score-social" min="0" max="100" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
-        </div>
-        <button class="btn-mpp-save" onclick="window.mppControlador.guardarEnFirebase()">💾 Guardar Evaluación</button>
+    <div class="panel-header-mpp">
+        <span style="font-size: 18px;">👶</span>
+        <h4 style="margin:0; font-size:13px; color: #333;">Evaluación del Bebé</h4>
     </div>
+    
+    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 15px;">
+        <select id="select-bebe-mpp" style="flex: 1;"><option value="">Seleccionar Bebé...</option></select>
+        <button onclick="abrirModalNuevoBebe()" class="btn-action" style="width: 35px; height: 35px; border-radius: 8px;">+</button>
+        <button onclick="eliminarBebeSeleccionado()" class="btn-action" style="background: #ff4d4d; width: 35px; height: 35px; border-radius: 8px;">✕</button>
+    </div>
+
+    <div class="slider-group">
+        <div class="slider-info"><span>Motricidad Gruesa</span><span id="txt-gruesa">0%</span></div>
+        <input type="range" class="premium-range" id="score-gruesa" min="0" max="100" value="0" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
+    </div>
+
+    <div class="slider-group">
+        <div class="slider-info"><span>Motricidad Fina</span><span id="txt-fina">0%</span></div>
+        <input type="range" class="premium-range" id="score-fina" min="0" max="100" value="0" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
+    </div>
+
+    <div class="slider-group">
+        <div class="slider-info"><span>Área Cognitiva</span><span id="txt-cognitiva">0%</span></div>
+        <input type="range" class="premium-range" id="score-cognitiva" min="0" max="100" value="0" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
+    </div>
+
+    <div class="slider-group">
+        <div class="slider-info"><span>Área Socio Emocional</span><span id="txt-socio">0%</span></div>
+        <input type="range" class="premium-range" id="score-socio" min="0" max="100" value="0" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
+    </div>
+
+    <div class="slider-group">
+        <div class="slider-info"><span>Área de Lenguaje</span><span id="txt-lenguaje">0%</span></div>
+        <input type="range" class="premium-range" id="score-lenguaje" min="0" max="100" value="0" oninput="window.mppControlador.actualizarGraficoDesdePanel()">
+    </div>
+
+    <button class="btn-mpp-save" onclick="window.mppControlador.guardarEnFirebase()">💾 Guardar Evaluación</button>
+</div>
     </div>
 </main>
 
@@ -575,6 +589,11 @@ html, body {
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    window.db = db; // Esto hace que 'db' sea visible para Estimulación
+    window.collection = collection;
+    window.addDoc = addDoc;
+    window.doc = doc;
+    window.onSnapshot = onSnapshot;
     const ADMIN_EMAIL = "resilienciaguate@gmail.com";
     
     let equipoGlobal = [], citasGlobal = [], perfilesGlobal = [], tempSelection = null, citaActiva = null;
@@ -1496,7 +1515,13 @@ window.dibujarGraficoEstimulacion = function(datos = [80, 75, 90, 70]) {
     window.miGraficoRadar = new Chart(ctx, {
         type: 'radar',
         data: {
-            labels: ['Motor', 'Cognitivo', 'Lenguaje', 'Social'],
+            labels: [
+    'Motricidad Gruesa', 
+    'Motricidad Fina', 
+    'Área Cognitiva', 
+    'Área Socio Emocional', 
+    'Área de Lenguaje'
+],
             datasets: [{
                 label: 'Desarrollo Actual',
                 data: datos.map(v => parseInt(v)), // Asegura que sean números
@@ -1535,67 +1560,107 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("Sistema Resiliencia: Listo.");
 });
 
+// ==========================================
+// CONTROLADOR INTEGRAL DE ESTIMULACIÓN (MPP)
+// ==========================================
+
 window.mppControlador = {
+    // 1. Actualiza sliders, textos y el gráfico Radar (AHORA CON 5 EJES)
     actualizarGraficoDesdePanel: function() {
-        // 1. Obtener los valores de los 4 sliders como números enteros
-        const m = parseInt(document.getElementById('score-motor').value);
-        const c = parseInt(document.getElementById('score-cognitivo').value);
-        const l = parseInt(document.getElementById('score-lenguaje').value);
-        const s = parseInt(document.getElementById('score-social').value);
+        const g = parseInt(document.getElementById('score-gruesa').value) || 0;
+        const f = parseInt(document.getElementById('score-fina').value) || 0;
+        const c = parseInt(document.getElementById('score-cognitiva').value) || 0;
+        const s = parseInt(document.getElementById('score-socio').value) || 0;
+        const l = parseInt(document.getElementById('score-lenguaje').value) || 0;
 
-        // 2. Actualizar los textos de porcentaje en el panel derecho
-        // Usamos comprobación (if) por si algún ID cambió de nombre
-        if(document.getElementById('txt-motor')) document.getElementById('txt-motor').innerText = m + "%";
-        if(document.getElementById('txt-cognitivo')) document.getElementById('txt-cognitivo').innerText = c + "%";
+        // Actualización de textos en el panel
+        if(document.getElementById('txt-gruesa')) document.getElementById('txt-gruesa').innerText = g + "%";
+        if(document.getElementById('txt-fina')) document.getElementById('txt-fina').innerText = f + "%";
+        if(document.getElementById('txt-cognitiva')) document.getElementById('txt-cognitiva').innerText = c + "%";
+        if(document.getElementById('txt-socio')) document.getElementById('txt-socio').innerText = s + "%";
         if(document.getElementById('txt-lenguaje')) document.getElementById('txt-lenguaje').innerText = l + "%";
-        if(document.getElementById('txt-social')) document.getElementById('txt-social').innerText = s + "%";
 
-        // 3. Mover el gráfico enviando ÚNICAMENTE los 4 puntos (Rombo)
+        // Enviamos el array de 5 valores a la función de la gráfica
         if (typeof window.dibujarGraficoEstimulacion === 'function') {
-            // Enviamos el array con 4 datos: [Motor, Cognitivo, Lenguaje, Social]
-            window.dibujarGraficoEstimulacion([m, c, l, s]);
+            window.dibujarGraficoEstimulacion([g, f, c, s, l]);
         }
     },
     
-    // Nueva función para actualizar el nombre del bebé en la hoja al elegirlo
-    seleccionarPaciente: function(selectElement) {
-        const nombreSeleccionado = selectElement.options[selectElement.selectedIndex].text;
-        const nombreEnHoja = document.getElementById('pacienteNombreReporte'); // Asegúrate que el H2 tenga este ID
+    // 2. Guarda los resultados actuales en Firebase
+    guardarEnFirebase: async function() {
+        const selectBebe = document.getElementById('select-bebe-mpp');
         
-        if (nombreEnHoja && nombreSeleccionado !== "Buscar bebé...") {
-            nombreEnHoja.innerText = nombreSeleccionado;
+        if (!selectBebe || !selectBebe.value) {
+            if(window.showToast) window.showToast("Selecciona un bebé primero", "⚠️");
+            return;
         }
-    },
 
-    guardarEnFirebase: function() {
-        alert("¡Datos listos! Guardando evaluación en el historial del paciente...");
-        // Próximo paso: Aquí conectaremos tu db.collection('estimulacion').add(...)
+        const bebeId = selectBebe.value;
+        const nombreBebe = selectBebe.options[selectBebe.selectedIndex].text;
+
+        // Captura de los 5 valores actualizados
+        const g = parseInt(document.getElementById('score-gruesa')?.value) || 0;
+        const f = parseInt(document.getElementById('score-fina')?.value) || 0;
+        const c = parseInt(document.getElementById('score-cognitiva')?.value) || 0;
+        const s = parseInt(document.getElementById('score-socio')?.value) || 0;
+        const l = parseInt(document.getElementById('score-lenguaje')?.value) || 0;
+
+        console.log(`📤 Enviando a evaluaciones_mpp: ${nombreBebe} (G:${g} F:${f} C:${c} SE:${s} L:${l})`);
+
+        const datosEvaluacion = {
+            bebeId: bebeId,
+            nombre: nombreBebe,
+            m_gruesa: g,
+            m_fina: f,
+            a_cognitiva: c,
+            a_socioemocional: s,
+            a_lenguaje: l,
+            fecha: new Date().toLocaleDateString(),
+            timestamp: Date.now()
+        };
+
+        try {
+            const { collection, addDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+            
+            if (!window.db) throw new Error("Firebase DB no detectada en window.db");
+
+            await addDoc(collection(window.db, "evaluaciones_mpp"), datosEvaluacion);
+            
+            if(window.showToast) window.showToast(`Evaluación de ${nombreBebe} guardada`, "✅");
+            console.log("✅ ¡Guardado con éxito en evaluaciones_mpp!");
+
+        } catch (error) {
+            console.error("❌ Error real en Firebase:", error);
+            if(window.showToast) window.showToast("Error al guardar", "❌");
+        }
     }
 };
 
-// 1. Función para cargar los bebés en el menú desplegable
 // ==========================================
-// GESTIÓN DE BEBÉS (ESTIMULACIÓN)
+// GESTIÓN DE LISTA DE BEBÉS (PACIENTES)
 // ==========================================
 
-// 1. Cargar lista de bebés en tiempo real
-window.cargarBebesEstimulacion = function() {
+// Carga los nombres en el Select desde 'pacientes_estimulacion'
+window.cargarBebesEstimulacion = async function() {
     const select = document.getElementById('select-bebe-mpp');
     if (!select) return;
 
-    onSnapshot(collection(db, "pacientes_estimulacion"), (snap) => {
-        let html = '<option value="">Seleccionar Bebé...</option>';
-        snap.forEach(doc => {
-            html += `<option value="${doc.id}">${doc.data().nombre}</option>`;
+    try {
+        const { collection, onSnapshot, query, orderBy } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+        const q = query(collection(window.db, "pacientes_estimulacion"), orderBy("nombre", "asc"));
+        
+        onSnapshot(q, (snap) => {
+            let html = '<option value="">Seleccionar Bebé...</option>';
+            snap.forEach(doc => {
+                html += `<option value="${doc.id}">${doc.data().nombre}</option>`;
+            });
+            select.innerHTML = html;
         });
-        select.innerHTML = html;
-    });
+    } catch (e) { console.error("Error cargando lista:", e); }
 };
 
-// 2. Funciones para el Modal de Registro
+// Botón "+": Abre el modal de registro
 window.abrirModalNuevoBebe = function() {
-    document.getElementById('reg-bebe-nombre').value = "";
-    document.getElementById('reg-bebe-edad').value = "";
     const modal = document.getElementById('modal-nuevo-bebe');
     if (modal) modal.style.display = 'flex';
 };
@@ -1605,92 +1670,125 @@ window.cerrarModalBebe = function() {
     if (modal) modal.style.display = 'none';
 };
 
+// Guarda un nuevo bebé en la lista maestra
 window.procesarNuevoBebe = async function() {
     const nombre = document.getElementById('reg-bebe-nombre').value.trim();
     const edad = document.getElementById('reg-bebe-edad').value;
 
-    // --- Dentro de window.procesarNuevoBebe ---
-    if (!nombre || !edad) {
-        if(typeof showToast === 'function') showToast("Completa todos los campos", "⚠️");
-        return;
-    }
+    if (!nombre || !edad) return alert("Completa los datos");
 
     try {
-        await addDoc(collection(db, "pacientes_estimulacion"), {
+        const { collection, addDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+        await addDoc(collection(window.db, "pacientes_estimulacion"), {
             nombre: nombre,
             edadMeses: parseInt(edad),
-            fechaRegistro: new Date().toISOString()
+            timestamp: Date.now()
         });
-        
-        cerrarModalBebe();
-        
-        if(typeof showToast === 'function') {
-            showToast("Bebé registrado con éxito", "✅");
-        }
-    } catch (e) {
-        console.error("Error:", e);
-        if(typeof showToast === 'function') {
-            showToast("Error al guardar", "❌");
-        }
-    }
+        window.cerrarModalBebe();
+        if(window.showToast) window.showToast("Bebé registrado", "✅");
+    } catch (e) { console.error(e); }
 };
 
-// 3. Funciones para el Modal de Eliminación (ELIMINAR X)
+// ==========================================
+// BOTÓN ELIMINAR (LA X ROJA)
+// ==========================================
+
 let idParaBorrar = null;
 
 window.eliminarBebeSeleccionado = function() {
     const select = document.getElementById('select-bebe-mpp');
     if (!select || !select.value) {
-        if(typeof showToast === 'function') showToast("Selecciona un bebé primero", "⚠️");
+        if(window.showToast) window.showToast("Selecciona un bebé primero", "⚠️");
         return;
     }
-
     idParaBorrar = select.value;
     const nombre = select.options[select.selectedIndex].text;
-    
-    const confirmBody = document.getElementById('confirm-body');
-    if (confirmBody) confirmBody.innerText = `¿Estás seguro de eliminar a "${nombre}"?`;
-    
-    const modalConfirm = document.getElementById('modal-confirm');
-    if (modalConfirm) modalConfirm.style.display = 'flex';
+    document.getElementById('confirm-body').innerText = `¿Eliminar a "${nombre}" de la lista?`;
+    document.getElementById('modal-confirm').style.display = 'flex';
 };
 
 window.cerrarConfirm = function() {
-    const modalConfirm = document.getElementById('modal-confirm');
-    if (modalConfirm) modalConfirm.style.display = 'none';
+    document.getElementById('modal-confirm').style.display = 'none';
     idParaBorrar = null;
 };
 
-// Evento para el botón del modal de confirmación
+// Acción final de borrar
 document.getElementById('confirm-accept').onclick = async function() {
     if (!idParaBorrar) return;
     try {
-        await deleteDoc(doc(db, "pacientes_estimulacion", idParaBorrar));
-        
-        cerrarConfirm();
-        
-        const select = document.getElementById('select-bebe-mpp');
-        if (select) select.value = "";
-        
-        if(typeof showToast === 'function') {
-            showToast("Registro eliminado", "❌");
-        }
-    } catch (e) {
-        console.error(e);
-        if(typeof showToast === 'function') {
-            showToast("Error al eliminar", "⚠️");
-        }
-    }
+        const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+        await deleteDoc(doc(window.db, "pacientes_estimulacion", idParaBorrar));
+        window.cerrarConfirm();
+        document.getElementById('select-bebe-mpp').value = "";
+        if(window.showToast) window.showToast("Registro eliminado", "❌");
+    } catch (e) { console.error(e); }
 };
 
-// 4. Actualizar título de la hoja al seleccionar
-document.getElementById('select-bebe-mpp').addEventListener('change', function(e) {
-    const nombre = e.target.options[e.target.selectedIndex].text;
-    const titulo = document.getElementById('pacienteTitulo');
-    if (e.target.value !== "" && titulo) {
-        titulo.innerText = "Reporte de Estimulación: " + nombre;
+// ==========================================
+// CARGA AUTOMÁTICA AL SELECCIONAR
+// ==========================================
+
+document.getElementById('select-bebe-mpp').addEventListener('change', async function(e) {
+    const bId = e.target.value; 
+    const nBebe = e.target.options[e.target.selectedIndex].text;
+
+    if (!bId) {
+        resetearSlidersMPP();
+        return;
+    }
+
+    console.log("🔎 Consultando evaluaciones_mpp para:", nBebe, "(ID:", bId + ")");
+
+    try {
+        const { collection, query, where, getDocs, orderBy, limit } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+        
+        const colRef = collection(window.db, "evaluaciones_mpp");
+        
+        const q = query(
+            colRef,
+            where("bebeId", "==", bId),
+            orderBy("timestamp", "desc"),
+            limit(1)
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const data = querySnapshot.docs[0].data();
+            console.log("✅ ¡Datos recuperados!", data);
+
+            // 1. Asignar valores a los 5 nuevos Sliders
+            // Usamos los nombres que guardamos en la función 'guardarEnFirebase'
+            if(document.getElementById('score-gruesa')) document.getElementById('score-gruesa').value = data.m_gruesa || 0;
+            if(document.getElementById('score-fina')) document.getElementById('score-fina').value = data.m_fina || 0;
+            if(document.getElementById('score-cognitiva')) document.getElementById('score-cognitiva').value = data.a_cognitiva || 0;
+            if(document.getElementById('score-socio')) document.getElementById('score-socio').value = data.a_socioemocional || 0;
+            if(document.getElementById('score-lenguaje')) document.getElementById('score-lenguaje').value = data.a_lenguaje || 0;
+
+            // 2. Actualizar visualmente (textos y gráfica)
+            if (window.mppControlador) {
+                window.mppControlador.actualizarGraficoDesdePanel();
+            }
+        } else {
+            console.log("ℹ️ No hay evaluaciones de 5 áreas para este bebé aún.");
+            resetearSlidersMPP();
+        }
+    } catch (err) {
+        console.error("❌ Error en la consulta:", err);
     }
 });
+
+// Función auxiliar para limpiar la pantalla (Actualizada a 5 IDs)
+function resetearSlidersMPP() {
+    const ids = ['gruesa', 'fina', 'cognitiva', 'socio', 'lenguaje'];
+    ids.forEach(id => {
+        const input = document.getElementById('score-' + id);
+        const txt = document.getElementById('txt-' + id);
+        if (input) input.value = 0;
+        if (txt) txt.innerText = "0%";
+    });
+    if (window.mppControlador) window.mppControlador.actualizarGraficoDesdePanel();
+}
 </script>
 </body>
 </html>
