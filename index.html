@@ -273,12 +273,15 @@ html, body {
 </nav>
 
 <main id="app-content" style="display:none;">
-    <aside class="side-panel">
-        <img id="main-app-logo" src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" class="app-logo-clinic">
-        <div id="welcome-text" class="logo-text">AGENDA RESILIENCIA 2026</div>
-        <input type="text" id="search-input" placeholder="Buscar paciente...">
-        <button id="btn-reset-search" class="btn-action btn-secondary" style="display:none; font-size: 10px; margin-bottom:10px;">MOSTRAR TODOS</button>
-        
+   <aside class="side-panel" style="display: flex; flex-direction: column; align-items: center;">
+    <img id="main-app-logo" src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" class="app-logo-clinic" style="margin-bottom: 5px;">
+    
+    <div id="user-sidebar-name" style="font-weight:700; font-size: 16px; color: #333; text-align: center; margin-bottom: 2px;"></div>
+    
+    <div id="welcome-text" class="logo-text" style="font-size: 10px; opacity: 0.6; margin-bottom: 20px;">AGENDA RESILIENCIA 2026</div>
+    
+    <input type="text" id="search-input" placeholder="Buscar paciente..." style="width: 90%;">
+    <button id="btn-reset-search" class="btn-action btn-secondary" style="display:none; font-size: 10px; margin-bottom:10px;">MOSTRAR TODOS</button>
         <div id="psico-view-only" style="display:none; margin-top: 25px;">
             <h3 style="font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; border-top: 1px solid #eee; padding-top: 20px;">
                 Próximas citas de hoy
@@ -583,7 +586,7 @@ html, body {
    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA", authDomain: "agendaresiliencia-12.firebaseapp.com", projectId: "agendaresiliencia-12", storageBucket: "agendaresiliencia-12.firebasestorage.app", appId: "1:1068233469888:web:f958c72f406ac8698da225" };
     const app = initializeApp(firebaseConfig);
@@ -660,10 +663,11 @@ html, body {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('nav-bar').style.display = 'flex';
         document.getElementById('app-content').style.display = 'flex';
+        
+        // Texto por defecto inicial
         document.getElementById('display-profile-name').innerText = user.email;
 
-        // 2. CONFIGURACIÓN UNIFICADA (Sin repeticiones innecesarias)
-        // El selector siempre se muestra, así que lo sacamos del IF
+        // 2. CONFIGURACIÓN UNIFICADA
         document.getElementById('admin-selector-wrapper').style.display = 'block';
 
         if (isAdmin) {
@@ -679,9 +683,8 @@ html, body {
             }
         }
 
-        // 3. CARGA INICIAL (Vital para que no se vea blanco)
+        // 3. CARGA INICIAL
         showView('view-agenda'); 
-
         iniciarApp(isAdmin, userEmail);
 
     } else {
@@ -692,47 +695,59 @@ html, body {
     }
 });
 
+function iniciarApp(isAdmin, emailActivo) {
+    // 1. Escucha de perfiles
+    onSnapshot(collection(db, "perfiles"), (snap) => {
+        perfilesGlobal = snap.docs.map(d => ({ email: d.id, ...d.data() }));
+        
+        const miP = perfilesGlobal.find(p => p.email.toLowerCase() === emailActivo);
+        
+        // CORREO: Lo mandamos a la barra superior (nav-bar)
+        const navEmail = document.getElementById('display-profile-name');
+        if (navEmail) {
+            navEmail.innerText = emailActivo; 
+        }
 
-    function iniciarApp(isAdmin, emailActivo) {
-        onSnapshot(collection(db, "perfiles"), (snap) => {
-            perfilesGlobal = snap.docs.map(d => ({ email: d.id, ...d.data() }));
-            if (!isAdmin) {
-                const miP = perfilesGlobal.find(p => p.email.toLowerCase() === emailActivo);
-                if (miP && miP.photo) {
-                    document.getElementById('main-app-logo').src = miP.photo;
-                    document.getElementById('main-app-logo').className = 'app-logo-dynamic';
+        if (miP) {
+            // NOMBRE REAL: Lo ponemos debajo del texto "AGENDA RESILIENCIA"
+            const sidebarName = document.getElementById('user-sidebar-name');
+            if (sidebarName) {
+                sidebarName.innerText = miP.displayName || "";
+            }
+
+            // FOTO: Si no es admin y tiene foto, cambiamos el logo de la clínica por su foto
+            if (!isAdmin && miP.photo) {
+                const logo = document.getElementById('main-app-logo');
+                if (logo) {
+                    logo.src = miP.photo;
+                    logo.style.borderRadius = "50%"; // La hacemos circular
+                    logo.style.objectFit = "cover";
                 }
             }
-            renderizarAdminUnified(isAdmin);
-        });
+        }
+        renderizarAdminUnified(isAdmin);
+    });
 
-        onSnapshot(collection(db, "psicologas"), (snap) => {
-    equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
-    
-    // ESTA LÍNEA ES NECESARIA para crear el contenido de la lista:
-    const opts = equipoGlobal.map(p => `<option value="${p.email.toLowerCase()}">${p.name}</option>`).join('');
+    // 2. Escucha de PSICOLOGAS (Selectores)
+    onSnapshot(collection(db, "psicologas"), (snap) => {
+        equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        const opts = equipoGlobal.map(p => `<option value="${p.email.toLowerCase()}">${p.name}</option>`).join('');
+        const selectEdit = document.getElementById('edit-psicologa-asignada');
+        if (selectEdit) selectEdit.innerHTML = opts;
+        const selectCita = document.getElementById('select-psicologa-cita');
+        if (selectCita) selectCita.innerHTML = opts;
+    });
 
-    const selectEdit = document.getElementById('edit-psicologa-asignada');
-    if (selectEdit) {
-        selectEdit.innerHTML = opts;
-    }
-    
-    // También es bueno actualizar el de "Nueva Cita" si existe
-    const selectCita = document.getElementById('select-psicologa-cita');
-    if (selectCita) {
-        selectCita.innerHTML = opts;
-    }
-});
-
-        onSnapshot(collection(db, "citas"), (snap) => {
-            citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
-            renderizarCalendario(isAdmin);
-            renderizarAdminUnified(isAdmin);
-            if (!isAdmin) {
-        actualizarPendientesPsicologa();
-    }
-        });
-    }
+    // 3. Escucha de CITAS
+    onSnapshot(collection(db, "citas"), (snap) => {
+        citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        renderizarCalendario(isAdmin);
+        renderizarAdminUnified(isAdmin);
+        if (!isAdmin) {
+            actualizarPendientesPsicologa();
+        }
+    });
+}
 
     function renderizarCalendario(isAdmin) {
         if(!window.calendarObj) {
