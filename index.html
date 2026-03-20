@@ -245,6 +245,62 @@ html, body {
         color-adjust: exact !important;
     }
 
+/* Notificación Estilo iPhone - Minimalista */
+.ios-notification {
+    position: fixed;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 18px 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Espacio justo entre el icono y el texto */
+    z-index: 100000;
+    transition: all 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+    border: 0.5px solid rgba(255, 255, 255, 0.6);
+}
+
+.ios-notification.show {
+    top: 25px;
+}
+
+/* El Icono ahora es solo el símbolo flotante */
+.ios-icon-minimal {
+    font-size: 24px; /* Un poco más grande para que luzca */
+    color: #a5c941;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+}
+
+.ios-content {
+    flex: 1;
+}
+
+.ios-title {
+    font-weight: 600;
+    font-size: 12px;
+    color: #999;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.ios-text {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+}
+
 </style>
 
 </head>
@@ -602,6 +658,51 @@ html, body {
     let equipoGlobal = [], citasGlobal = [], perfilesGlobal = [], tempSelection = null, citaActiva = null;
     let filtroBusqueda = null, filtroPsicologaAdmin = null;
 
+    // --- FUNCIÓN PARA ABRIR Y LLENAR LA CITA (CON REINTENTO DE SELECTOR) ---
+window.abrirGestion = async (id) => {
+    const docRef = doc(db, "citas", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        const cita = docSnap.data();
+        citaActiva = { id: docSnap.id, ...cita };
+
+        // Llenamos campos (Asegúrate que estos IDs existan en tu HTML)
+        if(document.getElementById('px-nombre')) document.getElementById('px-nombre').value = cita.title || "";
+        if(document.getElementById('px-notas')) document.getElementById('px-notas').value = cita.notas || "";
+        
+        // Manejo del selector de psicóloga
+        const selector = document.getElementById('select-psicologa-cita');
+        const correoDuenia = (cita.user || "").toLowerCase().trim();
+
+        if (selector && correoDuenia) {
+            selector.disabled = true; // Lo bloqueamos un segundo
+            
+            // Función para forzar el valor
+            const forzar = () => {
+                selector.value = correoDuenia;
+                // Si no cambió por valor simple, buscamos en la lista de opciones
+                Array.from(selector.options).forEach((opt, index) => {
+                    if (opt.value.toLowerCase().trim() === correoDuenia) {
+                        selector.selectedIndex = index;
+                    }
+                });
+            };
+
+            forzar(); // Intento 1
+
+            setTimeout(() => {
+                forzar(); // Intento 2 (por si el sistema lo reseteó)
+                selector.disabled = false;
+                selector.style.outline = "4px solid #4CAF50"; // Borde verde para confirmar
+                console.log("Cita de:", correoDuenia);
+            }, 500);
+        }
+
+        document.getElementById('modal-cita').style.display = 'flex';
+    }
+};
+
     // MOTOR DE NOTIFICACIONES ELEGANTES (TOAST)
    window.showToast = (mensaje, icono = "✅") => {
     let container = document.querySelector('.toast-container');
@@ -653,7 +754,7 @@ html, body {
     };
     // -----------------------------------------------
 
-   onAuthStateChanged(auth, (user) => {
+   onAuthStateChanged(auth, async (user) => {
     if (user) {
         const CORREO_ADMIN_OFICIAL = "resilienciaguate@gmail.com"; 
         const userEmail = user.email.toLowerCase().trim();
@@ -679,13 +780,17 @@ html, body {
             document.getElementById('side-panel-ui').style.display = 'none';
             if(document.getElementById('psico-view-only')) {
                 document.getElementById('psico-view-only').style.display = 'block';
-                setTimeout(actualizarPendientesPsicologa, 1000); 
+                setTimeout(actualizarPendientesPsicologa, 3500); 
             }
         }
 
         // 3. CARGA INICIAL
         showView('view-agenda'); 
         iniciarApp(isAdmin, userEmail);
+
+        // --- EL TOQUE FINAL: LANZAR EL SALUDO ---
+        // Esperamos 2 segundos para que Firebase termine de leer el perfil
+        setTimeout(saludarEstiloIphone, 2000);
 
     } else {
         // CIERRE DE SESIÓN
@@ -873,33 +978,48 @@ window.calendarObj.render();
 
 
   window.abrirGestion = (id) => {
-    citaActiva = citasGlobal.find(c => c.id === id);
-    if (!citaActiva) return;
+        // 1. Buscamos la cita en nuestra lista local
+        citaActiva = citasGlobal.find(c => c.id === id);
+        if (!citaActiva) return;
 
-    // 1. Llenar los campos del modal
-    document.getElementById('edit-nombre').value = citaActiva.title || "";
-    document.getElementById('edit-notas').value = citaActiva.notas || "";
-    document.getElementById('edit-monto').value = citaActiva.monto || 0;
-    document.getElementById('edit-pagado').checked = (citaActiva.pagado === true);
-    
-    const elWhatsApp = document.getElementById('edit-whatsapp');
-    if (elWhatsApp) {
-        let fullTel = String(citaActiva.tel || "");
-        elWhatsApp.value = fullTel.slice(-8); // Muestra solo los 8 dígitos
-    }
-
-    // 2. ACTIVAR EL BOTÓN (Justo aquí adentro)
-    document.getElementById('btn-wa-recordatorio').onclick = () => {
-        const tel = document.getElementById('edit-whatsapp').value;
-        const nombre = citaActiva.title;
-        const msj = encodeURIComponent(`Hola ${nombre}, te saludamos de Clínica Resiliencia para recordarte tu cita programada. ¡Te esperamos!`);
+        // 2. Llenamos los textos básicos
+        document.getElementById('edit-nombre').value = citaActiva.title || "";
+        document.getElementById('edit-notas').value = citaActiva.notas || "";
         
-        // Usamos el tel del input por si lo corriges manualmente antes de enviar
-        window.open(`https://wa.me/502${tel}?text=${msj}`, '_blank');
-    };
+        // 3. ¡EL CAMBIO CLAVE! Sincronizar la psicóloga asignada
+        const selectorEdit = document.getElementById('edit-psicologa-asignada');
+        const correoDuenia = (citaActiva.user || "").toLowerCase().trim();
 
-    document.getElementById('modal-gestion').style.display = 'flex';
-};
+        if (selectorEdit && correoDuenia) {
+            // Forzamos el valor del selector al correo que viene de Firebase
+            selectorEdit.value = correoDuenia;
+
+            // Si por alguna razón no cambió (ej. mayúsculas), lo buscamos manualmente
+            if (selectorEdit.value !== correoDuenia) {
+                Array.from(selectorEdit.options).forEach((opt, index) => {
+                    if (opt.value.toLowerCase().trim() === correoDuenia) {
+                        selectorEdit.selectedIndex = index;
+                    }
+                });
+            }
+            
+            // Feedback visual: Borde verde para confirmar que se asignó bien
+            selectorEdit.style.border = "2px solid #a5c941";
+            selectorEdit.style.backgroundColor = "#f0f7e6";
+        }
+
+        // 4. Manejo del teléfono (WhatsApp)
+        let fullTel = String(citaActiva.tel || "");
+        if (fullTel.startsWith("502")) {
+            document.getElementById('edit-pais').value = "502";
+            document.getElementById('edit-whatsapp').value = fullTel.replace("502", "");
+        } else {
+            document.getElementById('edit-whatsapp').value = fullTel.slice(-8);
+        }
+
+        // 5. Mostramos el modal de gestión
+        document.getElementById('modal-gestion').style.display = 'flex';
+    };
 
 // Lógica del botón de WhatsApp
 document.getElementById('btn-actualizar-cita').onclick = async () => {
@@ -955,52 +1075,97 @@ document.getElementById('btn-actualizar-cita').onclick = async () => {
     }
 };
 
-    // ELIMINAR PACIENTE CON CONFIRMACIÓN ELEGANTE
     document.getElementById('btn-eliminar-cita').onclick = () => {
-        window.askConfirm(
-            "¿Eliminar Paciente?", 
-            "¿Estás segura? Esta acción borrará la cita permanentemente.", 
-            async () => {
-                await deleteDoc(doc(db, "citas", citaActiva.id));
-                window.showToast("Paciente eliminado", "❌"); 
-                cerrarTodo();
-            }
-        );
+    if (!citaActiva || !citaActiva.id) {
+        window.showToast("No se seleccionó ninguna cita", "⚠️");
+        return;
+    }
+
+    // 1. Mostramos la ventana roja
+    window.askConfirm(
+        "¿Eliminar Paciente?", 
+        "¿Estás segura? Esta acción borrará la cita permanentemente."
+    );
+
+    // 2. CONFIGURAMOS EL BOTÓN REAL DE LA VENTANA ROJA (El que dice "SÍ, ELIMINAR")
+    document.getElementById('confirm-accept').onclick = async () => {
+        try {
+            // BORRADO EN FIREBASE
+            await deleteDoc(doc(db, "citas", citaActiva.id));
+            
+            // BORRADO VISUAL (Para que desaparezca de la Foto 1)
+            const ev = window.calendarObj.getEventById(citaActiva.id);
+            if (ev) ev.remove();
+
+            // CERRAR TODO
+            window.cerrarConfirm(); // Cierra el modal rojo
+            cerrarTodo();          // Cierra el panel de gestión
+            
+            window.showToast("Cita eliminada correctamente", "🗑️");
+        } catch (error) {
+            console.error("Error:", error);
+            window.showToast("Error al eliminar", "❌");
+        }
     };
+};
 
     document.getElementById('btn-guardar-cita').onclick = async () => {
     const isAdmin = auth.currentUser.email.toLowerCase() === ADMIN_EMAIL;
-    const pMail = isAdmin ? document.getElementById('select-psicologa-cita').value : auth.currentUser.email.toLowerCase();
+    
+    // --- LÓGICA DE PROTECCIÓN DE PSICÓLOGA ---
+   let pMail;
+
+    // 1. DETERMINAR EL CORREO (DUEÑA DE LA CITA) - ¡ESTO ES LO QUE CORREGIMOS!
+    if (citaActiva) {
+        const correoOriginal = (citaActiva.extendedProps && citaActiva.extendedProps.user) 
+                               ? citaActiva.extendedProps.user 
+                               : (citaActiva.user || "");
+        pMail = correoOriginal.toLowerCase();
+    } 
+    
+    if (!pMail) {
+        const selectorVal = document.getElementById('select-psicologa-cita')?.value || "";
+        pMail = isAdmin ? selectorVal.toLowerCase() : auth.currentUser.email.toLowerCase();
+    }
+
     const pInfo = equipoGlobal.find(x => x.email.toLowerCase() === pMail);
     
-    // CAPTURA CORRECTA DEL ESTADO
-    const checkPagado = document.getElementById('px-pagado').checked; // true o false
+    // --- DE AQUÍ PARA ABAJO ES TU CÓDIGO DE SIEMPRE (NO LO TOQUES) ---
+    const checkPagado = document.getElementById('px-pagado').checked;
     const montoCita = parseFloat(document.getElementById('px-monto').value) || 0;
 
     try {
-        await addDoc(collection(db, "citas"), {
-            title: document.getElementById('px-nombre').value,
-            user: pMail,
-            color: pInfo ? pInfo.color : '#ccc',
-            start: tempSelection.startStr,
-            end: tempSelection.endStr,
-            tel: document.getElementById('px-pais').value + document.getElementById('px-whatsapp').value,
-            notas: document.getElementById('px-notas').value,
-            monto: montoCita,
-            pagado: checkPagado // Guardamos el valor real del checkbox
-        });
-
-        // Mensaje dinámico según si pagó o no
-        if (checkPagado) {
-            window.showToast("Cita agendada y PAGADA", "💰");
+        if (citaActiva && citaActiva.id) {
+            await updateDoc(doc(db, "citas", citaActiva.id), {
+                title: document.getElementById('px-nombre').value,
+                user: pMail, 
+                color: pInfo ? pInfo.color : '#ccc',
+                tel: document.getElementById('px-pais').value + document.getElementById('px-whatsapp').value,
+                notas: document.getElementById('px-notas').value,
+                monto: montoCita,
+                pagado: checkPagado
+            });
+            window.showToast("Cita actualizada", "✅");
         } else {
-            window.showToast("Cita agendada (Pendiente de pago)", "⏳");
+            await addDoc(collection(db, "citas"), {
+                title: document.getElementById('px-nombre').value,
+                user: pMail,
+                color: pInfo ? pInfo.color : '#ccc',
+                start: tempSelection.startStr,
+                end: tempSelection.endStr,
+                tel: document.getElementById('px-pais').value + document.getElementById('px-whatsapp').value,
+                notas: document.getElementById('px-notas').value,
+                monto: montoCita,
+                pagado: checkPagado
+            });
+            window.showToast("Cita agendada", "📅");
         }
-        
+
         cerrarTodo();
+        window.calendarObj.refetchEvents();
     } catch (e) {
         console.error(e);
-        window.showToast("Error al agendar", "❌");
+        window.showToast("Error al procesar", "❌");
     }
 };
 
@@ -1041,8 +1206,9 @@ document.getElementById('px-nombre')?.addEventListener('input', (e) => {
             }
 
             // Seleccionar psicóloga
-            if (selectPsicologa) {
-                selectPsicologa.value = citaPrevia.user;
+            if (selectPsicologa && citaPrevia.user) {
+                // Usamos toLowerCase() para que coincida exactamente con el valor del select
+                selectPsicologa.value = citaPrevia.user.toLowerCase();
                 selectPsicologa.style.border = "2px solid var(--brand-main)";
             }
 
@@ -1569,12 +1735,6 @@ window.dibujarGraficoEstimulacion = function(datos = [80, 75, 90, 70]) {
     });
 };
 
-// Inicialización al cargar el documento
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('search-paciente-tab')?.addEventListener('input', window.renderizarTablaPacientes);
-    console.log("Sistema Resiliencia: Listo.");
-});
-
 // ==========================================
 // CONTROLADOR INTEGRAL DE ESTIMULACIÓN (MPP)
 // ==========================================
@@ -1802,8 +1962,69 @@ function resetearSlidersMPP() {
         if (input) input.value = 0;
         if (txt) txt.innerText = "0%";
     });
-    if (window.mppControlador) window.mppControlador.actualizarGraficoDesdePanel();
+    
+    // Forzamos al controlador a redibujar el gráfico con los ceros
+    if (window.mppControlador && typeof window.mppControlador.actualizarGraficoDesdePanel === 'function') {
+        window.mppControlador.actualizarGraficoDesdePanel();
+    }
 }
+
+// Asegúrate de que esta función esté antes o después de onAuthStateChanged
+async function saludarEstiloIphone() {
+    const hora = new Date().getHours();
+    let saludo = (hora < 12) ? "¡Buen día!" : (hora < 18) ? "¡Buena tarde!" : "¡Buenas noches!";
+    let nombreCompleto = "";
+
+    try {
+        const user = auth.currentUser;
+        if (user) {
+            // Buscamos en la colección "perfiles" que mencionaste
+            const perfilRef = doc(db, "perfiles", user.email.toLowerCase());
+            const perfilSnap = await getDoc(perfilRef);
+            
+            if (perfilSnap.exists()) {
+                nombreCompleto = perfilSnap.data().displayName;
+            } else {
+                // Intento por UID
+                const perfilRefUID = doc(db, "perfiles", user.uid);
+                const perfilSnapUID = await getDoc(perfilRefUID);
+                if (perfilSnapUID.exists()) {
+                    nombreCompleto = perfilSnapUID.data().displayName;
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error al obtener displayName:", e);
+    }
+
+    // Respaldo por si la base de datos tarda
+    if (!nombreCompleto || nombreCompleto === "") {
+        nombreCompleto = document.getElementById('display-profile-name')?.innerText || "Psicóloga";
+    }
+
+    const esAdmin = nombreCompleto.toLowerCase().includes("resiliencia") || 
+                    nombreCompleto.toLowerCase().includes("admin");
+    const bienvenida = esAdmin ? "Bienvenido" : "Bienvenida";
+
+    const toast = document.createElement('div');
+    toast.className = 'ios-notification';
+    toast.innerHTML = `
+        <div class="ios-icon-minimal">✨</div>
+        <div class="ios-content">
+            <span class="ios-title">RESILIENCIA</span>
+            <span class="ios-text">${saludo} ${bienvenida} <b>${nombreCompleto}</b>, ¿Cómo te sientes?</span>
+        </div>
+    `;
+
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 100);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 600);
+    }, 6500);
+}
+
+
 </script>
 </body>
 </html>
