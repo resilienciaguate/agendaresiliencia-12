@@ -424,8 +424,23 @@ html, body {
                     </table>
                 </div>
             </div>
-        </section>
-    </div>
+
+            <div style="margin-top: 30px; background: white; padding: 20px; border-radius: 12px; border: 1px solid #dcfce7;">
+                <h3 style="font-size: 16px; color: #166534; margin-bottom: 15px;">✅ Pagos Realizados</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #f1f5f9; text-align: left; color: #64748b;">
+                                <th style="padding: 10px;">Paciente</th>
+                                <th style="padding: 10px;">Monto Recibido</th>
+                                <th style="padding: 10px;">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-pagos-realizados"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section> </div> 
 
     <div id="view-recibo" class="main-stage" style="display:none;">
         <div class="calendar-card">
@@ -985,6 +1000,9 @@ window.calendarObj.render();
         // 2. Llenamos los textos básicos
         document.getElementById('edit-nombre').value = citaActiva.title || "";
         document.getElementById('edit-notas').value = citaActiva.notas || "";
+
+        document.getElementById('edit-monto').value = citaActiva.monto || "";
+        document.getElementById('edit-pagado').checked = citaActiva.pagado || false;
         
         // 3. ¡EL CAMBIO CLAVE! Sincronizar la psicóloga asignada
         const selectorEdit = document.getElementById('edit-psicologa-asignada');
@@ -1370,14 +1388,14 @@ window.generarReportes = () => {
     });
 
     // 2. Lógica de Pacientes (Únicos vs Nuevos)
-    const historialNombres = citasGlobal.map(c => c.title.toLowerCase().trim());
+    const historialNombres = citasGlobal.map(c => (c.title || "").toLowerCase().trim());
     const frecuenciaPX = {};
     historialNombres.forEach(nombre => {
-        frecuenciaPX[nombre] = (frecuenciaPX[nombre] || 0) + 1;
+        if(nombre) frecuenciaPX[nombre] = (frecuenciaPX[nombre] || 0) + 1;
     });
 
     const nuevosPX = citasMes.filter(c => {
-        const nombre = c.title.toLowerCase().trim();
+        const nombre = (c.title || "").toLowerCase().trim();
         return frecuenciaPX[nombre] === 1;
     });
 
@@ -1400,7 +1418,7 @@ window.generarReportes = () => {
     if(document.getElementById('stat-por-cobrar')) 
         document.getElementById('stat-por-cobrar').innerText = 'Q' + totalPorCobrar.toLocaleString();
     
-    const pxTotalesUnicos = [...new Set(historialNombres)].length;
+    const pxTotalesUnicos = [...new Set(historialNombres.filter(n => n !== ""))].length;
     if(document.getElementById('stat-total-px')) 
         document.getElementById('stat-total-px').innerText = pxTotalesUnicos;
 
@@ -1418,7 +1436,7 @@ window.generarReportes = () => {
     const dataPsico = {};
     const coloresPsico = [];
     citasMes.forEach(c => {
-        const psicologa = equipoGlobal.find(p => p.email.toLowerCase() === c.user.toLowerCase());
+        const psicologa = equipoGlobal.find(p => p.email.toLowerCase() === (c.user || "").toLowerCase());
         const nombre = psicologa ? psicologa.name : "Asistente";
         dataPsico[nombre] = (dataPsico[nombre] || 0) + 1;
     });
@@ -1439,34 +1457,51 @@ window.generarReportes = () => {
 
     // 6. Renderizar Gráficas
     const coloresPaisPastel = ['#d1e7dd', '#fff3cd', '#f8d7da', '#e2e3e5'];
-    renderChart('chartCitasPsicologa', 'bar', 'Citas por Psicóloga', Object.keys(dataPsico), Object.values(dataPsico), coloresPsico);
-    renderChart('chartCitasPais', 'doughnut', 'Pacientes por País', Object.keys(dataPais), Object.values(dataPais), coloresPaisPastel);
+    if(typeof renderChart === 'function'){
+        renderChart('chartCitasPsicologa', 'bar', 'Citas por Psicóloga', Object.keys(dataPsico), Object.values(dataPsico), coloresPsico);
+        renderChart('chartCitasPais', 'doughnut', 'Pacientes por País', Object.keys(dataPais), Object.values(dataPais), coloresPaisPastel);
+    }
 
-    // 7. Lógica de la Tabla de Pendientes (LO NUEVO)
-    const tablaPendientes = document.getElementById('lista-pendientes-body');
+    // 7. Lógica de la Tabla de Pendientes (ROJA)
+    const tablaPendientes = document.getElementById('lista-cobros-pendientes');
     if (tablaPendientes) {
-        // Filtramos citas del mes que tengan monto mayor a 0 y no estén pagadas
-        const pendientes = citasMes.filter(c => c.pagado !== true && (Number(c.monto) || 0) > 0);
+        const pendientes = citasMes.filter(c => c.pagado !== true);
         
         if (pendientes.length === 0) {
-            tablaPendientes.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:#94a3b8;">🎉 ¡Todo está cobrado!</td></tr>`;
+            tablaPendientes.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:20px; color:#94a3b8;">🎉 ¡Todo está cobrado!</td></tr>`;
         } else {
-            tablaPendientes.innerHTML = pendientes.map(c => {
-                const psico = equipoGlobal.find(p => p.email.toLowerCase() === c.user.toLowerCase());
-                return `
-                    <tr style="border-bottom: 1px solid #f1f5f9;">
-                        <td style="padding: 10px; font-weight: 600;">${c.title}</td>
-                        <td style="padding: 10px;">${psico ? psico.name : 'Asistente'}</td>
-                        <td style="padding: 10px; color: #b91c1c; font-weight: 700;">Q${(c.monto || 0).toLocaleString()}</td>
-                        <td style="padding: 10px; text-align:right;">
-                            <button onclick="window.abrirGestion('${c.id}')" 
-                                    style="background: #f1f5f9; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight:600; color:var(--brand-dark);">
-                                ⚙️ GESTIONAR
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            tablaPendientes.innerHTML = pendientes.map(c => `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 10px; font-weight: 600;">${c.title}</td>
+                    <td style="padding: 10px; color: #b91c1c; font-weight: 700;">Q${(Number(c.monto) || 0).toLocaleString()}</td>
+                    <td style="padding: 10px;">
+                        <button onclick="window.abrirGestion('${c.id}')" 
+                                style="background: #fee2e2; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight:700; color:#9f1239;">
+                            GESTIONAR
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    // 8. Lógica de la Tabla de Pagos Realizados (VERDE)
+    const tablaPagados = document.getElementById('tabla-pagos-realizados');
+    if (tablaPagados) {
+        const pagados = citasMes.filter(c => c.pagado === true);
+
+        if (pagados.length === 0) {
+            tablaPagados.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:20px; color:#94a3b8;">No hay pagos registrados hoy.</td></tr>`;
+        } else {
+            tablaPagados.innerHTML = pagados.map(c => `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 10px; font-weight: 600;">${c.title}</td>
+                    <td style="padding: 10px; color: #166534; font-weight: 700;">Q${(Number(c.monto) || 0).toLocaleString()}</td>
+                    <td style="padding: 10px;">
+                        <span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase;">RECIBIDO ✅</span>
+                    </td>
+                </tr>
+            `).join('');
         }
     }
 };
