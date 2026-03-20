@@ -610,16 +610,28 @@ html, body {
     </div>
 </div>
 
-<div id="modal-gestion" class="modal-overlay" style="display:none; z-index: 11500;">
+<<div id="modal-gestion" class="modal-overlay" style="display:none; z-index: 11500;">
     <div class="modal-box-gestion">
         <h3>Gestionar Paciente</h3>
+        
         <span class="label-modal">Psicóloga Asignada:</span>
-        <select id="edit-psicologa-asignada"></select>
+        <select id="edit-psicologa-asignada" style="width: 100%; margin-bottom: 10px;"></select>
         
-        <span class="label-modal">Información:</span>
-        <input type="text" id="edit-nombre">
+        <span class="label-modal">Servicio / Categoría:</span>
+        <select id="edit-servicio" style="width: 100%; margin-bottom: 15px; padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-weight: 600; color: var(--brand-dark);">
+            <option value="(Sin asignar)">-- Seleccionar Servicio --</option>
+            <option value="Terapia Psicológica">Terapia Psicológica</option>
+            <option value="Terapia de Lenguaje">Terapia de Lenguaje</option>
+            <option value="Estimulación Temprana">Estimulación Temprana</option>
+            <option value="Colegio">Colegio</option>
+            <option value="Club de Lectura">Club de Lectura</option>
+            <option value="Taller">Taller</option>
+        </select>
         
-        <div style="display: flex; gap: 5px;">
+        <span class="label-modal">Información del Paciente:</span>
+        <input type="text" id="edit-nombre" placeholder="Nombre completo">
+        
+        <div style="display: flex; gap: 5px; margin-bottom: 10px;">
             <select id="edit-pais" style="width: 125px;">
                 <option value="502">🇬🇹 +502</option>
                 <option value="503">🇸🇻 +503</option>
@@ -631,7 +643,7 @@ html, body {
                 <option value="1">🇺🇸 +1</option>
                 <option value="34">🇪🇸 +34</option>
             </select>
-            <input type="number" id="edit-whatsapp">
+            <input type="number" id="edit-whatsapp" placeholder="WhatsApp">
         </div>
         
         <textarea id="edit-notas" rows="3" placeholder="Notas de la sesión..."></textarea>
@@ -647,12 +659,12 @@ html, body {
             </div>
         </div>
 
-       <div class="grid-botones" style="margin-top: 15px;">
-    <button class="btn-grid" onclick="window.ejecutarActualizacionCita()">ACTUALIZAR</button>
-    <button class="btn-grid" onclick="window.confirmarEliminarCita()" style="color:#ff6b6b;">ELIMINAR</button>
-    <button class="btn-grid" onclick="window.enviarWhatsAppRecordatorio()">RECORDATORIO WA</button>
-    <button class="btn-grid" onclick="window.cerrarTodo()">CERRAR</button>
-</div>
+        <div class="grid-botones" style="margin-top: 15px;">
+            <button class="btn-grid" onclick="window.ejecutarActualizacionCita()">ACTUALIZAR</button>
+            <button class="btn-grid" onclick="window.confirmarEliminarCita()" style="color:#ff6b6b;">ELIMINAR</button>
+            <button class="btn-grid" onclick="window.enviarWhatsAppRecordatorio()">RECORDATORIO WA</button>
+            <button class="btn-grid" onclick="window.cerrarTodo()">CERRAR</button>
+        </div>
     </div>
 </div>
 
