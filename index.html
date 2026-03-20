@@ -994,40 +994,40 @@ window.calendarObj.render();
 
 
  window.abrirGestion = (id) => {
-    // PRUEBA DE VIDA: Si no sale esta ventana al hacer clic, el archivo no se actualizó
-    console.log("--- INICIANDO GESTIÓN DE CITA ---");
+    console.log("--- INICIANDO GESTIÓN ---");
 
     citaActiva = citasGlobal.find(c => c.id === id);
-    if (!citaActiva) {
-        console.error("No se encontró la cita con ID:", id);
-        return;
-    }
+    if (!citaActiva) return;
 
-    // 1. Llenar campos del modal
-    const nombreCita = citaActiva.title || "";
-    document.getElementById('edit-nombre').value = nombreCita;
+    // 1. Datos básicos
+    document.getElementById('edit-nombre').value = citaActiva.title || "";
     document.getElementById('edit-notas').value = citaActiva.notas || "";
     document.getElementById('edit-monto').value = citaActiva.monto || "";
     document.getElementById('edit-pagado').checked = citaActiva.pagado || false;
 
-    // 2. Mostrar la sección de estimulación ANTES de escribir el nombre
+    // 2. Control de la Hoja de Estimulación (CON PROTECCIÓN)
     const seccionEst = document.getElementById('view-estimulacion');
-    if (seccionEst) {
-        seccionEst.style.display = 'flex';
+    const h2Titulo = document.getElementById('pacienteTitulo');
+    
+    // PROTECCIÓN: Si la variable no existe, evitamos que el código falle
+    let evalData = null;
+    try {
+        if (typeof evaluaciones_mpp !== 'undefined') {
+            evalData = evaluaciones_mpp.find(e => e.id === id || e.bebeId === id);
+        }
+    } catch (e) {
+        console.warn("⚠️ La variable evaluaciones_mpp no está definida aún.");
     }
 
-    // 3. Buscar nombre completo de Hannah
-    const evalData = evaluaciones_mpp.find(e => e.id === id || e.bebeId === id);
-    const nombreHannah = (evalData && evalData.nombre) ? evalData.nombre : nombreCita;
-    
-    // 4. Inyectar en el H2 (PACIENTE TITULO)
-    const h2Titulo = document.getElementById('pacienteTitulo');
-    if (h2Titulo) {
-        h2Titulo.innerText = "Reporte Evolutivo de Desarrollo de: " + nombreHannah;
-        h2Titulo.style.color = "#a5c941"; // Ponlo verde para confirmar
-        console.log("🚀 DISPARO DE NOMBRE EXITOSO:", nombreHannah);
-    } else {
-        console.error("❌ ERROR: El elemento 'pacienteTitulo' no existe en el HTML.");
+    if (seccionEst) {
+        if (evalData) {
+            seccionEst.style.display = 'flex'; 
+            if (h2Titulo) {
+                h2Titulo.innerHTML = `Reporte Evolutivo de Desarrollo de:<br><span style="font-size: 24px; color: #36A2EB; display: block; font-weight: bold;">${evalData.nombre || citaActiva.title}</span>`;
+            }
+        } else {
+            seccionEst.style.display = 'none'; 
+        }
     }
 
 
@@ -1117,100 +1117,6 @@ document.getElementById('btn-actualizar-cita').onclick = async () => {
     } catch (error) {
         console.error("Error:", error);
         window.showToast("Error al guardar", "❌");
-    }
-};
-
-    document.getElementById('btn-eliminar-cita').onclick = () => {
-    if (!citaActiva || !citaActiva.id) {
-        window.showToast("No se seleccionó ninguna cita", "⚠️");
-        return;
-    }
-
-    // 1. Mostramos la ventana roja
-    window.askConfirm(
-        "¿Eliminar Paciente?", 
-        "¿Estás segura? Esta acción borrará la cita permanentemente."
-    );
-
-    // 2. CONFIGURAMOS EL BOTÓN REAL DE LA VENTANA ROJA (El que dice "SÍ, ELIMINAR")
-    document.getElementById('confirm-accept').onclick = async () => {
-        try {
-            // BORRADO EN FIREBASE
-            await deleteDoc(doc(db, "citas", citaActiva.id));
-            
-            // BORRADO VISUAL (Para que desaparezca de la Foto 1)
-            const ev = window.calendarObj.getEventById(citaActiva.id);
-            if (ev) ev.remove();
-
-            // CERRAR TODO
-            window.cerrarConfirm(); // Cierra el modal rojo
-            cerrarTodo();          // Cierra el panel de gestión
-            
-            window.showToast("Cita eliminada correctamente", "🗑️");
-        } catch (error) {
-            console.error("Error:", error);
-            window.showToast("Error al eliminar", "❌");
-        }
-    };
-};
-
-    document.getElementById('btn-guardar-cita').onclick = async () => {
-    const isAdmin = auth.currentUser.email.toLowerCase() === ADMIN_EMAIL;
-    
-    // --- LÓGICA DE PROTECCIÓN DE PSICÓLOGA ---
-   let pMail;
-
-    // 1. DETERMINAR EL CORREO (DUEÑA DE LA CITA) - ¡ESTO ES LO QUE CORREGIMOS!
-    if (citaActiva) {
-        const correoOriginal = (citaActiva.extendedProps && citaActiva.extendedProps.user) 
-                               ? citaActiva.extendedProps.user 
-                               : (citaActiva.user || "");
-        pMail = correoOriginal.toLowerCase();
-    } 
-    
-    if (!pMail) {
-        const selectorVal = document.getElementById('select-psicologa-cita')?.value || "";
-        pMail = isAdmin ? selectorVal.toLowerCase() : auth.currentUser.email.toLowerCase();
-    }
-
-    const pInfo = equipoGlobal.find(x => x.email.toLowerCase() === pMail);
-    
-    // --- DE AQUÍ PARA ABAJO ES TU CÓDIGO DE SIEMPRE (NO LO TOQUES) ---
-    const checkPagado = document.getElementById('px-pagado').checked;
-    const montoCita = parseFloat(document.getElementById('px-monto').value) || 0;
-
-    try {
-        if (citaActiva && citaActiva.id) {
-            await updateDoc(doc(db, "citas", citaActiva.id), {
-                title: document.getElementById('px-nombre').value,
-                user: pMail, 
-                color: pInfo ? pInfo.color : '#ccc',
-                tel: document.getElementById('px-pais').value + document.getElementById('px-whatsapp').value,
-                notas: document.getElementById('px-notas').value,
-                monto: montoCita,
-                pagado: checkPagado
-            });
-            window.showToast("Cita actualizada", "✅");
-        } else {
-            await addDoc(collection(db, "citas"), {
-                title: document.getElementById('px-nombre').value,
-                user: pMail,
-                color: pInfo ? pInfo.color : '#ccc',
-                start: tempSelection.startStr,
-                end: tempSelection.endStr,
-                tel: document.getElementById('px-pais').value + document.getElementById('px-whatsapp').value,
-                notas: document.getElementById('px-notas').value,
-                monto: montoCita,
-                pagado: checkPagado
-            });
-            window.showToast("Cita agendada", "📅");
-        }
-
-        cerrarTodo();
-        window.calendarObj.refetchEvents();
-    } catch (e) {
-        console.error(e);
-        window.showToast("Error al procesar", "❌");
     }
 };
 
