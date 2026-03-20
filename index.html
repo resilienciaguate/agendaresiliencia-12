@@ -603,12 +603,12 @@ html, body {
             </div>
         </div>
 
-        <div class="grid-botones" style="margin-top: 15px;">
-            <button class="btn-grid" id="btn-actualizar-cita">ACTUALIZAR</button>
-            <button class="btn-grid" id="btn-eliminar-cita" style="color:#ff6b6b;">ELIMINAR</button>
-            <button class="btn-grid" id="btn-wa-recordatorio">RECORDATORIO WA</button>
-            <button class="btn-grid" onclick="cerrarTodo()">CERRAR</button>
-        </div>
+       <div class="grid-botones" style="margin-top: 15px;">
+    <button class="btn-grid" onclick="window.ejecutarActualizacionCita()">ACTUALIZAR</button>
+    <button class="btn-grid" onclick="window.confirmarEliminarCita()" style="color:#ff6b6b;">ELIMINAR</button>
+    <button class="btn-grid" onclick="window.enviarWhatsAppRecordatorio()">RECORDATORIO WA</button>
+    <button class="btn-grid" onclick="window.cerrarTodo()">CERRAR</button>
+</div>
     </div>
 </div>
 
@@ -778,6 +778,121 @@ window.ejecutarConfirmacion = async () => {
     }
     window.cerrarConfirm(); // Cerramos siempre al final
 };
+
+
+    // --- 1. FUNCIÓN WHATSAPP ---
+window.enviarWhatsAppRecordatorio = () => {
+    if (!citaActiva) return;
+    const num = document.getElementById('edit-whatsapp').value;
+    if(!num) { window.showToast("Número inválido", "⚠️"); return; }
+    const fecha = new Date(citaActiva.start).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+    const msg = `Hola ${citaActiva.title}, te saludamos de Clínica Resiliencia. 🌿\n\nConfirmamos tu cita: *${fecha}*.\n\n¿Nos confirmas asistencia?`;
+    window.open(`https://wa.me/${document.getElementById('edit-pais').value}${num}?text=${encodeURIComponent(msg)}`, '_blank');
+};
+
+// --- 2. FUNCIÓN ACTUALIZAR ---
+window.ejecutarActualizacionCita = async () => {
+    if (!citaActiva) return;
+    const pMail = document.getElementById('edit-psicologa-asignada')?.value || "";
+    const pInfo = equipoGlobal.find(p => p.email.toLowerCase() === pMail.toLowerCase());
+    const nuevosDatos = {
+        title: document.getElementById('edit-nombre').value,
+        user: pMail,
+        color: pInfo ? pInfo.color : (citaActiva.color || "#cbd5e1"),
+        tel: document.getElementById('edit-pais').value + document.getElementById('edit-whatsapp').value,
+        notas: document.getElementById('edit-notas').value,
+        monto: parseFloat(document.getElementById('edit-monto').value) || 0,
+        pagado: Boolean(document.getElementById('edit-pagado').checked)
+    };
+    window.showToast("Guardando cambios...", "⏳");
+    try {
+        await updateDoc(doc(db, "citas", citaActiva.id), nuevosDatos);
+        if (window.generarReportes) window.generarReportes();
+        window.showToast("Actualizado ✅", "✅");
+        window.cerrarTodo();
+    } catch (e) { window.showToast("Error ❌", "❌"); }
+};
+
+// --- 3. FUNCIÓN ELIMINAR ---
+window.confirmarEliminarCita = () => {
+    window.askConfirm("¿Eliminar Paciente?", "¿Estás segura?", async () => {
+        await deleteDoc(doc(db, "citas", citaActiva.id));
+        window.showToast("Cita Eliminada", "❌"); 
+        window.cerrarTodo();
+    });
+};
+
+// --- 4. FUNCIÓN GUARDAR NUEVA ---
+window.ejecutarGuardarNuevaCita = async () => {
+    const isAdmin = auth.currentUser.email.toLowerCase() === "resilienciaguate@gmail.com";
+    const pMail = isAdmin ? document.getElementById('select-psicologa-cita').value : auth.currentUser.email.toLowerCase();
+    const pInfo = equipoGlobal.find(x => x.email.toLowerCase() === pMail);
+    await addDoc(collection(db, "citas"), {
+        title: document.getElementById('px-nombre').value,
+        user: pMail,
+        color: pInfo ? pInfo.color : '#ccc',
+        start: tempSelection.startStr,
+        end: tempSelection.endStr,
+        tel: document.getElementById('px-pais').value + document.getElementById('px-whatsapp').value,
+        notas: document.getElementById('px-notas').value
+    });
+    window.showToast("Cita agendada", "📅"); 
+    window.cerrarTodo();
+};
+
+// 1. Resetear búsqueda
+window.resetearBusqueda = () => {
+    filtroBusqueda = null; filtroPsicologaAdmin = null;
+    document.getElementById('search-input').value = "";
+    document.getElementById('btn-reset-search').style.display = 'none';
+    const isAdmin = auth.currentUser.email.toLowerCase() === "resilienciaguate@gmail.com";
+    renderizarCalendario(isAdmin);
+};
+
+// 2. Login (Botón Entrar)
+window.handleLogin = async () => {
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value.trim();
+    if(!email || !pass) return window.showToast("Escribe correo y clave", "⚠️");
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+    } catch (e) {
+        window.showToast("Credenciales incorrectas", "❌");
+    }
+};
+
+// 3. Logout (Salir)
+window.handleLogout = async () => {
+    await signOut(auth);
+    location.reload();
+};
+
+// 4. Añadir Psicóloga (Admin)
+window.anyadirPsicologa = async () => {
+    const name = document.getElementById('new-doc-name').value;
+    const email = document.getElementById('new-doc-email').value.toLowerCase();
+    if(!name || !email) return;
+    await addDoc(collection(db, "psicologas"), { 
+        name: name, email: email, 
+        color: `hsl(${Math.floor(Math.random() * 360)}, 70%, 80%)` 
+    }); 
+    window.showToast("Psicóloga añadida", "✅");
+    document.getElementById('new-doc-name').value = "";
+    document.getElementById('new-doc-email').value = "";
+};
+
+// 5. Confirmar Borrado (El botón rojo del modal ⚠️)
+window.ejecutarConfirmacionBorradoEstimulacion = async () => {
+    if (!idParaBorrar) return;
+    try {
+        await deleteDoc(doc(db, "pacientes_estimulacion", idParaBorrar));
+        window.cerrarConfirm();
+        if(document.getElementById('select-bebe-mpp')) document.getElementById('select-bebe-mpp').value = "";
+        window.showToast("Registro eliminado", "❌");
+    } catch (e) { console.error(e); }
+};
+
+
     // -----------------------------------------------
 
    onAuthStateChanged(auth, async (user) => {
@@ -833,30 +948,31 @@ function iniciarApp(isAdmin, emailActivo) {
         
         const miP = perfilesGlobal.find(p => p.email.toLowerCase() === emailActivo);
         
-        // CORREO: Lo mandamos a la barra superior (nav-bar)
+        // CORREO: Barra superior
         const navEmail = document.getElementById('display-profile-name');
-        if (navEmail) {
-            navEmail.innerText = emailActivo; 
-        }
+        if (navEmail) navEmail.innerText = emailActivo; 
 
         if (miP) {
-            // NOMBRE REAL: Lo ponemos debajo del texto "AGENDA RESILIENCIA"
+            // NOMBRE REAL: Sidebar
             const sidebarName = document.getElementById('user-sidebar-name');
-            if (sidebarName) {
-                sidebarName.innerText = miP.displayName || "";
-            }
+            if (sidebarName) sidebarName.innerText = miP.displayName || "";
 
-            // FOTO: Si no es admin y tiene foto, cambiamos el logo de la clínica por su foto
+            // FOTO: Reemplazar logo si no es admin
             if (!isAdmin && miP.photo) {
                 const logo = document.getElementById('main-app-logo');
                 if (logo) {
                     logo.src = miP.photo;
-                    logo.style.borderRadius = "50%"; // La hacemos circular
+                    logo.style.borderRadius = "50%";
                     logo.style.objectFit = "cover";
+                    logo.style.border = "2px solid var(--brand-main)";
                 }
             }
         }
-        renderizarAdminUnified(isAdmin);
+        
+        // Ejecutar renderizado solo si la función existe
+        if (typeof renderizarAdminUnified === 'function') {
+            renderizarAdminUnified(isAdmin);
+        }
     });
 
     // 2. Escucha de PSICOLOGAS (Selectores)
@@ -995,12 +1111,7 @@ window.calendarObj.render();
         renderizarCalendario(auth.currentUser.email.toLowerCase() === ADMIN_EMAIL);
     });
 
-    document.getElementById('btn-reset-search').onclick = () => {
-        filtroBusqueda = null; filtroPsicologaAdmin = null;
-        document.getElementById('search-input').value = "";
-        document.getElementById('btn-reset-search').style.display = 'none';
-        renderizarCalendario(auth.currentUser.email.toLowerCase() === ADMIN_EMAIL);
-    };
+   
 
 
  window.abrirGestion = (id) => {
@@ -1076,96 +1187,6 @@ window.calendarObj.render();
         document.getElementById('modal-gestion').style.display = 'flex';
     };
 
-document.getElementById('btn-wa-recordatorio').onclick = () => {
-        const num = document.getElementById('edit-whatsapp').value;
-        if(!num) { window.showToast("Número inválido", "⚠️"); return; }
-        const fecha = new Date(citaActiva.start).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-        const msg = `Hola ${citaActiva.title}, te saludamos de Clínica Resiliencia. 🌿\n\nConfirmamos tu cita: *${fecha}*.\n\n¿Nos confirmas asistencia?`;
-        window.open(`https://wa.me/${document.getElementById('edit-pais').value}${num}?text=${encodeURIComponent(msg)}`, '_blank');
-    };
-
-
-// Lógica del botón de WhatsApp
-document.getElementById('btn-actualizar-cita').onclick = async () => {
-    if (!citaActiva) return;
-
-    const pMail = document.getElementById('edit-psicologa-asignada')?.value || "";
-    const pInfo = equipoGlobal.find(p => p.email.toLowerCase() === pMail.toLowerCase());
-    
-    // CAPTURA FORZADA: Aseguramos que sea true o false
-    const valorPagadoVisual = document.getElementById('edit-pagado').checked;
-    const montoValor = parseFloat(document.getElementById('edit-monto').value) || 0;
-
-    const nuevosDatos = {
-        title: document.getElementById('edit-nombre').value,
-        user: pMail,
-        color: pInfo ? pInfo.color : (citaActiva.color || "#cbd5e1"),
-        tel: document.getElementById('edit-pais').value + document.getElementById('edit-whatsapp').value,
-        notas: document.getElementById('edit-notas').value,
-        monto: montoValor,
-        pagado: Boolean(valorPagadoVisual) // Forzamos formato booleano
-    };
-
-    window.showToast("Guardando cambios...", "⏳");
-
-    try {
-        await updateDoc(doc(db, "citas", citaActiva.id), nuevosDatos);
-
-        // ACTUALIZACIÓN DE MEMORIA LOCAL (Vital para Reportes)
-        const index = citasGlobal.findIndex(c => c.id === citaActiva.id);
-        if (index !== -1) {
-            // Reemplazamos el objeto completo para asegurar que los tipos de datos sean correctos
-            citasGlobal[index] = { ...citasGlobal[index], ...nuevosDatos };
-        }
-
-        // Actualización visual en calendario
-        if (window.calendarObj) {
-            const ev = window.calendarObj.getEventById(citaActiva.id);
-            if (ev) {
-                ev.setProp('title', nuevosDatos.title);
-                ev.setExtendedProp('pagado', nuevosDatos.pagado);
-                ev.setExtendedProp('monto', nuevosDatos.monto);
-            }
-        }
-
-        // REFRESCAR REPORTES INMEDIATAMENTE
-        if (window.generarReportes) window.generarReportes();
-
-        window.showToast("Datos actualizados correctamente", "✅");
-        cerrarTodo();
-    } catch (error) {
-        console.error("Error:", error);
-        window.showToast("Error al guardar", "❌");
-    }
-};
-
- document.getElementById('btn-eliminar-cita').onclick = () => {
-        window.askConfirm(
-            "¿Eliminar Paciente?", 
-            "¿Estás segura? Esta acción borrará la cita permanentemente.", 
-            async () => {
-                await deleteDoc(doc(db, "citas", citaActiva.id));
-                window.showToast("Paciente eliminado", "❌"); 
-                cerrarTodo();
-            }
-        );
-    };
-
-     document.getElementById('btn-guardar-cita').onclick = async () => {
-        const isAdmin = auth.currentUser.email.toLowerCase() === ADMIN_EMAIL;
-        const pMail = isAdmin ? document.getElementById('select-psicologa-cita').value : auth.currentUser.email.toLowerCase();
-        const pInfo = equipoGlobal.find(x => x.email.toLowerCase() === pMail);
-        await addDoc(collection(db, "citas"), {
-            title: document.getElementById('px-nombre').value,
-            user: pMail,
-            color: pInfo ? pInfo.color : '#ccc',
-            start: tempSelection.startStr,
-            end: tempSelection.endStr,
-            tel: document.getElementById('px-pais').value + document.getElementById('px-whatsapp').value,
-            notas: document.getElementById('px-notas').value
-        });
-        window.showToast("Cita agendada", "📅"); cerrarTodo();
-    };
 
 // === SUGERENCIAS Y AUTOCOMPLETADO MAESTRO ===
 document.getElementById('px-nombre')?.addEventListener('input', (e) => {
@@ -1245,22 +1266,6 @@ window.cerrarTodo = () => {
     citaActiva = null;
 };
 
-// --- AUTENTICACIÓN ---
-document.getElementById('login-btn').onclick = () => {
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-    signInWithEmailAndPassword(auth, email, pass)
-        .catch((error) => {
-            console.error(error);
-            window.showToast("Credenciales incorrectas", "❌");
-        });
-};
-
-document.getElementById('logout-btn').onclick = () => {
-    signOut(auth).then(() => {
-        location.reload();
-    });
-};
 
 // --- ELIMINAR PSICÓLOGA CON CONFIRMACIÓN ---
 window.borrarDoc = (id) => { 
@@ -1280,19 +1285,7 @@ window.borrarDoc = (id) => {
     );
 };
     
-    document.getElementById('add-doc-btn').onclick = () => { 
-        const name = document.getElementById('new-doc-name').value;
-        const email = document.getElementById('new-doc-email').value.toLowerCase();
-        if(!name || !email) return;
-        addDoc(collection(db, "psicologas"), { 
-            name: name, 
-            email: email, 
-            color: `hsl(${Math.floor(Math.random() * 360)}, 70%, 80%)` 
-        }); 
-        window.showToast("Psicóloga añadida", "✅ ");
-        document.getElementById('new-doc-name').value = "";
-        document.getElementById('new-doc-email').value = "";
-    };
+ 
 
 function actualizarPendientesPsicologa() {
     const listaContenedor = document.getElementById('lista-pendientes-dia');
@@ -1569,7 +1562,7 @@ window.renderizarTablaPacientes = () => {
 
 document.getElementById('search-paciente-tab')?.addEventListener('input', window.renderizarTablaPacientes);
 
-window.showView = function(viewId, element) {
+window.showView = (viewId, element) => {
     const ADMIN_EMAIL = "resilienciaguate@gmail.com";
     const perfilElem = document.getElementById('display-profile-name');
     const correoActual = perfilElem ? perfilElem.innerText.toLowerCase().trim() : "";
@@ -1885,16 +1878,7 @@ window.cerrarConfirm = function() {
 };
 
 // Acción final de borrar
-document.getElementById('confirm-accept').onclick = async function() {
-    if (!idParaBorrar) return;
-    try {
-        const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-        await deleteDoc(doc(window.db, "pacientes_estimulacion", idParaBorrar));
-        window.cerrarConfirm();
-        document.getElementById('select-bebe-mpp').value = "";
-        if(window.showToast) window.showToast("Registro eliminado", "❌");
-    } catch (e) { console.error(e); }
-};
+
 
 // ==========================================
 // CARGA AUTOMÁTICA AL SELECCIONAR
