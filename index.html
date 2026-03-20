@@ -1151,6 +1151,22 @@ document.getElementById('btn-actualizar-cita').onclick = async () => {
         );
     };
 
+     document.getElementById('btn-guardar-cita').onclick = async () => {
+        const isAdmin = auth.currentUser.email.toLowerCase() === ADMIN_EMAIL;
+        const pMail = isAdmin ? document.getElementById('select-psicologa-cita').value : auth.currentUser.email.toLowerCase();
+        const pInfo = equipoGlobal.find(x => x.email.toLowerCase() === pMail);
+        await addDoc(collection(db, "citas"), {
+            title: document.getElementById('px-nombre').value,
+            user: pMail,
+            color: pInfo ? pInfo.color : '#ccc',
+            start: tempSelection.startStr,
+            end: tempSelection.endStr,
+            tel: document.getElementById('px-pais').value + document.getElementById('px-whatsapp').value,
+            notas: document.getElementById('px-notas').value
+        });
+        window.showToast("Cita agendada", "📅"); cerrarTodo();
+    };
+
 // === SUGERENCIAS Y AUTOCOMPLETADO MAESTRO ===
 document.getElementById('px-nombre')?.addEventListener('input', (e) => {
     const nombreEscrito = e.target.value.trim();
