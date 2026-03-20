@@ -561,7 +561,7 @@ html, body {
             </div>
         </div>
         
-        <button class="btn-action" id="btn-guardar-cita">GUARDAR CITA</button>
+       <button type="button" class="btn-action" id="btn-guardar-cita" onclick="window.ejecutarGuardarNuevaCita()">GUARDAR CITA</button>
         <button class="btn-action btn-secondary" onclick="cerrarTodo()" style="margin-top:10px;">CANCELAR</button>
     </div>
 </div>
@@ -824,20 +824,52 @@ window.confirmarEliminarCita = () => {
 
 // --- 4. FUNCIÓN GUARDAR NUEVA ---
 window.ejecutarGuardarNuevaCita = async () => {
-    const isAdmin = auth.currentUser.email.toLowerCase() === "resilienciaguate@gmail.com";
-    const pMail = isAdmin ? document.getElementById('select-psicologa-cita').value : auth.currentUser.email.toLowerCase();
-    const pInfo = equipoGlobal.find(x => x.email.toLowerCase() === pMail);
-    await addDoc(collection(db, "citas"), {
-        title: document.getElementById('px-nombre').value,
-        user: pMail,
-        color: pInfo ? pInfo.color : '#ccc',
-        start: tempSelection.startStr,
-        end: tempSelection.endStr,
-        tel: document.getElementById('px-pais').value + document.getElementById('px-whatsapp').value,
-        notas: document.getElementById('px-notas').value
-    });
-    window.showToast("Cita agendada", "📅"); 
-    window.cerrarTodo();
+    try {
+        const userEmail = auth.currentUser.email.toLowerCase();
+        const isAdmin = userEmail === "resilienciaguate@gmail.com";
+        
+        // Capturamos los datos (Verifica que estos IDs existan en tu HTML de Nuevo Paciente)
+        const nombrePx = document.getElementById('px-nombre')?.value;
+        const telPais = document.getElementById('px-pais')?.value || "";
+        const telWhatsApp = document.getElementById('px-whatsapp')?.value || "";
+        const notasPx = document.getElementById('px-notas')?.value || "";
+        
+        // Determinamos la psicóloga
+        const pMail = isAdmin ? document.getElementById('select-psicologa-cita').value : userEmail;
+        const pInfo = equipoGlobal.find(x => x.email.toLowerCase() === pMail);
+
+        if(!nombrePx) {
+            window.showToast("Escribe el nombre del paciente", "⚠️");
+            return;
+        }
+
+        window.showToast("Agendando...", "⏳");
+
+        // GUARDADO EN FIREBASE
+        await addDoc(collection(db, "citas"), {
+            title: nombrePx,
+            user: pMail,
+            color: pInfo ? pInfo.color : '#ccc',
+            start: tempSelection.startStr, // Asegúrate que tempSelection se llame así en tu código
+            end: tempSelection.endStr,
+            tel: telPais + telWhatsApp,
+            notas: notasPx,
+            monto: 0,
+            pagado: false,
+            timestamp: new Date()
+        });
+
+        window.showToast("Cita agendada con éxito", "📅"); 
+        window.cerrarTodo();
+
+        // Limpiar campos para la próxima
+        if(document.getElementById('px-nombre')) document.getElementById('px-nombre').value = "";
+        if(document.getElementById('px-whatsapp')) document.getElementById('px-whatsapp').value = "";
+        
+    } catch (error) {
+        console.error("Error completo al guardar:", error);
+        window.showToast("Error técnico al guardar", "❌");
+    }
 };
 
 // 1. Resetear búsqueda
