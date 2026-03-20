@@ -1310,6 +1310,7 @@ setInterval(actualizarPendientesPsicologa, 60000);
 
 // --- LÓGICA DE REPORTES UNIFICADA ---
 window.generarReportes = () => {
+    console.log("📊 Iniciando Generar Reportes...");
     const ahora = new Date();
     const mesActual = ahora.getMonth();
     const anioActual = ahora.getFullYear();
@@ -1320,52 +1321,34 @@ window.generarReportes = () => {
         return d.getMonth() === mesActual && d.getFullYear() === anioActual;
     });
 
-    // 2. Lógica de Pacientes (Únicos vs Nuevos)
+    console.log("📅 Citas este mes:", citasMes.length);
+
+    // 2. Lógica de Pacientes Nuevos
     const historialNombres = citasGlobal.map(c => (c.title || "").toLowerCase().trim());
     const frecuenciaPX = {};
-    historialNombres.forEach(nombre => {
-        if(nombre) frecuenciaPX[nombre] = (frecuenciaPX[nombre] || 0) + 1;
-    });
-
-    const nuevosPX = citasMes.filter(c => {
-        const nombre = (c.title || "").toLowerCase().trim();
-        return frecuenciaPX[nombre] === 1;
-    });
+    historialNombres.forEach(n => { if(n) frecuenciaPX[n] = (frecuenciaPX[n] || 0) + 1; });
+    const nuevosPX = citasMes.filter(c => frecuenciaPX[(c.title || "").toLowerCase().trim()] === 1);
 
     // 3. Cálculos Financieros
-    const totalRecaudado = citasMes
-        .filter(c => c.pagado === true)
-        .reduce((acc, cur) => acc + (Number(cur.monto) || 0), 0);
+    const totalRecaudado = citasMes.filter(c => c.pagado === true).reduce((acc, cur) => acc + (Number(cur.monto) || 0), 0);
+    const totalPorCobrar = citasMes.filter(c => c.pagado !== true).reduce((acc, cur) => acc + (Number(cur.monto) || 0), 0);
 
-    const totalPorCobrar = citasMes
-        .filter(c => c.pagado !== true)
-        .reduce((acc, cur) => acc + (Number(cur.monto) || 0), 0);
-
-    // 4. Actualizar Tarjetas en el HTML
-    if(document.getElementById('stat-citas-mes')) 
-        document.getElementById('stat-citas-mes').innerText = citasMes.length;
-    
-    if(document.getElementById('stat-ingreso-real')) 
-        document.getElementById('stat-ingreso-real').innerText = 'Q' + totalRecaudado.toLocaleString();
-    
-    if(document.getElementById('stat-por-cobrar')) 
-        document.getElementById('stat-por-cobrar').innerText = 'Q' + totalPorCobrar.toLocaleString();
+    // 4. Actualizar Tarjetas (Stats)
+    if(document.getElementById('stat-citas-mes')) document.getElementById('stat-citas-mes').innerText = citasMes.length;
+    if(document.getElementById('stat-ingreso-real')) document.getElementById('stat-ingreso-real').innerText = 'Q' + totalRecaudado.toLocaleString();
+    if(document.getElementById('stat-por-cobrar')) document.getElementById('stat-por-cobrar').innerText = 'Q' + totalPorCobrar.toLocaleString();
     
     const pxTotalesUnicos = [...new Set(historialNombres.filter(n => n !== ""))].length;
-    if(document.getElementById('stat-total-px')) 
-        document.getElementById('stat-total-px').innerText = pxTotalesUnicos;
+    if(document.getElementById('stat-total-px')) document.getElementById('stat-total-px').innerText = pxTotalesUnicos;
+    if(document.getElementById('stat-nuevos-px')) document.getElementById('stat-nuevos-px').innerText = nuevosPX.length;
 
-    if(document.getElementById('stat-nuevos-px')) 
-        document.getElementById('stat-nuevos-px').innerText = nuevosPX.length;
-
-    // 5. Preparar datos para Gráficas
+    // 5. Gráficas (Mismo código que tienes)
     const pasterlizar = (hex) => {
         if (!hex || !hex.startsWith('#')) return '#cbd5e1';
         let r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
         r = Math.floor((r + 255 * 2) / 3); g = Math.floor((g + 255 * 2) / 3); b = Math.floor((b + 255 * 2) / 3);
         return `rgb(${r}, ${g}, ${b})`;
     };
-
     const dataPsico = {};
     const coloresPsico = [];
     citasMes.forEach(c => {
@@ -1373,12 +1356,10 @@ window.generarReportes = () => {
         const nombre = psicologa ? psicologa.name : "Asistente";
         dataPsico[nombre] = (dataPsico[nombre] || 0) + 1;
     });
-
     Object.keys(dataPsico).forEach(nombre => {
         const p = equipoGlobal.find(ps => ps.name === nombre);
         coloresPsico.push(pasterlizar(p ? p.color : '#cbd5e1'));
     });
-
     const dataPais = { "GT": 0, "SV": 0, "HN": 0, "Otros": 0 };
     citasMes.forEach(c => {
         const tel = String(c.tel || "");
@@ -1387,25 +1368,26 @@ window.generarReportes = () => {
         else if (tel.startsWith('504')) dataPais["HN"]++;
         else dataPais["Otros"]++;
     });
-
-    // 6. Renderizar Gráficas
-    const coloresPaisPastel = ['#d1e7dd', '#fff3cd', '#f8d7da', '#e2e3e5'];
     if(typeof renderChart === 'function'){
         renderChart('chartCitasPsicologa', 'bar', 'Citas por Psicóloga', Object.keys(dataPsico), Object.values(dataPsico), coloresPsico);
-        renderChart('chartCitasPais', 'doughnut', 'Pacientes por País', Object.keys(dataPais), Object.values(dataPais), coloresPaisPastel);
+        renderChart('chartCitasPais', 'doughnut', 'Pacientes por País', Object.keys(dataPais), Object.values(dataPais), ['#d1e7dd', '#fff3cd', '#f8d7da', '#e2e3e5']);
     }
 
-    // 7. Lógica de la Tabla de Pendientes (ROJA)
-    const tablaPendientes = document.getElementById('lista-cobros-pendientes');
+    // --- 7. Lógica de la Tabla de Pendientes (ROJA) ---
+    const tablaPendientes = document.getElementById('lista-pendientes-body'); // ID CORREGIDO SEGÚN TU HTML
+    
     if (tablaPendientes) {
-        const pendientes = citasMes.filter(c => c.pagado !== true);
+        // Filtramos que no esté pagado y que tenga un monto > 0
+        const pendientes = citasMes.filter(c => c.pagado !== true && (Number(c.monto) || 0) > 0);
         
+        console.log("🔴 Intentando llenar lista-pendientes-body con:", pendientes.length, "pacientes");
+
         if (pendientes.length === 0) {
             tablaPendientes.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:20px; color:#94a3b8;">🎉 ¡Todo está cobrado!</td></tr>`;
         } else {
             tablaPendientes.innerHTML = pendientes.map(c => `
                 <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td style="padding: 10px; font-weight: 600;">${c.title}</td>
+                    <td style="padding: 10px; font-weight: 600; color: #1e293b !important;">${c.title || "Paciente"}</td>
                     <td style="padding: 10px; color: #b91c1c; font-weight: 700;">Q${(Number(c.monto) || 0).toLocaleString()}</td>
                     <td style="padding: 10px;">
                         <button onclick="window.abrirGestion('${c.id}')" 
@@ -1415,28 +1397,28 @@ window.generarReportes = () => {
                     </td>
                 </tr>
             `).join('');
+            console.log("✅ Tabla roja actualizada visualmente.");
         }
     }
 
-    // 8. Lógica de la Tabla de Pagos Realizados (VERDE)
-    const tablaPagados = document.getElementById('tabla-pagos-realizados');
-    if (tablaPagados) {
-        const pagados = citasMes.filter(c => c.pagado === true);
+    // --- 8. TABLA VERDE (Pagados) ---
+    const tPagados = document.getElementById('tabla-pagos-realizados');
+    if (tPagados) {
+        const listaPagados = citasMes.filter(c => c.pagado === true);
+        console.log("🟢 Pagados filtrados:", listaPagados.length);
 
-        if (pagados.length === 0) {
-            tablaPagados.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:20px; color:#94a3b8;">No hay pagos registrados hoy.</td></tr>`;
+        if (listaPagados.length === 0) {
+            tPagados.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px; color:#94a3b8;">No hay pagos</td></tr>';
         } else {
-            tablaPagados.innerHTML = pagados.map(c => `
+            tPagados.innerHTML = listaPagados.map(c => `
                 <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td style="padding: 10px; font-weight: 600;">${c.title}</td>
+                    <td style="padding: 10px; font-weight: 600; color: #1e293b;">${c.title}</td>
                     <td style="padding: 10px; color: #166534; font-weight: 700;">Q${(Number(c.monto) || 0).toLocaleString()}</td>
-                    <td style="padding: 10px;">
-                        <span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase;">RECIBIDO ✅</span>
-                    </td>
-                </tr>
-            `).join('');
+                    <td style="padding: 10px;"><span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:20px; font-size:10px; font-weight:700;">RECIBIDO ✅</span></td>
+                </tr>`).join('');
         }
     }
+    console.log("✅ Reportes finalizados.");
 };
 
 // --- MOTOR DE GRÁFICAS ---
