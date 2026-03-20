@@ -14,6 +14,7 @@
    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/es.global.min.js'></script>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.11/interact.min.js"></script>
     
@@ -466,8 +467,8 @@ html, body {
             </div>
         </div> 
 
-        <div style="position: absolute; top: 320px; left: 80px; width: 650px;">
-            <h2 contenteditable="true" id="pacienteTitulo" style="text-align: center; color: #222; font-size: 26px;">Reporte Evolutivo de Desarrollo</h2>
+        <div style="position: absolute; top: 220px; left: 80px; width: 650px;">
+            <h2 contenteditable="true" id="pacienteTitulo" style="text-align: center; color: #222; font-size: 26px;">Reporte Evolutivo de Desarrollo de: </h2>
             <p style="text-align: center; font-size: 15px; color: #555; margin-bottom: 25px;">Análisis de hitos alcanzados por el paciente</p>
             <div style="width: 100%; height: 420px;"><canvas id="graficoAvances"></canvas></div>
         </div>
@@ -992,18 +993,44 @@ window.calendarObj.render();
     };
 
 
-  window.abrirGestion = (id) => {
-        // 1. Buscamos la cita en nuestra lista local
-        citaActiva = citasGlobal.find(c => c.id === id);
-        if (!citaActiva) return;
+ window.abrirGestion = (id) => {
+    // PRUEBA DE VIDA: Si no sale esta ventana al hacer clic, el archivo no se actualizó
+    console.log("--- INICIANDO GESTIÓN DE CITA ---");
 
-        // 2. Llenamos los textos básicos
-        document.getElementById('edit-nombre').value = citaActiva.title || "";
-        document.getElementById('edit-notas').value = citaActiva.notas || "";
+    citaActiva = citasGlobal.find(c => c.id === id);
+    if (!citaActiva) {
+        console.error("No se encontró la cita con ID:", id);
+        return;
+    }
 
-        document.getElementById('edit-monto').value = citaActiva.monto || "";
-        document.getElementById('edit-pagado').checked = citaActiva.pagado || false;
-        
+    // 1. Llenar campos del modal
+    const nombreCita = citaActiva.title || "";
+    document.getElementById('edit-nombre').value = nombreCita;
+    document.getElementById('edit-notas').value = citaActiva.notas || "";
+    document.getElementById('edit-monto').value = citaActiva.monto || "";
+    document.getElementById('edit-pagado').checked = citaActiva.pagado || false;
+
+    // 2. Mostrar la sección de estimulación ANTES de escribir el nombre
+    const seccionEst = document.getElementById('view-estimulacion');
+    if (seccionEst) {
+        seccionEst.style.display = 'flex';
+    }
+
+    // 3. Buscar nombre completo de Hannah
+    const evalData = evaluaciones_mpp.find(e => e.id === id || e.bebeId === id);
+    const nombreHannah = (evalData && evalData.nombre) ? evalData.nombre : nombreCita;
+    
+    // 4. Inyectar en el H2 (PACIENTE TITULO)
+    const h2Titulo = document.getElementById('pacienteTitulo');
+    if (h2Titulo) {
+        h2Titulo.innerText = "Reporte Evolutivo de Desarrollo de: " + nombreHannah;
+        h2Titulo.style.color = "#a5c941"; // Ponlo verde para confirmar
+        console.log("🚀 DISPARO DE NOMBRE EXITOSO:", nombreHannah);
+    } else {
+        console.error("❌ ERROR: El elemento 'pacienteTitulo' no existe en el HTML.");
+    }
+
+
         // 3. ¡EL CAMBIO CLAVE! Sincronizar la psicóloga asignada
         const selectorEdit = document.getElementById('edit-psicologa-asignada');
         const correoDuenia = (citaActiva.user || "").toLowerCase().trim();
@@ -1966,6 +1993,27 @@ document.getElementById('select-bebe-mpp').addEventListener('change', async func
         if (!querySnapshot.empty) {
             const data = querySnapshot.docs[0].data();
             console.log("✅ ¡Datos recuperados!", data);
+            const h2Hoja = document.getElementById('pacienteTitulo');
+if (h2Hoja && data) {
+    const nombreParaElTitulo = data.nombre || "Paciente";
+    
+    // Aplicamos el celeste (#36A2EB) al nombre del bebé
+    h2Hoja.innerHTML = `
+        <span style="font-size: 16px; color: #666; display: block; margin-bottom: 5px;">
+            Reporte Evolutivo de Desarrollo de:
+        </span>
+        <span style="font-size: 24px; color: #36A2EB; display: block; font-weight: bold;">
+            ${nombreParaElTitulo}
+        </span>
+    `;
+    
+    // Centramos y ajustamos el interlineado
+    h2Hoja.style.textAlign = "center";
+    h2Hoja.style.lineHeight = "1.2";
+    
+    console.log("🎯 Reporte en celeste generado para:", nombreParaElTitulo);
+}
+            
 
             // 1. Asignar valores a los 5 nuevos Sliders
             // Usamos los nombres que guardamos en la función 'guardarEnFirebase'
