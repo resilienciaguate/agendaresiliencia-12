@@ -640,8 +640,9 @@ html, body {
         <p id="confirm-body" style="color: #666; font-size: 14px; margin-bottom: 25px;">Esta acción no se puede deshacer.</p>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button class="btn-grid" onclick="cerrarConfirm()" style="background: #eee; color: #333; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">CANCELAR</button>
-            <button class="btn-grid" id="confirm-accept" style="background: #ff6b6b; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">SÍ, ELIMINAR</button>
+            <button type="button" onclick="window.cerrarConfirm()" style="background: #eee; color: #333; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">CANCELAR</button>
+            
+            <button type="button" onclick="window.ejecutarConfirmacion()" style="background: #ff6b6b; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">SÍ, ELIMINAR</button>
         </div>
     </div>
 </div>
@@ -751,23 +752,32 @@ window.abrirGestion = async (id) => {
 };
 
     // --- LÓGICA DEL MODAL DE CONFIRMACIÓN ELEGANTE ---
-    let accionConfirmar = null;
-    window.askConfirm = (titulo, cuerpo, accion) => {
-        document.getElementById('confirm-title').innerText = titulo;
-        document.getElementById('confirm-body').innerText = cuerpo;
-        document.getElementById('modal-confirm').style.display = 'flex';
-        accionConfirmar = accion;
-    };
+   let accionConfirmar = null; // Variable para guardar la función temporalmente
 
-    window.cerrarConfirm = () => {
-        document.getElementById('modal-confirm').style.display = 'none';
-        accionConfirmar = null;
-    };
+window.askConfirm = (titulo, cuerpo, accion) => {
+    document.getElementById('confirm-title').innerText = titulo;
+    document.getElementById('confirm-body').innerText = cuerpo;
+    document.getElementById('modal-confirm').style.display = 'flex';
+    accionConfirmar = accion; // Guardamos la función (el deleteDoc)
+};
 
-    document.getElementById('confirm-accept').onclick = async () => {
-        if (accionConfirmar) await accionConfirmar();
-        window.cerrarConfirm();
-    };
+window.cerrarConfirm = () => {
+    document.getElementById('modal-confirm').style.display = 'none';
+    accionConfirmar = null;
+};
+
+// Esta es la función que conectamos al botón rojo directamente
+window.ejecutarConfirmacion = async () => {
+    if (typeof accionConfirmar === 'function') {
+        try {
+            await accionConfirmar(); // Aquí es donde realmente se borra en Firebase
+        } catch (error) {
+            console.error("Error al ejecutar acción:", error);
+            window.showToast("Error al procesar", "❌");
+        }
+    }
+    window.cerrarConfirm(); // Cerramos siempre al final
+};
     // -----------------------------------------------
 
    onAuthStateChanged(auth, async (user) => {
@@ -1066,6 +1076,15 @@ window.calendarObj.render();
         document.getElementById('modal-gestion').style.display = 'flex';
     };
 
+document.getElementById('btn-wa-recordatorio').onclick = () => {
+        const num = document.getElementById('edit-whatsapp').value;
+        if(!num) { window.showToast("Número inválido", "⚠️"); return; }
+        const fecha = new Date(citaActiva.start).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+        const msg = `Hola ${citaActiva.title}, te saludamos de Clínica Resiliencia. 🌿\n\nConfirmamos tu cita: *${fecha}*.\n\n¿Nos confirmas asistencia?`;
+        window.open(`https://wa.me/${document.getElementById('edit-pais').value}${num}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+
 // Lógica del botón de WhatsApp
 document.getElementById('btn-actualizar-cita').onclick = async () => {
     if (!citaActiva) return;
@@ -1119,6 +1138,18 @@ document.getElementById('btn-actualizar-cita').onclick = async () => {
         window.showToast("Error al guardar", "❌");
     }
 };
+
+ document.getElementById('btn-eliminar-cita').onclick = () => {
+        window.askConfirm(
+            "¿Eliminar Paciente?", 
+            "¿Estás segura? Esta acción borrará la cita permanentemente.", 
+            async () => {
+                await deleteDoc(doc(db, "citas", citaActiva.id));
+                window.showToast("Paciente eliminado", "❌"); 
+                cerrarTodo();
+            }
+        );
+    };
 
 // === SUGERENCIAS Y AUTOCOMPLETADO MAESTRO ===
 document.getElementById('px-nombre')?.addEventListener('input', (e) => {
