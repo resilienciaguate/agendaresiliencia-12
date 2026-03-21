@@ -744,21 +744,33 @@ window.abrirGestion = async (id) => {
         const cita = docSnap.data();
         citaActiva = { id: docSnap.id, ...cita };
 
-        // Llenamos campos (Asegúrate que estos IDs existan en tu HTML)
-        if(document.getElementById('px-nombre')) document.getElementById('px-nombre').value = cita.title || "";
-        if(document.getElementById('px-notas')) document.getElementById('px-notas').value = cita.notas || "";
+        // 1. LLENAR CAMPOS (Corregidos a los IDs de la ventana de GESTIÓN)
+        if(document.getElementById('edit-nombre')) document.getElementById('edit-nombre').value = cita.title || "";
+        if(document.getElementById('edit-notas')) document.getElementById('edit-notas').value = cita.notas || "";
+
+        // 2. BLOQUE DE SERVICIO (Corregido a 'edit-servicio')
+        const selectorServicio = document.getElementById('edit-servicio'); 
+        if (selectorServicio && cita.servicio) {
+            selectorServicio.value = cita.servicio;
+            const servicioNormalizado = cita.servicio.trim().toUpperCase();
+            Array.from(selectorServicio.options).forEach((opt) => {
+                if (opt.value.trim().toUpperCase() === servicioNormalizado || 
+                    opt.text.trim().toUpperCase() === servicioNormalizado) {
+                    opt.selected = true;
+                }
+            });
+            console.log("Servicio asignado en Gestión:", cita.servicio);
+        }
         
-        // Manejo del selector de psicóloga
+        // 3. MANEJO DEL SELECTOR DE PSICÓLOGA
         const selector = document.getElementById('select-psicologa-cita');
         const correoDuenia = (cita.user || "").toLowerCase().trim();
 
         if (selector && correoDuenia) {
             selector.disabled = true; // Lo bloqueamos un segundo
             
-            // Función para forzar el valor
             const forzar = () => {
                 selector.value = correoDuenia;
-                // Si no cambió por valor simple, buscamos en la lista de opciones
                 Array.from(selector.options).forEach((opt, index) => {
                     if (opt.value.toLowerCase().trim() === correoDuenia) {
                         selector.selectedIndex = index;
@@ -769,14 +781,15 @@ window.abrirGestion = async (id) => {
             forzar(); // Intento 1
 
             setTimeout(() => {
-                forzar(); // Intento 2 (por si el sistema lo reseteó)
+                forzar(); // Intento 2
                 selector.disabled = false;
-                selector.style.outline = "4px solid #4CAF50"; // Borde verde para confirmar
-                console.log("Cita de:", correoDuenia);
+                selector.style.outline = "4px solid #4CAF50"; 
+                console.log("Cita de psicóloga:", correoDuenia);
             }, 500);
         }
 
-        document.getElementById('modal-cita').style.display = 'flex';
+        // 4. ABRIR EL MODAL CORRECTO (Es modal-gestion, no modal-cita)
+        document.getElementById('modal-gestion').style.display = 'flex';
     }
 };
 
@@ -1294,6 +1307,23 @@ window.calendarObj.render();
     document.getElementById('edit-notas').value = citaActiva.notas || "";
     document.getElementById('edit-monto').value = citaActiva.monto || "";
     document.getElementById('edit-pagado').checked = citaActiva.pagado || false;
+
+    const selectorServicio = document.getElementById('edit-servicio');
+    if (selectorServicio && citaActiva.servicio) {
+        // Asignamos el valor que viene de Firebase
+        selectorServicio.value = citaActiva.servicio;
+        
+        // Refuerzo: Por si el valor tiene espacios o diferencias mínimas
+        Array.from(selectorServicio.options).forEach((opt) => {
+            if (opt.value === citaActiva.servicio) {
+                opt.selected = true;
+            }
+        });
+        console.log("Servicio visualizado:", citaActiva.servicio);
+    } else if (selectorServicio) {
+        // Si no tiene servicio en la DB, regresamos al placeholder
+        selectorServicio.selectedIndex = 0;
+    }
 
     // 2. Control de la Hoja de Estimulación (CON PROTECCIÓN)
     const seccionEst = document.getElementById('view-estimulacion');
