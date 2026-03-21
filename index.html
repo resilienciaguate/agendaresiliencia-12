@@ -870,6 +870,7 @@ window.ejecutarActualizacionCita = async () => {
     const pInfo = equipoGlobal.find(p => p.email.toLowerCase() === pMail.toLowerCase());
     const nuevosDatos = {
         title: document.getElementById('edit-nombre').value,
+        servicio: document.getElementById('edit-servicio').value,
         user: pMail,
         color: pInfo ? pInfo.color : (citaActiva.color || "#cbd5e1"),
         tel: document.getElementById('edit-pais').value + document.getElementById('edit-whatsapp').value,
