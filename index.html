@@ -339,7 +339,7 @@ html, body {
     <div id="welcome-text" class="logo-text" style="font-size: 10px; opacity: 0.6; margin-bottom: 20px;">AGENDA RESILIENCIA 2026</div>
     
     <input type="text" id="search-input" placeholder="Buscar paciente..." style="width: 90%;">
-    <button id="btn-reset-search" class="btn-action btn-secondary" onclick="window.resetearBusqueda()" style="display:none; font-size: 10px; margin-bottom:10px;">MOSTRAR TODOS</button>
+    <button id="btn-reset-search" class="btn-action btn-secondary" style="display:none; font-size: 10px; margin-bottom:10px;">MOSTRAR TODOS</button>
         <div id="psico-view-only" style="display:none; margin-top: 25px;">
             <h3 style="font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; border-top: 1px solid #eee; padding-top: 20px;">
                 Próximas citas de hoy
@@ -353,7 +353,7 @@ html, body {
             <hr style="margin:20px 0; border:0.5px solid #eee;">
             <input type="text" id="new-doc-name" placeholder="Nombre Psicóloga">
             <input type="email" id="new-doc-email" placeholder="Correo">
-            <button class="btn-action btn-secondary" id="add-doc-btn">AÑADIR AL EQUIPO</button>
+          <button class="btn-action btn-secondary" id="add-doc-btn" onclick="anadirPsicologa()">AÑADIR AL EQUIPO</button>
         </div>
     </aside>
 
@@ -556,30 +556,32 @@ html, body {
 <div id="modal-cita" class="modal-overlay" style="display:none; z-index: 11000;">
     <div class="modal-box">
         <h3>Nueva Cita</h3>
-        <div id="admin-selector-wrapper" style="display:block; margin-bottom: 15px;">
-            <label class="label-modal">Asignar a Psicóloga:</label>
-            <select id="select-psicologa-cita"></select>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-    <label class="label-modal">Servicio:</label>
-    <select id="px-servicio" class="ios-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd;">
-        <option value="" selected disabled>-- Seleccionar Servicio --</option>
         
-        <option value="Terapia Psicológica">Terapia Psicológica</option>
-        <option value="Terapia de Lenguaje">Terapia de Lenguaje</option>
-        <option value="Estimulación Temprana">Estimulación Temprana</option>
-        <option value="Colegio">Colegio</option>
-        <option value="Club de Lectura">Club de Lectura</option>
-        <option value="Taller">Taller</option>
+        <div id="admin-selector-wrapper" style="display:block; margin-bottom: 15px;">
+    <label class="label-modal">Asignar a Psicóloga:</label>
+    <select id="select-psicologa-cita" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd;">
+        <option value="" selected disabled>-- Seleccionar Psicóloga --</option>
     </select>
 </div>
+
+        <div style="margin-bottom: 15px;">
+            <label class="label-modal">Servicio:</label>
+            <select id="px-servicio" class="ios-input" style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd;">
+                <option value="" selected disabled>-- Seleccionar Servicio --</option>
+                <option value="Terapia Psicológica">Terapia Psicológica</option>
+                <option value="Terapia de Lenguaje">Terapia de Lenguaje</option>
+                <option value="Estimulación Temprana">Estimulación Temprana</option>
+                <option value="Colegio">Colegio</option>
+                <option value="Club de Lectura">Club de Lectura</option>
+                <option value="Taller">Taller</option>
+            </select>
+        </div>
         
         <label class="label-modal">Datos del Paciente</label>
         <input type="text" id="px-nombre" list="lista-sugerencias-px" placeholder="Escribe nombre para buscar..." autocomplete="off">
         <datalist id="lista-sugerencias-px"></datalist>
 
-        <div style="display: flex; gap: 5px;">
+        <div style="display: flex; gap: 5px; margin-bottom: 15px;">
             <select id="px-pais" style="width: 125px;">
                 <option value="502">🇬🇹 +502</option>
                 <option value="503">🇸🇻 +503</option>
@@ -594,12 +596,12 @@ html, body {
             <input type="number" id="px-whatsapp" placeholder="WhatsApp">
         </div>
 
-        <textarea id="px-notas" placeholder="Notas clínicas..." rows="3"></textarea>
+        <textarea id="px-notas" placeholder="Notas clínicas..." rows="3" style="width: 100%; margin-bottom: 10px;"></textarea>
 
-        <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <div style="display: flex; gap: 10px; margin-top: 10px; margin-bottom: 20px;">
             <div style="flex: 1;">
                 <label class="label-modal">Monto (Q)</label>
-                <input type="number" id="px-monto" placeholder="0.00">
+                <input type="number" id="px-monto" placeholder="0.00" style="width: 100%;">
             </div>
             <div style="flex: 1; display: flex; align-items: center; gap: 5px; margin-top: 25px;">
                 <input type="checkbox" id="px-pagado" style="width: 20px; margin: 0;">
@@ -607,8 +609,8 @@ html, body {
             </div>
         </div>
         
-       <button type="button" class="btn-action" id="btn-guardar-cita" onclick="window.ejecutarGuardarNuevaCita()">GUARDAR CITA</button>
-        <button class="btn-action btn-secondary" onclick="cerrarTodo()" style="margin-top:10px;">CANCELAR</button>
+        <button type="button" class="btn-action" id="btn-guardar-cita" onclick="window.ejecutarGuardarNuevaCita()">GUARDAR CITA</button>
+        <button type="button" class="btn-action btn-secondary" onclick="cerrarTodo()" style="margin-top:10px;">CANCELAR</button>
     </div>
 </div>
 
@@ -619,16 +621,16 @@ html, body {
         <span class="label-modal">Psicóloga Asignada:</span>
         <select id="edit-psicologa-asignada" style="width: 100%; margin-bottom: 10px;"></select>
         
-       <span class="label-modal">Servicio / Categoría:</span>
-<select id="edit-servicio" style="width: 100%; margin-bottom: 15px; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
-    <option value="">-- Seleccionar Servicio --</option>
-    <option value="Terapia Psicológica">Terapia Psicológica</option>
-    <option value="Terapia de Lenguaje">Terapia de Lenguaje</option>
-    <option value="Estimulación Temprana">Estimulación Temprana</option>
-    <option value="Colegio">Colegio</option>
-    <option value="Club de Lectura">Club de Lectura</option>
-    <option value="Taller">Taller</option>
-</select>
+        <span class="label-modal">Servicio / Categoría:</span>
+        <select id="edit-servicio" style="width: 100%; margin-bottom: 15px; padding: 10px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-weight: 600; color: var(--brand-dark);">
+            <option value="(Sin asignar)">-- Seleccionar Servicio --</option>
+            <option value="Terapia Psicológica">Terapia Psicológica</option>
+            <option value="Terapia de Lenguaje">Terapia de Lenguaje</option>
+            <option value="Estimulación Temprana">Estimulación Temprana</option>
+            <option value="Colegio">Colegio</option>
+            <option value="Club de Lectura">Club de Lectura</option>
+            <option value="Taller">Taller</option>
+        </select>
         
         <span class="label-modal">Información del Paciente:</span>
         <input type="text" id="edit-nombre" placeholder="Nombre completo">
@@ -717,7 +719,7 @@ html, body {
    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+   import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA", authDomain: "agendaresiliencia-12.firebaseapp.com", projectId: "agendaresiliencia-12", storageBucket: "agendaresiliencia-12.firebasestorage.app", appId: "1:1068233469888:web:f958c72f406ac8698da225" };
     const app = initializeApp(firebaseConfig);
@@ -735,19 +737,6 @@ html, body {
 
     // --- FUNCIÓN PARA ABRIR Y LLENAR LA CITA (CON REINTENTO DE SELECTOR) ---
 window.abrirGestion = async (id) => {
-    // --- PASO 0: LIMPIEZA RADICAL ---
-    const selServ = document.getElementById('edit-servicio');
-    const selPsico = document.getElementById('edit-psicologa-asignada');
-
-    if (selServ) {
-        selServ.value = ""; 
-        selServ.style.border = "1px solid #ddd";
-        selServ.style.backgroundColor = "#fff";
-    }
-    
-    // Limpieza de campos de texto para no ver al paciente anterior
-    if(document.getElementById('edit-nombre')) document.getElementById('edit-nombre').value = "Cargando...";
-
     const docRef = doc(db, "citas", id);
     const docSnap = await getDoc(docRef);
 
@@ -755,60 +744,39 @@ window.abrirGestion = async (id) => {
         const cita = docSnap.data();
         citaActiva = { id: docSnap.id, ...cita };
 
-        // Llenar campos de texto (Nombre, Notas, etc.)
-        if(document.getElementById('edit-nombre')) document.getElementById('edit-nombre').value = cita.title || "";
-        if(document.getElementById('edit-notas')) document.getElementById('edit-notas').value = cita.notas || "";
-        if(document.getElementById('edit-monto')) document.getElementById('edit-monto').value = cita.monto || 0;
-        if(document.getElementById('edit-pagado')) document.getElementById('edit-pagado').checked = Boolean(cita.pagado);
-
-        // --- PASO 1: LA CARGA DEL SERVICIO (CON DOBLE VERIFICACIÓN) ---
-        if (selServ) {
-            const servicioDB = cita.servicio || "";
-            
-            // EL SECRETO: Un pequeño delay para que el modal "exista" en el DOM antes de asignar
-            setTimeout(() => {
-                selServ.value = servicioDB;
-
-                // Si no coincide por texto exacto, buscamos ignorando mayúsculas/espacios
-                if (selServ.value === "" && servicioDB !== "") {
-                    Array.from(selServ.options).forEach(opt => {
-                        if (opt.value.trim().toLowerCase() === servicioDB.trim().toLowerCase()) {
-                            selServ.value = opt.value;
-                        }
-                    });
-                }
-
-                // FEEDBACK VISUAL
-                if (selServ.value !== "" && selServ.value !== "-- Seleccionar Servicio --") {
-                    selServ.style.border = "2px solid #4CAF50";
-                    selServ.style.backgroundColor = "#f0fdf4"; 
-                }
-            }, 100); 
-        }
-
-        // --- PASO 2: LÓGICA DE PSICÓLOGA (Tuya original) ---
+        // Llenamos campos (Asegúrate que estos IDs existan en tu HTML)
+        if(document.getElementById('px-nombre')) document.getElementById('px-nombre').value = cita.title || "";
+        if(document.getElementById('px-notas')) document.getElementById('px-notas').value = cita.notas || "";
+        
+        // Manejo del selector de psicóloga
+        const selector = document.getElementById('select-psicologa-cita');
         const correoDuenia = (cita.user || "").toLowerCase().trim();
-        if (selPsico && correoDuenia) {
-            selPsico.disabled = true;
+
+        if (selector && correoDuenia) {
+            selector.disabled = true; // Lo bloqueamos un segundo
             
-            const forzarPsico = () => {
-                selPsico.value = correoDuenia;
-                Array.from(selPsico.options).forEach((opt, index) => {
+            // Función para forzar el valor
+            const forzar = () => {
+                selector.value = correoDuenia;
+                // Si no cambió por valor simple, buscamos en la lista de opciones
+                Array.from(selector.options).forEach((opt, index) => {
                     if (opt.value.toLowerCase().trim() === correoDuenia) {
-                        selPsico.selectedIndex = index;
+                        selector.selectedIndex = index;
                     }
                 });
             };
 
-            forzarPsico();
+            forzar(); // Intento 1
+
             setTimeout(() => {
-                forzarPsico();
-                selPsico.disabled = false;
-            }, 400); // Un poco antes que el servicio para no saturar
+                forzar(); // Intento 2 (por si el sistema lo reseteó)
+                selector.disabled = false;
+                selector.style.outline = "4px solid #4CAF50"; // Borde verde para confirmar
+                console.log("Cita de:", correoDuenia);
+            }, 500);
         }
 
-        // Mostrar el modal
-        document.getElementById('modal-gestion').style.display = 'block';
+        document.getElementById('modal-cita').style.display = 'flex';
     }
 };
 
@@ -844,57 +812,31 @@ window.abrirGestion = async (id) => {
 };
 
     // --- LÓGICA DEL MODAL DE CONFIRMACIÓN ELEGANTE ---
-   let accionConfirmar = null;
+   let accionConfirmar = null; // Variable para guardar la función temporalmente
 
-// 2. Función que abre el modal rojo de advertencia
 window.askConfirm = (titulo, cuerpo, accion) => {
     document.getElementById('confirm-title').innerText = titulo;
     document.getElementById('confirm-body').innerText = cuerpo;
     document.getElementById('modal-confirm').style.display = 'flex';
-    accionConfirmar = accion; // Guardamos la función de borrado
+    accionConfirmar = accion; // Guardamos la función (el deleteDoc)
 };
 
-// 3. Función para cerrar el modal de confirmación
 window.cerrarConfirm = () => {
     document.getElementById('modal-confirm').style.display = 'none';
     accionConfirmar = null;
 };
 
-// 4. El "Ejecutor" (Se activa al presionar "SÍ, ELIMINAR")
+// Esta es la función que conectamos al botón rojo directamente
 window.ejecutarConfirmacion = async () => {
     if (typeof accionConfirmar === 'function') {
         try {
-            await accionConfirmar(); // Ejecuta el borrado en Firebase
+            await accionConfirmar(); // Aquí es donde realmente se borra en Firebase
         } catch (error) {
             console.error("Error al ejecutar acción:", error);
             window.showToast("Error al procesar", "❌");
         }
     }
     window.cerrarConfirm(); // Cerramos siempre al final
-};
-
-// 5. La lógica de borrado (Lo que sucede cuando pides eliminar)
-window.eliminarCita = () => {
-    if (!citaActiva) return;
-
-    window.askConfirm(
-        "¿Eliminar Cita?", 
-        `¿Estás seguro de que deseas eliminar la cita de ${citaActiva.title}?`, 
-        async () => {
-            window.showToast("Eliminando...", "⏳");
-            // Importante: Asegúrate que 'db', 'doc' y 'deleteDoc' estén disponibles
-            await deleteDoc(doc(db, "citas", citaActiva.id));
-            
-            if (window.generarReportes) window.generarReportes();
-            window.showToast("Cita eliminada ✅", "✅");
-            window.cerrarTodo(); // Cierra el modal de gestión
-        }
-    );
-};
-
-// 6. EL PUENTE (Para que tu botón HTML funcione)
-window.confirmarEliminarCita = () => {
-    window.eliminarCita();
 };
 
 
@@ -911,39 +853,33 @@ window.enviarWhatsAppRecordatorio = () => {
 // --- 2. FUNCIÓN ACTUALIZAR ---
 window.ejecutarActualizacionCita = async () => {
     if (!citaActiva) return;
-
-    // --- PASO CLAVE: Capturar el valor del selector antes de armar el objeto ---
-    const selectorServ = document.getElementById('edit-servicio');
-    const servicioSeleccionado = selectorServ ? selectorServ.value : "(Sin asignar)";
-
     const pMail = document.getElementById('edit-psicologa-asignada')?.value || "";
     const pInfo = equipoGlobal.find(p => p.email.toLowerCase() === pMail.toLowerCase());
-
     const nuevosDatos = {
         title: document.getElementById('edit-nombre').value,
         user: pMail,
-        // Ahora sí, el valor capturado arriba se va a Firebase
-        servicio: servicioSeleccionado, 
         color: pInfo ? pInfo.color : (citaActiva.color || "#cbd5e1"),
         tel: document.getElementById('edit-pais').value + document.getElementById('edit-whatsapp').value,
         notas: document.getElementById('edit-notas').value,
         monto: parseFloat(document.getElementById('edit-monto').value) || 0,
         pagado: Boolean(document.getElementById('edit-pagado').checked)
     };
-
     window.showToast("Guardando cambios...", "⏳");
     try {
         await updateDoc(doc(db, "citas", citaActiva.id), nuevosDatos);
-        
-        // Refrescamos el Dashboard para que el contador de servicios suba
         if (window.generarReportes) window.generarReportes();
-        
         window.showToast("Actualizado ✅", "✅");
         window.cerrarTodo();
-    } catch (e) { 
-        console.error("Error al actualizar:", e);
-        window.showToast("Error ❌", "❌"); 
-    }
+    } catch (e) { window.showToast("Error ❌", "❌"); }
+};
+
+// --- 3. FUNCIÓN ELIMINAR ---
+window.confirmarEliminarCita = () => {
+    window.askConfirm("¿Eliminar Paciente?", "¿Estás segura?", async () => {
+        await deleteDoc(doc(db, "citas", citaActiva.id));
+        window.showToast("Cita Eliminada", "❌"); 
+        window.cerrarTodo();
+    });
 };
 
 // --- 4. FUNCIÓN GUARDAR NUEVA ---
@@ -1030,19 +966,78 @@ window.handleLogout = async () => {
     location.reload();
 };
 
-// 4. Añadir Psicóloga (Admin)
-window.anyadirPsicologa = async () => {
-    const name = document.getElementById('new-doc-name').value;
-    const email = document.getElementById('new-doc-email').value.toLowerCase();
-    if(!name || !email) return;
-    await addDoc(collection(db, "psicologas"), { 
-        name: name, email: email, 
-        color: `hsl(${Math.floor(Math.random() * 360)}, 70%, 80%)` 
-    }); 
-    window.showToast("Psicóloga añadida", "✅");
-    document.getElementById('new-doc-name').value = "";
-    document.getElementById('new-doc-email').value = "";
+// 1. ELIMINAR PSICÓLOGA (Limpio y directo)
+window.borrarDoc = async (id) => { 
+    // Usamos el confirm de tu sistema o el nativo
+    if (confirm("¿Estás seguro de eliminar a esta psicóloga del equipo?")) {
+        try {
+            // Solo borramos. El 'onSnapshot' se encarga de quitar la tarjeta de la vista.
+            await deleteDoc(doc(db, "psicologas", id));
+            await deleteDoc(doc(db, "perfiles", id));
+            
+            window.showToast("Psicóloga eliminada", "❌");
+        } catch (error) {
+            console.error("Error al borrar:", error);
+            window.showToast("Error al eliminar", "⚠️");
+        }
+    }
 };
+
+// 2. AÑADIR PSICÓLOGA (Doble guardado y limpieza de inputs)
+window.anadirPsicologa = async () => {
+    const nameInput = document.getElementById('new-doc-name');
+    const emailInput = document.getElementById('new-doc-email');
+    
+    const name = nameInput.value.trim();
+    const email = emailInput.value.toLowerCase().trim();
+
+    if(!name || !email) {
+        window.showToast("Escribe nombre y correo", "⚠️");
+        return;
+    }
+
+    try {
+        const colorAleatorio = `hsl(${Math.floor(Math.random() * 360)}, 70%, 80%)`;
+
+        // Guardamos en ambas colecciones
+        await setDoc(doc(db, "psicologas", email), { 
+            name: name, 
+            email: email, 
+            color: colorAleatorio 
+        }); 
+
+        await setDoc(doc(db, "perfiles", email), {
+            displayName: name,
+            email: email,
+            rol: 'psicologa',
+            uid: email 
+        });
+
+        window.showToast("¡Psicóloga añadida!", "✅");
+        
+        // Solo limpiamos los campos. 
+        // NO necesitamos recargar nada, el 'onSnapshot' dibujará la nueva tarjeta solo.
+        nameInput.value = "";
+        emailInput.value = "";
+
+    } catch (error) {
+        console.error("Error al añadir:", error);
+        window.showToast("Error de permisos", "❌");
+    }
+};
+
+// ESTO ES LO MÁS IMPORTANTE: Forzamos la conexión con el botón
+setTimeout(() => {
+    const btn = document.getElementById('add-doc-btn');
+    if (btn) {
+        console.log("Botón encontrado y conectado");
+        btn.onclick = window.anadirPsicologa;
+    } else {
+        console.error("¡EL BOTÓN 'add-doc-btn' NO EXISTE EN EL HTML!");
+    }
+}, 2000); // Esperamos 2 segundos a que cargue todo
+
+document.getElementById('add-doc-btn').onclick = window.anadirPsicologa;
 
 // 5. Confirmar Borrado (El botón rojo del modal ⚠️)
 window.ejecutarConfirmacionBorradoEstimulacion = async () => {
@@ -1140,14 +1135,18 @@ function iniciarApp(isAdmin, emailActivo) {
 
     // 2. Escucha de PSICOLOGAS (Selectores)
     onSnapshot(collection(db, "psicologas"), (snap) => {
-        equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
-        const opts = equipoGlobal.map(p => `<option value="${p.email.toLowerCase()}">${p.name}</option>`).join('');
-        const selectEdit = document.getElementById('edit-psicologa-asignada');
-        if (selectEdit) selectEdit.innerHTML = opts;
-        const selectCita = document.getElementById('select-psicologa-cita');
-        if (selectCita) selectCita.innerHTML = opts;
-    });
+    equipoGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
+   
+    const opts = equipoGlobal.map(p => `<option value="${p.email.toLowerCase()}">${p.name}</option>`).join('');
+    const selectEdit = document.getElementById('edit-psicologa-asignada');
+    if (selectEdit) selectEdit.innerHTML = opts;
+    const selectCita = document.getElementById('select-psicologa-cita');
+    if (selectCita) selectCita.innerHTML = opts;
 
+    if (typeof renderizarAdminUnified === 'function') {
+        renderizarAdminUnified(true);
+    }
+});
     // 3. Escucha de CITAS
     onSnapshot(collection(db, "citas"), (snap) => {
         citasGlobal = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -1195,13 +1194,20 @@ function iniciarApp(isAdmin, emailActivo) {
         const selectPsico = document.getElementById('select-psicologa-cita');
         
         if (selectPsico) {
-            // Llenamos el selector con todas las psicólogas disponibles en el equipo
-            selectPsico.innerHTML = equipoGlobal.map(p => 
+            // Llenamos el selector: Primero la opción vacía y luego el equipo
+            const opcionesEquipo = equipoGlobal.map(p => 
                 `<option value="${p.email.toLowerCase()}">${p.name}</option>`
             ).join('');
 
-            // Por defecto, seleccionamos a la psicóloga que tiene la sesión iniciada
-            selectPsico.value = auth.currentUser.email.toLowerCase();
+            // Unimos el mensaje por defecto con las psicólogas
+            selectPsico.innerHTML = `<option value="" selected disabled>-- Seleccionar Psicóloga --</option>` + opcionesEquipo;
+
+            // IMPORTANTE: Si quieres que aparezca "Seleccionar Psicóloga" por defecto, 
+            // comenta o borra la línea que fuerza el valor al email del usuario:
+            // selectPsico.value = auth.currentUser.email.toLowerCase();
+            
+            // Forzamos que se vea el mensaje inicial
+            selectPsico.value = ""; 
         }
 
         // 3. Mostramos el modal
