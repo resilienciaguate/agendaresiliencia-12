@@ -1456,21 +1456,29 @@ html, body {
    <script type="module">
 
 window.irAHistoria = function() {
-    // 1. Cambiar la pestaña visualmente
+    // 1. Cambiar la pestaña
     cambiarPestana('historia');
 
-    // 2. Intentar obtener el nombre del paciente
-    // Primero busca en el campo de historia, si está vacío busca en el de evolución
-    const hcNombre = document.getElementById('hc-nombre')?.value;
-    const evNombre = document.getElementById('paciente-nombre-evolucion')?.value; 
+    // 2. Buscar el nombre en AMBOS posibles lugares
+    const nombreEnHistoria = document.getElementById('hc-nombre')?.value;
+    const nombreEnEvolucion = document.getElementById('paciente-nombre-evolucion')?.value; 
     
-    const nombreParaCargar = (hcNombre || evNombre || "").trim();
+    // Priorizamos el nombre que ya esté en el formulario de historia
+    const nombreFinal = (nombreEnHistoria || nombreEnEvolucion || "").trim();
 
-    if (nombreParaCargar) {
-        const docId = nombreParaCargar.toLowerCase().replace(/\s+/g, '_')
+    if (nombreFinal) {
+        // Esta línea es CRUCIAL: convierte el nombre al formato de ID de Firebase
+        const docId = nombreFinal.toLowerCase().replace(/\s+/g, '_')
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
         
+        console.log("Intentando cargar datos para el ID:", docId);
         window.cargarHistoriaClinica(docId);
+        
+        // OPCIONAL: Si el campo de nombre de historia está vacío, ponle el nombre que encontramos
+        const inputHC = document.getElementById('hc-nombre');
+        if (inputHC && !inputHC.value) inputHC.value = nombreFinal;
+    } else {
+        alert("Primero selecciona un paciente o escribe su nombre.");
     }
 };
 
