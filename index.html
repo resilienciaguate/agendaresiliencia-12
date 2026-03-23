@@ -358,26 +358,36 @@ html, body {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        justify-content: center !important; /* Centra el texto verticalmente */
+        justify-content: center !important;
         text-decoration: none !important;
         color: #8e8e93 !important;
-        font-size: 11px !important; /* Un poco más grande al no haber iconos */
+        font-size: 11px !important;
         font-weight: 700 !important;
         text-transform: uppercase !important;
     }
 
-    /* Eliminamos cualquier contenido de icono previo */
     .nav-item::before, .nav-links a::before {
         display: none !important;
         content: "" !important;
     }
 
-    /* 4. ELIMINAR ESTIMULACIÓN Y RECIBO */
-    .nav-item[onclick*="estimulacion"], .nav-links a[onclick*="estimulacion"],
-    .nav-item[onclick*="recibo"], .nav-links a[onclick*="recibo"],
-    .nav-item[onclick*="recino"], .nav-links a[onclick*="recino"] {
+    /* 4. ELIMINAR SECCIONES Y BOTONES NO DESEADOS (Estimulación, Recibos) */
+    /* Aquí ocultamos tanto el botón como el CONTENIDO de la hoja */
+    .nav-item[onclick*="estimulacion"], 
+    .nav-links a[onclick*="estimulacion"],
+    #estimulacion, 
+    .estimulacion,
+    [id*="estimulacion"],
+    .nav-item[onclick*="recibo"], 
+    #recibo,
+    #recino {
         display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
+
     .nav-item.active, .nav-links a.active { color: #a5c941 !important; }
 
     /* 5. EL CONTENIDO */
@@ -392,9 +402,11 @@ html, body {
         display: block !important;
         margin: 0 !important;
     }
+
     .top-nav .logo-text, .app-logo-clinic, .app-logo-dynamic, .logo-text {
         display: none !important;
     }
+
     #calendar { height: 60vh !important; font-size: 10px !important; }
 }
 
