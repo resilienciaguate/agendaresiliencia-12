@@ -1175,10 +1175,10 @@ html, body {
                 style="padding: 8px 16px; border: none; border-radius: 9px; cursor: pointer; background: white; font-weight: 600; color: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.3s;">
             Evolución
         </button>
-        <button onclick="cambiarPestana('historia')" id="tab-historia" 
-                style="padding: 8px 16px; border: none; border-radius: 9px; cursor: pointer; background: transparent; font-weight: 600; color: #8e8e93; transition: 0.3s;">
-            Historia Clínica
-        </button>
+        <button onclick="irAPestanaHistoria()" id="tab-historia" 
+        style="padding: 8px 16px; border: none; border-radius: 9px; cursor: pointer; background: transparent; font-weight: 600; color: #8e8e93; transition: 0.3s;">
+    Historia Clínica
+</button>
     </div>
 
     <div id="seccion-nota">
@@ -1454,6 +1454,29 @@ html, body {
 
 
    <script type="module">
+
+window.irAPestanaHistoria = function() {
+    // 1. Cambiamos visualmente a la pestaña (tu función actual)
+    if (typeof cambiarPestana === "function") {
+        cambiarPestana('historia');
+    }
+
+    // 2. Obtenemos el nombre que esté en el campo de la Historia Clínica
+    const nombreInput = document.getElementById('hc-nombre');
+    const nombreVerificar = nombreInput ? nombreInput.value.trim() : "";
+
+    if (nombreVerificar) {
+        // Convertimos el nombre al ID de Firebase (ej: "Juan Perez" -> "juan_perez")
+        const docId = nombreVerificar.toLowerCase().replace(/\s+/g, '_')
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
+        
+        console.log("Cargando automáticamente datos para:", docId);
+        window.cargarHistoriaClinica(docId);
+    } else {
+        console.log("No hay nombre escrito para cargar historial.");
+    }
+};
+
 
 // Función para mostrar Toasts elegantes
 window.showToast = function(mensaje) {
@@ -2816,234 +2839,6 @@ if (typeof interact !== 'undefined') {
     });
 }
 
-// 1. FUNCIÓN DE GUARDADO (Sincronizada al 100% con tu HTML)
-// 1. FUNCIÓN DE GUARDADO (DECLARACIÓN ESTÁNDAR)
-async function guardarHistoriaClinica() {
-    console.log("Intentando guardar...");
-    
-    // Función interna para evitar errores de null
-    const safeGet = (id) => {
-        const el = document.getElementById(id);
-        return el ? el.value || "" : ""; 
-    };
-
-    try {
-        const nombrePaciente = safeGet('hc-nombre').trim();
-        if (!nombrePaciente) {
-            alert("⚠️ Por favor, ingresa el nombre del paciente.");
-            return;
-        }
-
-        // Generar ID
-        const docId = nombrePaciente.toLowerCase().replace(/\s+/g, '_')
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
-        
-        const docRef = doc(db, "historias_clinicas", docId);
-
-        // Objeto de datos sincronizado con tus IDs del HTML
-        const datos = {
-            nombre: nombrePaciente,
-            edad: safeGet('hc-edad'),
-            nacionalidad: safeGet('hc-nacionalidad'),
-            ocupacion: safeGet('hc-ocupacion'),
-            fechaNacimiento: safeGet('hc-fecha-nac'),
-            religion: safeGet('hc-religion'),
-            escolaridad: safeGet('hc-escolaridad'),
-            telefono: safeGet('hc-telefono'),
-            emergencia: safeGet('hc-emergencia'),
-            motivo: safeGet('hc-motivo'),
-            tratamientosPrev: safeGet('hc-tratamientos-prev'),
-            embarazo: safeGet('hc-emb-historia'),
-            parto: safeGet('hc-parto-tipo'),
-            gestacion: safeGet('hc-gestacion'),
-            alcohol: safeGet('hc-emb-alcohol'),
-            emocionMadre: safeGet('hc-emb-emocion'),
-            difDesarrollo: safeGet('hc-dif-desarrollo'),
-            gateo: safeGet('hc-gateo'),
-            camino: safeGet('hc-camino'),
-            hablo: safeGet('hc-hablo'),
-            enuresis: safeGet('hc-enuresis'),
-            encopresis: safeGet('hc-encopresis'),
-            familia: safeGet('hc-familia-tabla'),
-            estiloCrianza: safeGet('hc-crianza-estilo'),
-            med_enfermedades: safeGet('hc-med-enf'),
-            med_hospitalizacion: safeGet('hc-med-hosp'),
-            med_actuales: safeGet('hc-meds-actuales'),
-            med_herencia: safeGet('hc-med-herencia'),
-            esc_inicio: safeGet('hc-esc-inicio'),
-            esc_acad: safeGet('hc-esc-acad'), 
-            esc_cond: safeGet('hc-esc-cond'),
-            esc_repite: safeGet('hc-esc-repite'),
-            esc_expect: safeGet('hc-esc-expect'),
-            soc_relaciones: safeGet('hc-soc-rel'),
-            soc_int: safeGet('hc-soc-int'),
-            soc_tipo: safeGet('hc-soc-tipo'),
-            soc_deporte: safeGet('hc-soc-deporte'),
-            soc_amigos: safeGet('hc-soc-amigos'),
-            soc_delito: safeGet('hc-soc-delito'),
-            soc_ansiedad: safeGet('hc-soc-ansiedad'),
-            diag_desc: safeGet('hc-diag-desc'),
-            diag_fort: safeGet('hc-diag-fort'),
-            diag_debi: safeGet('hc-diag-debi'),
-            diag_signos: safeGet('hc-diag-signos'),
-            ultimaEdicion: new Date().toLocaleString()
-        };
-
-        // Guardar en Firebase
-        await setDoc(docRef, datos, { merge: true });
-        alert("✅ Expediente de " + nombrePaciente + " actualizado.");
-        
-    } catch (error) {
-        console.error("Error detallado:", error);
-        alert("❌ Error al guardar: " + error.message);
-    }
-}
-
-// 2. HACERLA ACCESIBLE GLOBALMENTE (Por si acaso)
-window.guardarHistoriaClinica = guardarHistoriaClinica;
-
-// 3. CARGA DE DATOS
-async function cargarHistoriaClinica(pacienteId) {
-    if (!pacienteId) return;
-
-    try {
-        const docRef = doc(db, "historias_clinicas", pacienteId);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            const d = docSnap.data();
-            const fill = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.value = val || '';
-            };
-
-            // Mapeo uno a uno
-            Object.keys(d).forEach(key => {
-                // Buscamos si existe un elemento con ID 'hc-' + nombre de la clave
-                // O usamos el mapeo manual para los que no siguen el patrón
-                fill('hc-' + key, d[key]); 
-            });
-
-            // Mapeo manual para asegurar (Sección 5 y 7)
-            fill('hc-esc-acad', d.esc_acad);
-            fill('hc-diag-fort', d.diag_fort);
-            fill('hc-diag-debi', d.diag_debi);
-            
-            console.log("Carga exitosa");
-        }
-    } catch (error) {
-        console.error("Error al cargar:", error);
-    }
-}
-window.cargarHistoriaClinica = cargarHistoriaClinica;
-
-// 2. FUNCIÓN DE CARGA (Corregida para que coincida con la base de datos)
-// --- BORRA CUALQUIER OTRA VERSIÓN DE ESTAS FUNCIONES ANTES DE PEGAR ESTO ---
-
-async function cargarHistoriaClinica(pacienteId) {
-    if (!pacienteId) return;
-    console.log("Cargando datos para:", pacienteId);
-
-    try {
-        const docRef = doc(db, "historias_clinicas", pacienteId);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            const d = docSnap.data();
-            const fill = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.value = val || '';
-            };
-
-            // Lista maestra de IDs (Sincronizada con tu HTML)
-            fill('hc-nombre', d.nombre);
-            fill('hc-edad', d.edad);
-            fill('hc-nacionalidad', d.nacionalidad);
-            fill('hc-ocupacion', d.ocupacion);
-            fill('hc-fecha-nac', d.fechaNacimiento);
-            fill('hc-religion', d.religion);
-            fill('hc-escolaridad', d.escolaridad);
-            fill('hc-telefono', d.telefono);
-            fill('hc-emergencia', d.emergencia);
-            fill('hc-motivo', d.motivo);
-            fill('hc-tratamientos-prev', d.tratamientosPrev);
-            fill('hc-emb-historia', d.embarazo);
-            fill('hc-parto-tipo', d.parto);
-            fill('hc-gestacion', d.gestacion);
-            fill('hc-emb-alcohol', d.alcohol);
-            fill('hc-emb-emocion', d.emocionMadre);
-            fill('hc-dif-desarrollo', d.difDesarrollo);
-            fill('hc-gateo', d.gateo);
-            fill('hc-camino', d.camino);
-            fill('hc-hablo', d.hablo);
-            fill('hc-enuresis', d.enuresis);
-            fill('hc-encopresis', d.encopresis);
-            fill('hc-familia-tabla', d.familia);
-            fill('hc-crianza-estilo', d.estiloCrianza);
-            fill('hc-med-enf', d.med_enfermedades);
-            fill('hc-med-hosp', d.med_hospitalizacion);
-            fill('hc-meds-actuales', d.med_actuales);
-            fill('hc-med-herencia', d.med_herencia);
-            fill('hc-esc-inicio', d.esc_inicio);
-            fill('hc-esc-acad', d.esc_acad); 
-            fill('hc-esc-cond', d.esc_cond);
-            fill('hc-esc-repite', d.esc_repite);
-            fill('hc-esc-expect', d.esc_expect);
-            fill('hc-soc-rel', d.soc_relaciones);
-            fill('hc-soc-int', d.soc_int);
-            fill('hc-soc-tipo', d.soc_tipo);
-            fill('hc-soc-deporte', d.soc_deporte);
-            fill('hc-soc-amigos', d.soc_amigos);
-            fill('hc-soc-delito', d.soc_delito);
-            fill('hc-soc-ansiedad', d.soc_ansiedad);
-            fill('hc-diag-desc', d.diag_desc);
-            fill('hc-diag-fort', d.diag_fort);
-            fill('hc-diag-debi', d.diag_debi);
-            fill('hc-diag-signos', d.diag_signos);
-
-            console.log("✅ Datos cargados correctamente.");
-        }
-    } catch (error) {
-        console.error("Error al cargar:", error);
-    }
-}
-
-window.guardarHistoriaClinica = async function() {
-    const safeGet = (id) => {
-        const el = document.getElementById(id);
-        return el ? el.value || "" : ""; 
-    };
-
-    try {
-        const nombre = safeGet('hc-nombre').trim();
-        if (!nombre) { alert("⚠️ Nombre del paciente requerido."); return; }
-
-        const docId = nombre.toLowerCase().replace(/\s+/g, '_')
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
-        
-        const docRef = doc(db, "historias_clinicas", docId);
-
-        const datos = {
-            nombre: nombre,
-            edad: safeGet('hc-edad'),
-            nacionalidad: safeGet('hc-nacionalidad'),
-            // ... (añade aquí los demás campos si quieres, pero prueba con estos primero)
-            esc_acad: safeGet('hc-esc-acad'),
-            diag_fort: safeGet('hc-diag-fort'),
-            diag_debi: safeGet('hc-diag-debi'),
-            ultimaEdicion: new Date().toLocaleString()
-        };
-
-        await setDoc(docRef, datos, { merge: true });
-        alert("✅ Expediente de " + nombre + " guardado.");
-    } catch (error) {
-        console.error("Error al guardar:", error);
-        alert("Error: " + error.message);
-    }
-};
-
-// Hacerla global para el botón HTML
-window.cargarHistoriaClinica = cargarHistoriaClinica;
 
 // Funciones de personalización del reporte
 window.ajustarLogo = function() {
@@ -3522,105 +3317,7 @@ window.cambiarPestana = function(tipo) {
     }
 };
 
-// Función para guardar la Historia Clínica en Firebase
-window.guardarHistoriaClinica = async function() {
-    // Verificamos que tengamos un paciente seleccionado
-    if (!currentPxId) {
-        window.showToast("❌ Error: No se ha seleccionado un paciente");
-        return;
-    }
 
-    const dataHC = {
-        nombres: document.getElementById('hc-nombres').value,
-        apellidos: document.getElementById('hc-apellidos').value,
-        edad: document.getElementById('hc-edad').value,
-        sexo: document.getElementById('hc-sexo').value,
-        fechaNacimiento: document.getElementById('hc-fecha-nac').value,
-        estadoCivil: document.getElementById('hc-estado-civil').value,
-        ocupacion: document.getElementById('hc-ocupacion').value,
-        direccion: document.getElementById('hc-direccion').value,
-        detalles: document.getElementById('hc-detalles').value, // El textarea grande
-        ultimaActualizacion: new Date().toISOString()
-    };
-
-    try {
-        const hcRef = doc(db, "pacientes", currentPxId, "datosClinicos", "historia");
-        // setDoc es mejor aquí porque solo queremos UN documento de historia por paciente
-        await setDoc(hcRef, dataHC);
-        window.showToast("✅ Expediente actualizado correctamente");
-    } catch (e) {
-        console.error("Error al guardar historia:", e);
-        window.showToast("❌ Error al guardar los datos");
-    }
-};
-
-// Función para cargar la Historia Clínica
-async function cargarHistoriaClinica(pacienteId) {
-    if (!pacienteId) return;
-
-    try {
-        const docRef = doc(db, "historias_clinicas", pacienteId);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            const d = docSnap.data();
-            const fill = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.value = val || '';
-            };
-
-            // Rellenado sincronizado con los nombres de la base de datos
-            fill('hc-nombre', d.nombre);
-            fill('hc-edad', d.edad);
-            fill('hc-nacionalidad', d.nacionalidad);
-            fill('hc-ocupacion', d.ocupacion);
-            fill('hc-fecha-nac', d.fechaNacimiento);
-            fill('hc-religion', d.religion);
-            fill('hc-escolaridad', d.escolaridad);
-            fill('hc-telefono', d.telefono);
-            fill('hc-emergencia', d.emergencia);
-            fill('hc-motivo', d.motivo);
-            fill('hc-tratamientos-prev', d.tratamientosPrev);
-            fill('hc-emb-historia', d.embarazo);
-            fill('hc-parto-tipo', d.parto);
-            fill('hc-gestacion', d.gestacion);
-            fill('hc-emb-alcohol', d.alcohol);
-            fill('hc-emb-emocion', d.emocionMadre);
-            fill('hc-dif-desarrollo', d.difDesarrollo);
-            fill('hc-gateo', d.gateo);
-            fill('hc-camino', d.camino);
-            fill('hc-hablo', d.hablo);
-            fill('hc-enuresis', d.enuresis);
-            fill('hc-encopresis', d.encopresis);
-            fill('hc-familia-tabla', d.familia);
-            fill('hc-crianza-estilo', d.estiloCrianza);
-            fill('hc-med-enf', d.med_enfermedades);
-            fill('hc-med-hosp', d.med_hospitalizacion);
-            fill('hc-meds-actuales', d.med_actuales);
-            fill('hc-med-herencia', d.med_herencia);
-            fill('hc-esc-inicio', d.esc_inicio);
-            fill('hc-esc-acad', d.esc_acad);
-            fill('hc-esc-cond', d.esc_cond);
-            fill('hc-esc-repite', d.esc_repite);
-            fill('hc-esc-expect', d.esc_expect);
-            fill('hc-soc-rel', d.soc_relaciones);
-            fill('hc-soc-int', d.soc_int);
-            fill('hc-soc-tipo', d.soc_tipo);
-            fill('hc-soc-deporte', d.soc_deporte);
-            fill('hc-soc-amigos', d.soc_amigos);
-            fill('hc-soc-delito', d.soc_delito);
-            fill('hc-soc-ansiedad', d.soc_ansiedad);
-            fill('hc-diag-desc', d.diag_desc);
-            fill('hc-diag-fort', d.diag_fort);
-            fill('hc-diag-debi', d.diag_debi);
-            fill('hc-diag-signos', d.diag_signos);
-
-            console.log("¡Carga terminada con éxito!");
-        }
-    } catch (error) {
-        console.error("Error al cargar datos:", error);
-    }
-}
 
 window.eliminarEvolucion = function(e, notaId) {
     e.stopPropagation(); // Esto evita que se abra la nota al querer borrarla
@@ -3772,6 +3469,191 @@ async function consultarEvoluciones(id) {
         lista.innerHTML = '<p style="padding:20px; color:red;">Error al cargar historial.</p>';
     }
 }
+
+// ======================================================
+// BLOQUE INTEGRAL: GESTIÓN DE HISTORIA CLÍNICA (PRO)
+// ======================================================
+
+/**
+ * 1. FUNCIÓN DE GUARDADO
+ * Recolecta todos los datos del formulario y los envía a Firebase.
+ */
+window.guardarHistoriaClinica = async function() {
+    console.log("Iniciando proceso de guardado...");
+    
+    // Función de seguridad para evitar errores si un ID no existe
+    const safeGet = (id) => {
+        const el = document.getElementById(id);
+        if (!el) {
+            console.warn("Advertencia: El ID '" + id + "' no se encontró en el HTML.");
+            return "";
+        }
+        return el.value || "";
+    };
+
+    try {
+        const nombrePaciente = safeGet('hc-nombre').trim();
+        
+        if (!nombrePaciente) {
+            alert("⚠️ Por favor, ingresa al menos el nombre del paciente.");
+            return;
+        }
+
+        // Crear ID del documento (limpio de espacios y acentos)
+        const docId = nombrePaciente.toLowerCase().replace(/\s+/g, '_')
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
+        
+        const docRef = doc(db, "historias_clinicas", docId);
+
+        // Mapeo completo sincronizado con index copy.html
+        const datos = {
+            nombre: nombrePaciente,
+            edad: safeGet('hc-edad'),
+            nacionalidad: safeGet('hc-nacionalidad'),
+            ocupacion: safeGet('hc-ocupacion'),
+            fechaNacimiento: safeGet('hc-fecha-nac'),
+            religion: safeGet('hc-religion'),
+            escolaridad: safeGet('hc-escolaridad'),
+            telefono: safeGet('hc-telefono'),
+            emergencia: safeGet('hc-emergencia'),
+            motivo: safeGet('hc-motivo'),
+            tratamientosPrev: safeGet('hc-tratamientos-prev'),
+            // Antecedentes
+            embarazo: safeGet('hc-emb-historia'),
+            parto: safeGet('hc-parto-tipo'),
+            gestacion: safeGet('hc-gestacion'),
+            alcohol: safeGet('hc-emb-alcohol'),
+            emocionMadre: safeGet('hc-emb-emocion'),
+            difDesarrollo: safeGet('hc-dif-desarrollo'),
+            gateo: safeGet('hc-gateo'),
+            camino: safeGet('hc-camino'),
+            hablo: safeGet('hc-hablo'),
+            enuresis: safeGet('hc-enuresis'),
+            encopresis: safeGet('hc-encopresis'),
+            familia: safeGet('hc-familia-tabla'),
+            estiloCrianza: safeGet('hc-crianza-estilo'),
+            // Médicos
+            med_enfermedades: safeGet('hc-med-enf'),
+            med_hospitalizacion: safeGet('hc-med-hosp'),
+            med_actuales: safeGet('hc-meds-actuales'),
+            med_herencia: safeGet('hc-med-herencia'),
+            // Escolar
+            esc_inicio: safeGet('hc-esc-inicio'),
+            esc_acad: safeGet('hc-esc-acad'), 
+            esc_cond: safeGet('hc-esc-cond'),
+            esc_repite: safeGet('hc-esc-repite'),
+            esc_expect: safeGet('hc-esc-expect'),
+            // Social
+            soc_relaciones: safeGet('hc-soc-rel'),
+            soc_int: safeGet('hc-soc-int'),
+            soc_tipo: safeGet('hc-soc-tipo'),
+            soc_deporte: safeGet('hc-soc-deporte'),
+            soc_amigos: safeGet('hc-soc-amigos'),
+            soc_delito: safeGet('hc-soc-delito'),
+            soc_ansiedad: safeGet('hc-soc-ansiedad'),
+            // Diagnóstico
+            diag_desc: safeGet('hc-diag-desc'),
+            diag_fort: safeGet('hc-diag-fort'),
+            diag_debi: safeGet('hc-diag-debi'),
+            diag_signos: safeGet('hc-diag-signos'),
+            ultimaEdicion: new Date().toLocaleString()
+        };
+
+        await setDoc(docRef, datos, { merge: true });
+        alert("✅ ¡Éxito! El expediente de " + nombrePaciente + " ha sido actualizado.");
+        console.log("Documento guardado con ID:", docId);
+
+    } catch (error) {
+        console.error("Error crítico al guardar:", error);
+        alert("❌ Error de Firebase: " + error.message);
+    }
+};
+
+/**
+ * 2. FUNCIÓN DE CARGA
+ * Busca los datos y los coloca en los inputs correspondientes.
+ */
+async function cargarHistoriaClinica(pacienteId) {
+    if (!pacienteId) return;
+    console.log("Buscando datos para:", pacienteId);
+
+    try {
+        const docRef = doc(db, "historias_clinicas", pacienteId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const d = docSnap.data();
+            
+            const fill = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val || '';
+            };
+
+            // Llenado masivo de campos
+            fill('hc-nombre', d.nombre);
+            fill('hc-edad', d.edad);
+            fill('hc-nacionalidad', d.nacionalidad);
+            fill('hc-ocupacion', d.ocupacion);
+            fill('hc-fecha-nac', d.fechaNacimiento);
+            fill('hc-religion', d.religion);
+            fill('hc-escolaridad', d.escolaridad);
+            fill('hc-telefono', d.telefono);
+            fill('hc-emergencia', d.emergencia);
+            fill('hc-motivo', d.motivo);
+            fill('hc-tratamientos-prev', d.tratamientosPrev);
+            fill('hc-emb-historia', d.embarazo);
+            fill('hc-parto-tipo', d.parto);
+            fill('hc-gestacion', d.gestacion);
+            fill('hc-emb-alcohol', d.alcohol);
+            fill('hc-emb-emocion', d.emocionMadre);
+            fill('hc-dif-desarrollo', d.difDesarrollo);
+            fill('hc-gateo', d.gateo);
+            fill('hc-camino', d.camino);
+            fill('hc-hablo', d.hablo);
+            fill('hc-enuresis', d.enuresis);
+            fill('hc-encopresis', d.encopresis);
+            fill('hc-familia-tabla', d.familia);
+            fill('hc-crianza-estilo', d.estiloCrianza);
+            fill('hc-med-enf', d.med_enfermedades);
+            fill('hc-med-hosp', d.med_hospitalizacion);
+            fill('hc-meds-actuales', d.med_actuales);
+            fill('hc-med-herencia', d.med_herencia);
+            fill('hc-esc-inicio', d.esc_inicio);
+            fill('hc-esc-acad', d.esc_acad);
+            fill('hc-esc-cond', d.esc_cond);
+            fill('hc-esc-repite', d.esc_repite);
+            fill('hc-esc-expect', d.esc_expect);
+            fill('hc-soc-rel', d.soc_relaciones);
+            fill('hc-soc-int', d.soc_int);
+            fill('hc-soc-tipo', d.soc_tipo);
+            fill('hc-soc-deporte', d.soc_deporte);
+            fill('hc-soc-amigos', d.soc_amigos);
+            fill('hc-soc-delito', d.soc_delito);
+            fill('hc-soc-ansiedad', d.soc_ansiedad);
+            fill('hc-diag-desc', d.diag_desc);
+            fill('hc-diag-fort', d.diag_fort);
+            fill('hc-diag-debi', d.diag_debi);
+            fill('hc-diag-signos', d.diag_signos);
+
+            console.log("✅ Carga de datos completada.");
+        }
+    } catch (error) {
+        console.error("Error al cargar expediente:", error);
+    }
+}
+
+// 3. Hacer la función de carga disponible globalmente
+window.cargarHistoriaClinica = cargarHistoriaClinica;
+
+
+document.getElementById('hc-nombre')?.addEventListener('blur', function() {
+    const nombre = this.value.trim();
+    if (nombre) {
+        const docId = nombre.toLowerCase().replace(/\s+/g, '_')
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
+        window.cargarHistoriaClinica(docId);
+    }
+});
 
 </script>
 </body>
