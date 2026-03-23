@@ -302,44 +302,56 @@ html, body {
     line-height: 1.4;
 }
 
-/* --- AJUSTE DEL PANEL SUPERIOR EN MÓVIL --- */
 @media (max-width: 768px) {
+    /* 1. Panel de "EQUIPO" más compacto */
+    #psico-view-only, .calendar-card > div:first-child {
+        padding: 10px !important;
+        margin-top: 10px !important;
+    }
+
+    /* Reducimos el tamaño del logo y títulos para ganar espacio */
+    .calendar-card img {
+        max-width: 60px !important;
+    }
     
-    /* Hacemos que el contenedor de las tarjetas use 2 columnas pequeñas */
-    .calendar-card > div:has(#stat-citas-mes) {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important; /* Dos columnas iguales */
-        gap: 10px !important;
-        margin-bottom: 15px !important;
+    .calendar-card h2 {
+        font-size: 14px !important;
+        margin-bottom: 5px !important;
     }
 
-    /* Reducimos el tamaño de las tarjetas individuales */
-    .calendar-card div[style*="background: white"], 
-    .calendar-card div[style*="background: #f8fafc"] {
-        padding: 8px !important; /* Menos espacio interno */
-        border-radius: 8px !important;
-    }
-
-    /* Reducimos el tamaño de los números y etiquetas */
-    #stat-citas-mes, #stat-total-px {
-        font-size: 18px !important; /* Números más discretos */
-        margin-top: 2px !important;
-    }
-
-    span[style*="font-size: 10px"] {
-        font-size: 9px !important; /* Etiquetas mini */
-        letter-spacing: 0px !important;
-    }
-
-    /* Ajuste para el título del Dashboard */
-    h2[style*="font-size:18px"] {
+    /* 2. Buscador más integrado y menos alto */
+    #search-input {
+        padding: 8px 12px !important;
         font-size: 14px !important;
         margin-bottom: 10px !important;
-        text-align: center;
+        height: 40px !important;
+    }
+
+    /* 3. Lista de equipo en formato mini */
+    #equipo-list-container { /* Ajusta al ID real de tu lista de psicólogas */
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 5px !important;
+    }
+
+    .equipo-item { /* Ajusta a la clase de tus filas de psicólogas */
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        background: #f1f5f9 !important;
+        border-radius: 20px !important;
+    }
+
+    /* 4. Forzamos que la agenda suba */
+    #calendar {
+        margin-top: 10px !important;
+        height: 70vh !important; /* Le damos prioridad a la agenda */
+    }
+
+    /* Ocultamos elementos no críticos en móvil si es necesario */
+    .desktop-only {
+        display: none !important;
     }
 }
-
-</style>
 
 </head>
 <body>
