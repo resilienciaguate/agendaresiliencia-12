@@ -1455,25 +1455,22 @@ html, body {
 
    <script type="module">
 
-window.irAPestanaHistoria = function() {
-    // 1. Cambiamos visualmente a la pestaña (tu función actual)
-    if (typeof cambiarPestana === "function") {
-        cambiarPestana('historia');
-    }
+window.irAHistoria = function() {
+    // 1. Cambiar la pestaña visualmente
+    cambiarPestana('historia');
 
-    // 2. Obtenemos el nombre que esté en el campo de la Historia Clínica
-    const nombreInput = document.getElementById('hc-nombre');
-    const nombreVerificar = nombreInput ? nombreInput.value.trim() : "";
+    // 2. Intentar obtener el nombre del paciente
+    // Primero busca en el campo de historia, si está vacío busca en el de evolución
+    const hcNombre = document.getElementById('hc-nombre')?.value;
+    const evNombre = document.getElementById('paciente-nombre-evolucion')?.value; 
+    
+    const nombreParaCargar = (hcNombre || evNombre || "").trim();
 
-    if (nombreVerificar) {
-        // Convertimos el nombre al ID de Firebase (ej: "Juan Perez" -> "juan_perez")
-        const docId = nombreVerificar.toLowerCase().replace(/\s+/g, '_')
+    if (nombreParaCargar) {
+        const docId = nombreParaCargar.toLowerCase().replace(/\s+/g, '_')
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
         
-        console.log("Cargando automáticamente datos para:", docId);
         window.cargarHistoriaClinica(docId);
-    } else {
-        console.log("No hay nombre escrito para cargar historial.");
     }
 };
 
@@ -3651,6 +3648,8 @@ document.getElementById('hc-nombre')?.addEventListener('blur', function() {
     if (nombre) {
         const docId = nombre.toLowerCase().replace(/\s+/g, '_')
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
+        
+        console.log("GitHub: Cargando datos de " + docId);
         window.cargarHistoriaClinica(docId);
     }
 });
