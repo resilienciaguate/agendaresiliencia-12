@@ -1456,29 +1456,26 @@ html, body {
    <script type="module">
 
 window.irAHistoria = function() {
-    // 1. Cambiar la pestaña
+    // 1. Cambiamos de pestaña
     cambiarPestana('historia');
 
-    // 2. Buscar el nombre en AMBOS posibles lugares
-    const nombreEnHistoria = document.getElementById('hc-nombre')?.value;
-    const nombreEnEvolucion = document.getElementById('paciente-nombre-evolucion')?.value; 
-    
-    // Priorizamos el nombre que ya esté en el formulario de historia
-    const nombreFinal = (nombreEnHistoria || nombreEnEvolucion || "").trim();
+    // 2. Buscamos el nombre en el Header (donde dice "Historial: ...")
+    // En tu código ese elemento suele ser 'paciente-nombre-evolucion'
+    const headerElement = document.getElementById('paciente-nombre-evolucion');
+    let nombreHeader = headerElement ? (headerElement.value || headerElement.innerText) : "";
 
-    if (nombreFinal) {
-        // Esta línea es CRUCIAL: convierte el nombre al formato de ID de Firebase
-        const docId = nombreFinal.toLowerCase().replace(/\s+/g, '_')
+    // Limpiamos la palabra "Historial:" si existe
+    nombreHeader = nombreHeader.replace('Historial:', '').trim();
+
+    if (nombreHeader) {
+        // Creamos el ID único para Firebase basado SIEMPRE en el header
+        const docId = nombreHeader.toLowerCase().replace(/\s+/g, '_')
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
         
-        console.log("Intentando cargar datos para el ID:", docId);
+        console.log("Cargando expediente con ID de Header:", docId);
         window.cargarHistoriaClinica(docId);
-        
-        // OPCIONAL: Si el campo de nombre de historia está vacío, ponle el nombre que encontramos
-        const inputHC = document.getElementById('hc-nombre');
-        if (inputHC && !inputHC.value) inputHC.value = nombreFinal;
     } else {
-        alert("Primero selecciona un paciente o escribe su nombre.");
+        alert("Por favor, selecciona un paciente de la agenda primero.");
     }
 };
 
@@ -3476,43 +3473,69 @@ async function consultarEvoluciones(id) {
 }
 
 // ======================================================
-// BLOQUE INTEGRAL: GESTIÓN DE HISTORIA CLÍNICA (PRO)
+// GESTIÓN DE HISTORIA CLÍNICA - BASADO EN HEADER
 // ======================================================
 
-/**
- * 1. FUNCIÓN DE GUARDADO
- * Recolecta todos los datos del formulario y los envía a Firebase.
- */
+// 1. FUNCIÓN PARA IR A LA PESTAÑA Y CARGAR
+window.irAHistoria = function() {
+    // Cambiamos de pestaña visualmente
+    if (typeof cambiarPestana === "function") {
+        cambiarPestana('historia');
+    }
+
+    // LEER EL NOMBRE DEL HEADER (El que dice "Historial: ...")
+    // Usamos el ID que mencionaste del panel de px
+    const headerEl = document.getElementById('paciente-nombre-evolucion');
+    let nombreHeader = headerEl ? (headerEl.value || headerEl.innerText || "") : "";
+    
+    // Limpiamos la palabra "Historial:" si aparece en el texto
+    nombreHeader = nombreHeader.replace(/Historial:\s*/i, '').trim();
+
+    if (nombreHeader) {
+        // Generamos el ID único basado en el Header
+        const docId = nombreHeader.toLowerCase().replace(/\s+/g, '_')
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
+        
+        console.log("Cargando expediente desde Header ID:", docId);
+        window.cargarHistoriaClinica(docId);
+    } else {
+        console.warn("No hay paciente seleccionado en el header.");
+    }
+};
+
+// 2. FUNCIÓN PARA GUARDAR (CORREGIDA)
 window.guardarHistoriaClinica = async function() {
     console.log("Iniciando proceso de guardado...");
     
-    // Función de seguridad para evitar errores si un ID no existe
     const safeGet = (id) => {
         const el = document.getElementById(id);
-        if (!el) {
-            console.warn("Advertencia: El ID '" + id + "' no se encontró en el HTML.");
-            return "";
-        }
-        return el.value || "";
+        return el ? el.value || "" : "";
     };
 
     try {
-        const nombrePaciente = safeGet('hc-nombre').trim();
-        
-        if (!nombrePaciente) {
-            alert("⚠️ Por favor, ingresa al menos el nombre del paciente.");
+        // --- LA CLAVE ESTÁ AQUÍ ---
+        // Obtenemos el nombre del HEADER para saber EN QUÉ DOCUMENTO guardar
+        const headerEl = document.getElementById('paciente-nombre-evolucion');
+        let nombreHeader = headerEl ? (headerEl.value || headerEl.innerText || "") : "";
+        nombreHeader = nombreHeader.replace(/Historial:\s*/i, '').trim();
+
+        if (!nombreHeader) {
+            alert("⚠️ No hay un paciente seleccionado en el panel principal.");
             return;
         }
 
-        // Crear ID del documento (limpio de espacios y acentos)
-        const docId = nombrePaciente.toLowerCase().replace(/\s+/g, '_')
+        // El ID de Firebase SIEMPRE se basa en el nombre del header para no perder el rastro
+        const docId = nombreHeader.toLowerCase().replace(/\s+/g, '_')
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
         
         const docRef = doc(db, "historias_clinicas", docId);
 
-        // Mapeo completo sincronizado con index copy.html
+        // Los datos que guardamos (Aquí el nombre del formulario es solo un campo más)
         const datos = {
-            nombre: nombrePaciente,
+            // Guardamos el nombre tal cual lo escribas en el formulario, 
+            // pero el "archivo" en Firebase se sigue llamando como el del header.
+            nombreFormulario: safeGet('hc-nombre'), 
+            nombreHeader: nombreHeader,
             edad: safeGet('hc-edad'),
             nacionalidad: safeGet('hc-nacionalidad'),
             ocupacion: safeGet('hc-ocupacion'),
@@ -3523,7 +3546,6 @@ window.guardarHistoriaClinica = async function() {
             emergencia: safeGet('hc-emergencia'),
             motivo: safeGet('hc-motivo'),
             tratamientosPrev: safeGet('hc-tratamientos-prev'),
-            // Antecedentes
             embarazo: safeGet('hc-emb-historia'),
             parto: safeGet('hc-parto-tipo'),
             gestacion: safeGet('hc-gestacion'),
@@ -3537,18 +3559,15 @@ window.guardarHistoriaClinica = async function() {
             encopresis: safeGet('hc-encopresis'),
             familia: safeGet('hc-familia-tabla'),
             estiloCrianza: safeGet('hc-crianza-estilo'),
-            // Médicos
             med_enfermedades: safeGet('hc-med-enf'),
             med_hospitalizacion: safeGet('hc-med-hosp'),
             med_actuales: safeGet('hc-meds-actuales'),
             med_herencia: safeGet('hc-med-herencia'),
-            // Escolar
             esc_inicio: safeGet('hc-esc-inicio'),
             esc_acad: safeGet('hc-esc-acad'), 
             esc_cond: safeGet('hc-esc-cond'),
             esc_repite: safeGet('hc-esc-repite'),
             esc_expect: safeGet('hc-esc-expect'),
-            // Social
             soc_relaciones: safeGet('hc-soc-rel'),
             soc_int: safeGet('hc-soc-int'),
             soc_tipo: safeGet('hc-soc-tipo'),
@@ -3556,7 +3575,6 @@ window.guardarHistoriaClinica = async function() {
             soc_amigos: safeGet('hc-soc-amigos'),
             soc_delito: safeGet('hc-soc-delito'),
             soc_ansiedad: safeGet('hc-soc-ansiedad'),
-            // Diagnóstico
             diag_desc: safeGet('hc-diag-desc'),
             diag_fort: safeGet('hc-diag-fort'),
             diag_debi: safeGet('hc-diag-debi'),
@@ -3565,12 +3583,12 @@ window.guardarHistoriaClinica = async function() {
         };
 
         await setDoc(docRef, datos, { merge: true });
-        alert("✅ ¡Éxito! El expediente de " + nombrePaciente + " ha sido actualizado.");
-        console.log("Documento guardado con ID:", docId);
+        alert("✅ Expediente de " + nombreHeader + " actualizado.");
+        console.log("Guardado exitoso en ID:", docId);
 
     } catch (error) {
-        console.error("Error crítico al guardar:", error);
-        alert("❌ Error de Firebase: " + error.message);
+        console.error("Error al guardar:", error);
+        alert("❌ Error: " + error.message);
     }
 };
 
