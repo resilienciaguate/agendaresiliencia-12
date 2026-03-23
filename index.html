@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -2816,102 +2817,106 @@ if (typeof interact !== 'undefined') {
 }
 
 window.guardarHistoriaClinica = async function() {
-    try {
-        // Función auxiliar para obtener valor de forma segura y evitar el error "null (reading 'value')"
-        const getVal = (id) => {
-            const el = document.getElementById(id);
-            if (!el) {
-                console.warn(`Advertencia: El elemento con ID '${id}' no se encontró en el DOM.`);
-                return ""; 
-            }
-            return el.value;
-        };
+    console.log("Iniciando guardado de expediente...");
+    
+    // 1. Función de rescate: Si el elemento no existe, devuelve un texto vacío en lugar de romper el código
+    const safeGet = (id) => {
+        const el = document.getElementById(id);
+        if (!el) {
+            console.warn(`Campo no encontrado en el HTML: ${id}`);
+            return ""; 
+        }
+        return el.value || "";
+    };
 
-        const nombrePaciente = getVal('hc-nombre');
+    try {
+        // El nombre es el único campo obligatorio para generar el ID
+        const nombrePaciente = safeGet('hc-nombre');
         
-        if (!nombrePaciente) {
-            alert("Por favor, ingresa el nombre del paciente para guardar.");
+        if (!nombrePaciente || nombrePaciente.trim() === "") {
+            alert("⚠️ Por favor, ingresa al menos el nombre del paciente.");
             return;
         }
 
-        // Generamos el ID del documento (mantenemos tu lógica de reemplazo)
-        const docId = nombrePaciente.replace(/\s+/g, '_').toLowerCase();
+        // Generamos el ID del documento basado en el nombre
+        const docId = nombrePaciente.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
         
-        // Importante: Usamos la ruta de Firestore recomendada para evitar errores de permisos
+        // Usamos la ruta oficial de la app para evitar errores de permisos de Firebase
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'historias_clinicas', docId);
+        const docRef = doc(db, "artifacts", appId, "public", "data", "historias_clinicas", docId);
 
+        // 2. Captura masiva protegida (Cualquier ID que falte aquí NO romperá el código)
         const datos = {
             // SECCIÓN 1: DATOS GENERALES
             nombre: nombrePaciente,
-            edad: getVal('hc-edad'),
-            nacionalidad: getVal('hc-nacionalidad'),
-            ocupacion: getVal('hc-ocupacion'),
-            fechaNacimiento: getVal('hc-fecha-nac'),
-            religion: getVal('hc-religion'),
-            escolaridad: getVal('hc-escolaridad'),
-            telefono: getVal('hc-telefono'),
-            emergencia: getVal('hc-emergencia'),
-            motivo: getVal('hc-motivo'),
-            tratamientosPrev: getVal('hc-tratamientos-prev'),
+            edad: safeGet('hc-edad'),
+            nacionalidad: safeGet('hc-nacionalidad'),
+            ocupacion: safeGet('hc-ocupacion'),
+            fechaNacimiento: safeGet('hc-fecha-nac'),
+            religion: safeGet('hc-religion'),
+            escolaridad: safeGet('hc-escolaridad'),
+            telefono: safeGet('hc-telefono'),
+            emergencia: safeGet('hc-emergencia'),
+            motivo: safeGet('hc-motivo'),
+            tratamientosPrev: safeGet('hc-tratamientos-prev'),
 
             // SECCIÓN 2: DESARROLLO
-            embarazo: getVal('hc-emb-historia'),
-            parto: getVal('hc-parto-tipo'),
-            gestacion: getVal('hc-gestacion'),
-            alcohol: getVal('hc-emb-alcohol'),
-            emocionMadre: getVal('hc-emb-emocion'),
-            difDesarrollo: getVal('hc-dif-desarrollo'),
-            gateo: getVal('hc-gateo'),
-            camino: getVal('hc-camino'),
-            hablo: getVal('hc-hablo'),
-            enuresis: getVal('hc-enuresis'),
-            encopresis: getVal('hc-encopresis'),
+            embarazo: safeGet('hc-emb-historia'),
+            parto: safeGet('hc-parto-tipo'),
+            gestacion: safeGet('hc-gestacion'),
+            alcohol: safeGet('hc-emb-alcohol'),
+            emocionMadre: safeGet('hc-emb-emocion'),
+            difDesarrollo: safeGet('hc-dif-desarrollo'),
+            gateo: safeGet('hc-gateo'),
+            camino: safeGet('hc-camino'),
+            hablo: safeGet('hc-hablo'),
+            enuresis: safeGet('hc-enuresis'),
+            encopresis: safeGet('hc-encopresis'),
 
             // SECCIÓN 3: FAMILIA
-            familia: getVal('hc-familia-tabla'),
-            estiloCrianza: getVal('hc-crianza-estilo'),
+            familia: safeGet('hc-familia-tabla'),
+            estiloCrianza: safeGet('hc-crianza-estilo'),
 
             // SECCIÓN 4: MÉDICA
-            med_enfermedades: getVal('hc-med-enf'),
-            med_hospitalizacion: getVal('hc-med-hosp'),
-            med_actuales: getVal('hc-meds-actuales'),
-            med_herencia: getVal('hc-med-herencia'),
+            med_enfermedades: safeGet('hc-med-enf'),
+            med_hospitalizacion: safeGet('hc-med-hosp'),
+            med_actuales: safeGet('hc-meds-actuales'),
+            med_herencia: safeGet('hc-med-herencia'),
 
             // SECCIÓN 5: ESCOLAR
-            esc_inicio: getVal('hc-esc-inicio'),
-            esc_acad: getVal('hc-esc-acad'),
-            esc_cond: getVal('hc-esc-cond'),
-            esc_repite: getVal('hc-esc-repite'),
-            esc_expectativas: getVal('hc-esc-expect'),
+            esc_inicio: safeGet('hc-esc-inicio'),
+            esc_acad: safeGet('hc-esc-acad'),
+            esc_cond: safeGet('hc-esc-cond'),
+            esc_repite: safeGet('hc-esc-repite'),
+            esc_expectativas: safeGet('hc-esc-expect'),
 
             // SECCIÓN 6: SOCIAL
-            soc_relaciones: getVal('hc-soc-rel'),
-            soc_intereses: getVal('hc-soc-int'),
-            soc_tipo: getVal('hc-soc-tipo'),
-            soc_deporte: getVal('hc-soc-deporte'),
-            soc_amigos: getVal('hc-soc-amigos'),
-            soc_delito: getVal('hc-soc-delito'),
-            soc_ansiedad: getVal('hc-soc-ansiedad'),
+            soc_relaciones: safeGet('hc-soc-rel'),
+            soc_intereses: safeGet('hc-soc-int'),
+            soc_tipo: safeGet('hc-soc-tipo'),
+            soc_deporte: safeGet('hc-soc-deporte'),
+            soc_amigos: safeGet('hc-soc-amigos'),
+            soc_delito: safeGet('hc-soc-delito'),
+            soc_ansiedad: safeGet('hc-soc-ansiedad'),
 
             // SECCIÓN 7: IMPRESIÓN CLÍNICA
-            diag_desc: getVal('hc-diag-desc'),
-            diag_fortalezas: getVal('hc-diag-fort'),
-            diag_debilidades: getVal('hc-diag-debi'),
-            diag_signos: getVal('hc-diag-signos'),
+            diag_desc: safeGet('hc-diag-desc'),
+            diag_fortalezas: safeGet('hc-diag-fort'),
+            diag_debilidades: safeGet('hc-diag-debi'),
+            diag_signos: safeGet('hc-diag-signos'),
             
-            ultimaEdicion: new Date().toLocaleString()
+            ultimaEdicion: new Date().toLocaleString(),
+            timestamp: serverTimestamp()
         };
 
-        // Guardado con merge para no borrar datos previos si existen
+        // 3. Guardado con merge (mantiene lo que ya existía y solo actualiza lo nuevo)
         await setDoc(docRef, datos, { merge: true });
         
-        // Notificación visual
-        alert("✅ ¡Expediente de " + nombrePaciente + " guardado con éxito!");
+        alert("✅ ¡Expediente de " + nombrePaciente + " actualizado con éxito!");
 
     } catch (error) {
-        console.error("Error crítico al guardar:", error);
-        alert("❌ Error al guardar: " + error.message);
+        console.error("Error al intentar guardar:", error);
+        alert("❌ Error al guardar el expediente. Revisa la consola para más detalles.");
     }
 };
 
