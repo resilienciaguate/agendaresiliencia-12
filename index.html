@@ -2938,8 +2938,11 @@ async function cargarHistoriaClinica(pacienteId) {
 window.cargarHistoriaClinica = cargarHistoriaClinica;
 
 // 2. FUNCIÓN DE CARGA (Corregida para que coincida con la base de datos)
+// --- BORRA CUALQUIER OTRA VERSIÓN DE ESTAS FUNCIONES ANTES DE PEGAR ESTO ---
+
 async function cargarHistoriaClinica(pacienteId) {
     if (!pacienteId) return;
+    console.log("Cargando datos para:", pacienteId);
 
     try {
         const docRef = doc(db, "historias_clinicas", pacienteId);
@@ -2952,7 +2955,7 @@ async function cargarHistoriaClinica(pacienteId) {
                 if (el) el.value = val || '';
             };
 
-            // Rellenamos exactamente con lo que guardamos
+            // Lista maestra de IDs (Sincronizada con tu HTML)
             fill('hc-nombre', d.nombre);
             fill('hc-edad', d.edad);
             fill('hc-nacionalidad', d.nacionalidad);
@@ -2982,7 +2985,7 @@ async function cargarHistoriaClinica(pacienteId) {
             fill('hc-meds-actuales', d.med_actuales);
             fill('hc-med-herencia', d.med_herencia);
             fill('hc-esc-inicio', d.esc_inicio);
-            fill('hc-esc-acad', d.esc_acad);
+            fill('hc-esc-acad', d.esc_acad); 
             fill('hc-esc-cond', d.esc_cond);
             fill('hc-esc-repite', d.esc_repite);
             fill('hc-esc-expect', d.esc_expect);
@@ -2998,12 +3001,49 @@ async function cargarHistoriaClinica(pacienteId) {
             fill('hc-diag-debi', d.diag_debi);
             fill('hc-diag-signos', d.diag_signos);
 
-            console.log("¡Expediente cargado!");
+            console.log("✅ Datos cargados correctamente.");
         }
     } catch (error) {
         console.error("Error al cargar:", error);
     }
 }
+
+window.guardarHistoriaClinica = async function() {
+    const safeGet = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value || "" : ""; 
+    };
+
+    try {
+        const nombre = safeGet('hc-nombre').trim();
+        if (!nombre) { alert("⚠️ Nombre del paciente requerido."); return; }
+
+        const docId = nombre.toLowerCase().replace(/\s+/g, '_')
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
+        
+        const docRef = doc(db, "historias_clinicas", docId);
+
+        const datos = {
+            nombre: nombre,
+            edad: safeGet('hc-edad'),
+            nacionalidad: safeGet('hc-nacionalidad'),
+            // ... (añade aquí los demás campos si quieres, pero prueba con estos primero)
+            esc_acad: safeGet('hc-esc-acad'),
+            diag_fort: safeGet('hc-diag-fort'),
+            diag_debi: safeGet('hc-diag-debi'),
+            ultimaEdicion: new Date().toLocaleString()
+        };
+
+        await setDoc(docRef, datos, { merge: true });
+        alert("✅ Expediente de " + nombre + " guardado.");
+    } catch (error) {
+        console.error("Error al guardar:", error);
+        alert("Error: " + error.message);
+    }
+};
+
+// Hacerla global para el botón HTML
+window.cargarHistoriaClinica = cargarHistoriaClinica;
 
 // Funciones de personalización del reporte
 window.ajustarLogo = function() {
