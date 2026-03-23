@@ -3335,7 +3335,6 @@ window.cerrarHistorial = function() {
     if (modal) modal.style.display = 'none';
 };
 
-// Función para cambiar entre Nota e Historia Clínica
 window.cambiarPestana = function(tipo) {
     const sNota = document.getElementById('seccion-nota');
     const sHistoria = document.getElementById('seccion-historia');
@@ -3348,12 +3347,18 @@ window.cambiarPestana = function(tipo) {
         tNota.style.background = 'white'; tNota.style.color = '#333';
         tHistoria.style.background = 'transparent'; tHistoria.style.color = '#8e8e93';
     } else {
-        sNota.style.display = 'block'; // Usamos block y flex según diseño
-        sNota.style.display = 'none';
+        sNota.style.display = 'none'; // Corregido: ocultar nota
         sHistoria.style.display = 'block';
         tHistoria.style.background = 'white'; tHistoria.style.color = '#333';
         tNota.style.background = 'transparent'; tNota.style.color = '#8e8e93';
-        cargarHistoriaClinica(); // Carga los datos cuando entras a la pestaña
+
+        // --- CORRECCIÓN AQUÍ ---
+        // Intentamos obtener el nombre del paciente del input antes de cargar
+        const nombreInput = document.getElementById('hc-nombre').value;
+        if (nombreInput) {
+            const idLimpio = nombreInput.replace(/\s+/g, '_').toLowerCase();
+            cargarHistoriaClinica(idLimpio); 
+        }
     }
 };
 
