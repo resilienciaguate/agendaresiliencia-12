@@ -2817,31 +2817,47 @@ if (typeof interact !== 'undefined') {
 }
 
 window.guardarHistoriaClinica = async function() {
-    console.log("Iniciando guardado de expediente...");
+    console.log("Iniciando guardado de expediente con protección total...");
     
-    // 1. Función de rescate: Si el elemento no existe, devuelve un texto vacío en lugar de romper el código
+    // 1. Función de rescate mejorada: Evita CUALQUIER error de tipo 'null'
     const safeGet = (id) => {
         const el = document.getElementById(id);
         if (!el) {
             console.warn(`Campo no encontrado en el HTML: ${id}`);
             return ""; 
         }
-        return el.value || "";
+        // Retornamos el valor, y si por alguna razón .value falla, retornamos string vacío
+        try {
+            return el.value || "";
+        } catch (e) {
+            console.error(`Error al leer valor de ${id}:`, e);
+            return "";
+        }
     };
 
     try {
-        // El nombre es el único campo obligatorio para generar el ID
-        const nombrePaciente = safeGet('hc-nombre');
+        // Obtenemos el elemento del nombre con cuidado extremo
+        const nombreElemento = document.getElementById('hc-nombre');
         
-        if (!nombrePaciente || nombrePaciente.trim() === "") {
-            alert("⚠️ Por favor, ingresa al menos el nombre del paciente.");
+        if (!nombreElemento) {
+            alert("❌ Error crítico: No se encontró el campo de nombre ('hc-nombre') en la página.");
             return;
         }
 
-        // Generamos el ID del documento basado en el nombre
-        const docId = nombrePaciente.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+        const nombrePaciente = nombreElemento.value ? nombreElemento.value.trim() : "";
         
-        // Usamos la ruta oficial de la app para evitar errores de permisos de Firebase
+        if (!nombrePaciente) {
+            alert("⚠️ Por favor, ingresa al menos el nombre del paciente para guardar.");
+            return;
+        }
+
+        // Generamos el ID del documento basado en el nombre (limpiando caracteres prohibidos en Firebase)
+        const docId = nombrePaciente.toLowerCase()
+            .replace(/\s+/g, '_')
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quita tildes
+            .replace(/[^a-z0-9_]/g, '');
+        
+        // Usamos la ruta oficial de la app según las reglas de seguridad
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const docRef = doc(db, "artifacts", appId, "public", "data", "historias_clinicas", docId);
 
@@ -2909,14 +2925,14 @@ window.guardarHistoriaClinica = async function() {
             timestamp: serverTimestamp()
         };
 
-        // 3. Guardado con merge (mantiene lo que ya existía y solo actualiza lo nuevo)
+        // 3. Guardado con merge
         await setDoc(docRef, datos, { merge: true });
         
         alert("✅ ¡Expediente de " + nombrePaciente + " actualizado con éxito!");
 
     } catch (error) {
-        console.error("Error al intentar guardar:", error);
-        alert("❌ Error al guardar el expediente. Revisa la consola para más detalles.");
+        console.error("Error fatal al intentar guardar:", error);
+        alert("❌ Error al guardar el expediente: " + error.message);
     }
 };
 
