@@ -301,46 +301,55 @@ html, body {
     color: #333;
     line-height: 1.4;
 }
-/* ================================================================
-   SOLO AGREGA ESTO AL FINAL (PARA ARREGLAR EL AMONTONAMIENTO)
-   ================================================================ */
+/* --- ESTILO APPLE CALENDAR (iOS) --- */
 @media (max-width: 768px) {
-    /* 1. Cambia la estructura de horizontal a vertical */
-    #app-content { 
-        flex-direction: column !important; 
-        overflow-y: auto !important; 
-        height: auto !important;
-        padding: 10px !important;
+
+    /* 1. Quitamos bordes y fondos pesados para que parezca app nativa */
+    .fc {
+        background: white !important;
+        border: none !important;
     }
 
-    /* 2. Hace que el panel de búsqueda ocupe todo el ancho arriba */
-    .side-panel { 
-        width: 100% !important; 
-        padding: 15px !important;
-        box-sizing: border-box !important;
+    /* 2. Diseño de la lista de pacientes (Debajo del calendario) */
+    .fc-list-event {
+        background: #ffffff !important;
+        border-bottom: 0.5px solid #efeff4 !important; /* Gris ultra fino de Apple */
+        cursor: pointer;
     }
 
-    /* 3. Ajusta el calendario para que no se vea comprimido */
-    .main-stage { 
-        width: 100% !important; 
-        margin-top: 10px;
+    /* 3. La "pastilla" de color a la izquierda (como en iPhone) */
+    .fc-list-event-dot {
+        border-width: 5px !important;
+        margin-right: 15px !important;
     }
 
-    #calendar { 
-        height: 70vh !important; /* Le da altura para que se pueda ver */
-        min-height: 450px !important;
+    /* 4. Texto de la cita */
+    .fc-list-event-title {
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        padding: 12px 0 !important;
+        color: #000 !important;
     }
 
-    /* 4. Ajusta las tarjetas de estadísticas a 2 columnas */
-    /* (Esto asumiendo que están dentro de la calendar-card principal) */
-    .calendar-card > div[style*="grid-template-columns"] {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 8px !important;
+    .fc-list-event-time {
+        font-size: 13px !important;
+        color: #8e8e93 !important; /* Gris Apple */
+        text-transform: lowercase;
     }
 
-    /* Oculta el logo en móvil para ganar 100px de altura */
-    .app-logo-clinic, .logo-text { 
-        display: none !important; 
+    /* 5. Cabecera de fecha (ej: "lunes, 22 de marzo") */
+    .fc-list-day-cushion {
+        background: #f2f2f7 !important; /* Fondo gris claro de iOS */
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        color: #6e6e73 !important;
+        padding: 8px 15px !important;
+    }
+
+    /* 6. Hacer que el calendario (los números) ocupe menos espacio y la lista más */
+    .fc-view-harness {
+        background: white !important;
     }
 }
 
