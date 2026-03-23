@@ -302,57 +302,77 @@ html, body {
     line-height: 1.4;
 }
 
-@media (max-width: 768px) {
-    /* 1. Panel de "EQUIPO" más compacto */
-    #psico-view-only, .calendar-card > div:first-child {
-        padding: 10px !important;
-        margin-top: 10px !important;
+/* ================================================================
+       --- 📱 VERSIÓN MÓVIL OPTIMIZADA (Cero Pantalla en Blanco) ---
+       ================================================================ */
+    @media (max-width: 768px) {
+        /* Aseguramos que el contenido sea visible */
+        body {
+            display: block !important;
+            background: #f8fafc;
+        }
+
+        /* 1. Panel superior ultra compacto */
+        #psico-view-only, .calendar-card {
+            padding: 8px !important;
+            margin: 5px !important;
+        }
+
+        /* Reducimos logo y títulos */
+        .calendar-card img {
+            max-width: 50px !important;
+            margin: 0 auto !important;
+            display: block;
+        }
+        
+        .calendar-card h2 {
+            font-size: 13px !important;
+            text-align: center;
+            margin: 5px 0 !important;
+        }
+
+        /* 2. Buscador discreto */
+        #search-input {
+            width: 100% !important;
+            height: 35px !important;
+            font-size: 14px !important;
+            margin-bottom: 8px !important;
+        }
+
+        #btn-reset-search {
+            width: 100% !important;
+            padding: 8px !important;
+            margin-bottom: 10px !important;
+        }
+
+        /* 3. Stats en dos columnas (para que no ocupen espacio vertical) */
+        .calendar-card > div[style*="grid-template-columns"] {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+        }
+
+        /* 4. Agenda con prioridad alta */
+        #calendar {
+            margin-top: 5px !important;
+            height: 65vh !important; /* Esto hace que la agenda suba y se vea */
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Estilo de etiquetas tipo Barbero */
+        .fc-event {
+            font-size: 9px !important;
+            border-radius: 3px !important;
+        }
+
+        .desktop-only {
+            display: none !important;
+        }
     }
 
-    /* Reducimos el tamaño del logo y títulos para ganar espacio */
-    .calendar-card img {
-        max-width: 60px !important;
-    }
-    
-    .calendar-card h2 {
-        font-size: 14px !important;
-        margin-bottom: 5px !important;
-    }
-
-    /* 2. Buscador más integrado y menos alto */
-    #search-input {
-        padding: 8px 12px !important;
-        font-size: 14px !important;
-        margin-bottom: 10px !important;
-        height: 40px !important;
-    }
-
-    /* 3. Lista de equipo en formato mini */
-    #equipo-list-container { /* Ajusta al ID real de tu lista de psicólogas */
-        display: flex !important;
-        flex-wrap: wrap !important;
-        gap: 5px !important;
-    }
-
-    .equipo-item { /* Ajusta a la clase de tus filas de psicólogas */
-        padding: 4px 8px !important;
-        font-size: 11px !important;
-        background: #f1f5f9 !important;
-        border-radius: 20px !important;
-    }
-
-    /* 4. Forzamos que la agenda suba */
-    #calendar {
-        margin-top: 10px !important;
-        height: 70vh !important; /* Le damos prioridad a la agenda */
-    }
-
-    /* Ocultamos elementos no críticos en móvil si es necesario */
-    .desktop-only {
-        display: none !important;
-    }
-}
-
+        </style>
 </head>
 <body>
 
