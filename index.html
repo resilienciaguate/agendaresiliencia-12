@@ -302,76 +302,40 @@ html, body {
     line-height: 1.4;
 }
 
-/* ================================================================
-   --- 📱 VERSIÓN MÓVIL EXCLUSIVA (ESTILO CALENDARIO BARBERO) ---
-   ================================================================ */
+/* --- AJUSTE DEL PANEL SUPERIOR EN MÓVIL --- */
 @media (max-width: 768px) {
-    /* 1. Ajuste del contenedor principal para que no tenga márgenes excesivos */
-    .calendar-card {
-        padding: 10px !important;
-        margin: 0 !important;
-        border-radius: 0 !important;
-        border: none !important;
-    }
-
-    /* 2. Ajuste de la altura del calendario para móvil */
-    #calendar {
-        height: calc(100vh - 150px) !important; /* Ajusta para que quepa en la pantalla */
-        font-size: 11px !important;
-    }
-
-    /* 3. Estilo de las etiquetas (eventos) tipo "Barbero" */
-    .fc-event {
-        border-radius: 4px !important;
-        padding: 2px 4px !important;
-        margin-bottom: 1px !important;
-        border: none !important;
-        font-weight: 600 !important;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-
-    /* 4. Forzar que el encabezado del calendario sea más pequeño */
-    .fc-header-toolbar {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 8px !important;
+    
+    /* Hacemos que el contenedor de las tarjetas use 2 columnas pequeñas */
+    .calendar-card > div:has(#stat-citas-mes) {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important; /* Dos columnas iguales */
+        gap: 10px !important;
         margin-bottom: 15px !important;
     }
 
-    .fc-toolbar-title {
-        font-size: 1.1rem !important;
-        font-weight: 800 !important;
-        text-transform: capitalize;
+    /* Reducimos el tamaño de las tarjetas individuales */
+    .calendar-card div[style*="background: white"], 
+    .calendar-card div[style*="background: #f8fafc"] {
+        padding: 8px !important; /* Menos espacio interno */
+        border-radius: 8px !important;
     }
 
-    /* 5. Ajuste de los botones de navegación */
-    .fc-button {
-        padding: 6px 10px !important;
-        font-size: 12px !important;
-        text-transform: uppercase !important;
-        font-weight: 700 !important;
+    /* Reducimos el tamaño de los números y etiquetas */
+    #stat-citas-mes, #stat-total-px {
+        font-size: 18px !important; /* Números más discretos */
+        margin-top: 2px !important;
     }
 
-    /* 6. Ocultar vistas que no sirven en móvil (ej. vista de mes muy pequeña) */
-    /* Si prefieres solo vista de Agenda Diaria en móvil: */
-    .fc-view-harness {
-        background: #fff !important;
+    span[style*="font-size: 10px"] {
+        font-size: 9px !important; /* Etiquetas mini */
+        letter-spacing: 0px !important;
     }
 
-    /* 7. Mejorar el buscador en móvil para que ocupe el ancho total */
-    #search-input {
-        width: 100% !important;
+    /* Ajuste para el título del Dashboard */
+    h2[style*="font-size:18px"] {
+        font-size: 14px !important;
         margin-bottom: 10px !important;
-    }
-
-    #btn-reset-search {
-        width: 100% !important;
-        margin-bottom: 20px !important;
-    }
-
-    /* 8. Ajuste de las líneas de tiempo para que no se vean amontonadas */
-    .fc-timegrid-slot {
-        height: 50px !important; /* Más espacio para tocar con el dedo */
+        text-align: center;
     }
 }
 
