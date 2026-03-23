@@ -1455,27 +1455,55 @@ html, body {
 
    <script type="module">
 
+
+
+function obtenerNombreDelHeader() {
+    // Intentamos todos los IDs que podrías estar usando en tu header
+    const posiblesIds = ['paciente-nombre-evolucion', 'header-paciente-nombre', 'nombre-paciente-header'];
+    let textoEncontrado = "";
+
+    for (let id of posiblesIds) {
+        const el = document.getElementById(id);
+        if (el) {
+            textoEncontrado = el.value || el.innerText || "";
+            if (textoEncontrado) break;
+        }
+    }
+
+    // SI NO LO ENCUENTRA POR ID, buscamos por la clase o el texto que contenga "Historial:"
+    if (!textoEncontrado) {
+        // Buscamos cualquier elemento que tenga el texto "Historial:"
+        const todos = document.querySelectorAll('h1, h2, h3, div, span');
+        for (let el of todos) {
+            if (el.innerText.includes("Historial:")) {
+                textoEncontrado = el.innerText;
+                break;
+            }
+        }
+    }
+
+    // Limpiamos el prefijo "Historial:" y espacios
+    return textoEncontrado.replace(/Historial:\s*/i, '').trim();
+}
+
 window.irAHistoria = function() {
-    // 1. Cambiamos de pestaña
     cambiarPestana('historia');
 
-    // 2. Buscamos el nombre en el Header (donde dice "Historial: ...")
-    // En tu código ese elemento suele ser 'paciente-nombre-evolucion'
-    const headerElement = document.getElementById('paciente-nombre-evolucion');
-    let nombreHeader = headerElement ? (headerElement.value || headerElement.innerText) : "";
-
-    // Limpiamos la palabra "Historial:" si existe
-    nombreHeader = nombreHeader.replace('Historial:', '').trim();
+    const nombreHeader = obtenerNombreDelHeader();
+    console.log("Nombre detectado en el header:", nombreHeader);
 
     if (nombreHeader) {
-        // Creamos el ID único para Firebase basado SIEMPRE en el header
         const docId = nombreHeader.toLowerCase().replace(/\s+/g, '_')
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
         
-        console.log("Cargando expediente con ID de Header:", docId);
+        // Llenamos el campo del formulario automáticamente
+        const inputHC = document.getElementById('hc-nombre');
+        if (inputHC) inputHC.value = nombreHeader;
+
         window.cargarHistoriaClinica(docId);
     } else {
-        alert("Por favor, selecciona un paciente de la agenda primero.");
+        console.error("Error: No se pudo localizar el nombre en el header.");
+        alert("Por favor, asegúrate de haber seleccionado un paciente.");
     }
 };
 
@@ -3476,41 +3504,14 @@ async function consultarEvoluciones(id) {
 // GESTIÓN DE HISTORIA CLÍNICA - BASADO EN HEADER
 // ======================================================
 
-// 1. FUNCIÓN PARA IR A LA PESTAÑA Y CARGAR
-window.irAHistoria = function() {
-    // Cambiamos de pestaña visualmente
-    if (typeof cambiarPestana === "function") {
-        cambiarPestana('historia');
-    }
-
-    // LEER EL NOMBRE DEL HEADER (El que dice "Historial: ...")
-    // Usamos el ID que mencionaste del panel de px
-    const headerEl = document.getElementById('paciente-nombre-evolucion');
-    let nombreHeader = headerEl ? (headerEl.value || headerEl.innerText || "") : "";
-    
-    // Limpiamos la palabra "Historial:" si aparece en el texto
-    nombreHeader = nombreHeader.replace(/Historial:\s*/i, '').trim();
-
-    if (nombreHeader) {
-        // Generamos el ID único basado en el Header
-        const docId = nombreHeader.toLowerCase().replace(/\s+/g, '_')
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
-        
-        console.log("Cargando expediente desde Header ID:", docId);
-        window.cargarHistoriaClinica(docId);
-    } else {
-        console.warn("No hay paciente seleccionado en el header.");
-    }
-};
 
 // 2. FUNCIÓN PARA GUARDAR (CORREGIDA)
 window.guardarHistoriaClinica = async function() {
-    console.log("Iniciando proceso de guardado...");
-    
-    const safeGet = (id) => {
-        const el = document.getElementById(id);
-        return el ? el.value || "" : "";
-    };
+    const nombreHeader = obtenerNombreDelHeader();
+    if (!nombreHeader) {
+        alert("⚠️ No se detecta el nombre del paciente en el encabezado.");
+        return;
+    }
 
     try {
         // --- LA CLAVE ESTÁ AQUÍ ---
