@@ -2816,86 +2816,86 @@ if (typeof interact !== 'undefined') {
 }
 
 window.guardarHistoriaClinica = async function() {
-    // Usamos el nombre del paciente como ID único (puedes cambiarlo por DNI o ID generado)
     const nombrePaciente = document.getElementById('hc-nombre').value;
     
     if (!nombrePaciente) {
-        alert("Por favor, ingresa al menos el nombre del paciente.");
+        alert("Por favor, ingresa el nombre del paciente para guardar.");
         return;
     }
 
+    // Generamos el ID del documento
     const docId = nombrePaciente.replace(/\s+/g, '_').toLowerCase();
     const docRef = doc(db, "historias_clinicas", docId);
 
-    // Recopilación masiva de todos los campos que diseñamos
-    const datos = {
-        // Sección 1: Datos Generales
-        nombre: nombrePaciente,
-        edad: document.getElementById('hc-edad').value,
-        nacionalidad: document.getElementById('hc-nacionalidad').value,
-        ocupacion: document.getElementById('hc-ocupacion').value,
-        fechaNacimiento: document.getElementById('hc-fecha-nac').value,
-        religion: document.getElementById('hc-religion').value,
-        escolaridad: document.getElementById('hc-escolaridad').value,
-        telefono: document.getElementById('hc-telefono').value,
-        emergencia: document.getElementById('hc-emergencia').value,
-        motivo: document.getElementById('hc-motivo').value,
-        tratamientosPrev: document.getElementById('hc-tratamientos-prev').value,
-
-        // Sección 2: Desarrollo
-        embarazo: document.getElementById('hc-emb-historia').value,
-        parto: document.getElementById('hc-parto-tipo').value,
-        gestacion: document.getElementById('hc-gestacion').value,
-        alcohol: document.getElementById('hc-emb-alcohol').value,
-        emocionMadre: document.getElementById('hc-emb-emocion').value,
-        difDesarrollo: document.getElementById('hc-dif-desarrollo').value,
-        gateo: document.getElementById('hc-gateo').value,
-        camino: document.getElementById('hc-camino').value,
-        hablo: document.getElementById('hc-hablo').value,
-        enuresis: document.getElementById('hc-enuresis').value,
-        encopresis: document.getElementById('hc-encopresis').value,
-
-        // Sección 3: Familia y Crianza
-        familia: document.getElementById('hc-familia-tabla').value,
-        estiloCrianza: document.getElementById('hc-crianza-estilo').value,
-
-        // Sección 4: Historia Médica (CORREGIDOS AQUÍ)
-        med_historia: document.getElementById('hc-med-enf').value, // Antes tenías uno que no existía
-        med_hospitalizacion: document.getElementById('hc-med-hosp').value, // ID del HTML
-        med_actuales: document.getElementById('hc-meds-actuales').value, 
-        med_herencia: document.getElementById('hc-med-herencia').value,
-
-        // Sección 5: Historia Escolar (CORREGIDOS AQUÍ)
-        esc_inicio: document.getElementById('hc-esc-inicio').value,
-        esc_academico: document.getElementById('hc-esc-acad').value,
-        esc_conductual: document.getElementById('hc-esc-cond').value,
-        esc_repite: document.getElementById('hc-esc-repite').value,
-        esc_expectativas: document.getElementById('hc-esc-expect').value,
-
-        // Sección 6: Historia Social
-        soc_relaciones: document.getElementById('hc-soc-rel').value,
-        soc_intereses: document.getElementById('hc-soc-int').value,
-        soc_tipo: document.getElementById('hc-soc-tipo').value,
-        soc_deporte: document.getElementById('hc-soc-deporte').value,
-        soc_amigos: document.getElementById('hc-soc-amigos').value,
-        soc_delito: document.getElementById('hc-soc-delito').value,
-        soc_ansiedad: document.getElementById('hc-soc-ansiedad').value,
-
-        // Sección 7: Diagnóstico (CORREGIDOS AQUÍ)
-        diag_desc: document.getElementById('hc-diag-desc').value,
-        diag_fortalezas: document.getElementById('hc-diag-fort').value,
-        diag_debilidades: document.getElementById('hc-diag-debi').value,
-        diag_signos: document.getElementById('hc-diag-signos').value, // Faltaba este
-        
-        ultimaEdicion: new Date().toLocaleString()
-    };
-
     try {
+        const datos = {
+            // SECCIÓN 1: DATOS GENERALES
+            nombre: nombrePaciente,
+            edad: document.getElementById('hc-edad').value,
+            nacionalidad: document.getElementById('hc-nacionalidad').value,
+            ocupacion: document.getElementById('hc-ocupacion').value,
+            fechaNacimiento: document.getElementById('hc-fecha-nac').value,
+            religion: document.getElementById('hc-religion').value,
+            escolaridad: document.getElementById('hc-escolaridad').value,
+            telefono: document.getElementById('hc-telefono').value,
+            emergencia: document.getElementById('hc-emergencia').value,
+            motivo: document.getElementById('hc-motivo').value,
+            tratamientosPrev: document.getElementById('hc-tratamientos-prev').value,
+
+            // SECCIÓN 2: DESARROLLO
+            embarazo: document.getElementById('hc-emb-historia').value,
+            parto: document.getElementById('hc-parto-tipo').value,
+            gestacion: document.getElementById('hc-gestacion').value,
+            alcohol: document.getElementById('hc-emb-alcohol').value,
+            emocionMadre: document.getElementById('hc-emb-emocion').value,
+            difDesarrollo: document.getElementById('hc-dif-desarrollo').value,
+            gateo: document.getElementById('hc-gateo').value,
+            camino: document.getElementById('hc-camino').value,
+            hablo: document.getElementById('hc-hablo').value,
+            enuresis: document.getElementById('hc-enuresis').value,
+            encopresis: document.getElementById('hc-encopresis').value,
+
+            // SECCIÓN 3: FAMILIA
+            familia: document.getElementById('hc-familia-tabla').value,
+            estiloCrianza: document.getElementById('hc-crianza-estilo').value,
+
+            // SECCIÓN 4: MÉDICA (Corregidos según tu HTML)
+            med_enfermedades: document.getElementById('hc-med-enf').value,
+            med_hospitalizacion: document.getElementById('hc-med-hosp').value,
+            med_actuales: document.getElementById('hc-meds-actuales').value,
+            med_herencia: document.getElementById('hc-med-herencia').value,
+
+            // SECCIÓN 5: ESCOLAR (Corregidos según tu HTML)
+            esc_inicio: document.getElementById('hc-esc-inicio').value,
+            esc_acad: document.getElementById('hc-esc-acad').value,
+            esc_cond: document.getElementById('hc-esc-cond').value,
+            esc_repite: document.getElementById('hc-esc-repite').value,
+            esc_expectativas: document.getElementById('hc-esc-expect').value,
+
+            // SECCIÓN 6: SOCIAL
+            soc_relaciones: document.getElementById('hc-soc-rel').value,
+            soc_intereses: document.getElementById('hc-soc-int').value,
+            soc_tipo: document.getElementById('hc-soc-tipo').value,
+            soc_deporte: document.getElementById('hc-soc-deporte').value,
+            soc_amigos: document.getElementById('hc-soc-amigos').value,
+            soc_delito: document.getElementById('hc-soc-delito').value,
+            soc_ansiedad: document.getElementById('hc-soc-ansiedad').value,
+
+            // SECCIÓN 7: IMPRESIÓN CLÍNICA
+            diag_desc: document.getElementById('hc-diag-desc').value,
+            diag_fortalezas: document.getElementById('hc-diag-fort').value,
+            diag_debilidades: document.getElementById('hc-diag-debi').value,
+            diag_signos: document.getElementById('hc-diag-signos').value,
+            
+            ultimaEdicion: new Date().toLocaleString()
+        };
+
         await setDoc(docRef, datos, { merge: true });
-        alert("✅ Expediente de " + nombrePaciente + " guardado con éxito.");
+        alert("✅ ¡Expediente de " + nombrePaciente + " guardado con éxito!");
+
     } catch (error) {
         console.error("Error al guardar:", error);
-        alert("❌ Error al guardar en Firebase.");
+        alert("❌ Error al guardar: " + error.message);
     }
 };
 
