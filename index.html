@@ -2835,7 +2835,6 @@ window.guardarHistoriaClinica = async function() {
         const docRef = doc(db, "historias_clinicas", docId);
 
         const datos = {
-            // SECCIÓN 1
             nombre: nombrePaciente,
             edad: safeGet('hc-edad'),
             nacionalidad: safeGet('hc-nacionalidad'),
@@ -2847,7 +2846,6 @@ window.guardarHistoriaClinica = async function() {
             emergencia: safeGet('hc-emergencia'),
             motivo: safeGet('hc-motivo'),
             tratamientosPrev: safeGet('hc-tratamientos-prev'),
-            // SECCIÓN 2
             embarazo: safeGet('hc-emb-historia'),
             parto: safeGet('hc-parto-tipo'),
             gestacion: safeGet('hc-gestacion'),
@@ -2859,21 +2857,17 @@ window.guardarHistoriaClinica = async function() {
             hablo: safeGet('hc-hablo'),
             enuresis: safeGet('hc-enuresis'),
             encopresis: safeGet('hc-encopresis'),
-            // SECCIÓN 3
             familia: safeGet('hc-familia-tabla'),
             estiloCrianza: safeGet('hc-crianza-estilo'),
-            // SECCIÓN 4
             med_enfermedades: safeGet('hc-med-enf'),
             med_hospitalizacion: safeGet('hc-med-hosp'),
             med_actuales: safeGet('hc-meds-actuales'),
             med_herencia: safeGet('hc-med-herencia'),
-            // SECCIÓN 5
             esc_inicio: safeGet('hc-esc-inicio'),
-            esc_acad: safeGet('hc-esc-acad'),
-            esc_cond: safeGet('hc-esc-cond'),
+            esc_acad: safeGet('hc-esc-acad'), // ID CORRECTO
+            esc_cond: safeGet('hc-esc-cond'), // ID CORRECTO
             esc_repite: safeGet('hc-esc-repite'),
             esc_expect: safeGet('hc-esc-expect'),
-            // SECCIÓN 6
             soc_relaciones: safeGet('hc-soc-rel'),
             soc_intereses: safeGet('hc-soc-int'),
             soc_tipo: safeGet('hc-soc-tipo'),
@@ -2881,20 +2875,18 @@ window.guardarHistoriaClinica = async function() {
             soc_amigos: safeGet('hc-soc-amigos'),
             soc_delito: safeGet('hc-soc-delito'),
             soc_ansiedad: safeGet('hc-soc-ansiedad'),
-            // SECCIÓN 7
             diag_desc: safeGet('hc-diag-desc'),
-            diag_fortalezas: safeGet('hc-diag-fort'),
-            diag_debilidades: safeGet('hc-diag-debi'),
+            diag_fort: safeGet('hc-diag-fort'), // ID CORREGIDO
+            diag_debi: safeGet('hc-diag-debi'), // ID CORREGIDO
             diag_signos: safeGet('hc-diag-signos'),
-            
-            ultimaEdicion: new Date().toLocaleString(),
-            timestamp: serverTimestamp()
+            ultimaEdicion: new Date().toLocaleString()
         };
 
         await setDoc(docRef, datos, { merge: true });
         alert("✅ ¡Expediente de " + nombrePaciente + " actualizado!");
     } catch (error) {
         console.error("Error al guardar:", error);
+        alert("❌ Error de Firebase: " + error.message);
     }
 };
 
@@ -3418,12 +3410,12 @@ async function cargarHistoriaClinica(pacienteId) {
         if (docSnap.exists()) {
             const d = docSnap.data();
             
-            // Función auxiliar para rellenar de forma segura
             const fill = (id, val) => {
                 const el = document.getElementById(id);
                 if(el) el.value = val || '';
             };
 
+            // SECCIONES 1-4
             fill('hc-nombre', d.nombre);
             fill('hc-edad', d.edad);
             fill('hc-nacionalidad', d.nacionalidad);
@@ -3452,11 +3444,15 @@ async function cargarHistoriaClinica(pacienteId) {
             fill('hc-med-hosp', d.med_hospitalizacion);
             fill('hc-meds-actuales', d.med_actuales);
             fill('hc-med-herencia', d.med_herencia);
+
+            // SECCIÓN 5: ESCOLAR (IDs corregidos)
             fill('hc-esc-inicio', d.esc_inicio);
             fill('hc-esc-acad', d.esc_acad);
             fill('hc-esc-cond', d.esc_cond);
             fill('hc-esc-repite', d.esc_repite);
             fill('hc-esc-expect', d.esc_expect);
+
+            // SECCIÓN 6: SOCIAL
             fill('hc-soc-rel', d.soc_relaciones);
             fill('hc-soc-int', d.soc_intereses);
             fill('hc-soc-tipo', d.soc_tipo);
@@ -3464,12 +3460,14 @@ async function cargarHistoriaClinica(pacienteId) {
             fill('hc-soc-amigos', d.soc_amigos);
             fill('hc-soc-delito', d.soc_delito);
             fill('hc-soc-ansiedad', d.soc_ansiedad);
+
+            // SECCIÓN 7: IMPRESIÓN (IDs corregidos para coincidir con el HTML)
             fill('hc-diag-desc', d.diag_desc);
-            fill('hc-diag-fortalezas', d.diag_fortalezas);
-            fill('hc-diag-debilidades', d.diag_debilidades);
+            fill('hc-diag-fort', d.diag_fort);
+            fill('hc-diag-debi', d.diag_debi);
             fill('hc-diag-signos', d.diag_signos);
 
-            console.log("¡Carga completa!");
+            console.log("¡Carga completa sin errores!");
         }
     } catch (error) {
         console.error("Error al cargar:", error);
