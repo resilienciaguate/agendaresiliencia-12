@@ -3335,6 +3335,7 @@ window.cerrarHistorial = function() {
     if (modal) modal.style.display = 'none';
 };
 
+// Función para cambiar entre Nota e Historia Clínica
 window.cambiarPestana = function(tipo) {
     const sNota = document.getElementById('seccion-nota');
     const sHistoria = document.getElementById('seccion-historia');
@@ -3347,17 +3348,19 @@ window.cambiarPestana = function(tipo) {
         tNota.style.background = 'white'; tNota.style.color = '#333';
         tHistoria.style.background = 'transparent'; tHistoria.style.color = '#8e8e93';
     } else {
-        sNota.style.display = 'none'; // Corregido: ocultar nota
+        // Corregido: Limpiamos la visualización
+        sNota.style.display = 'none';
         sHistoria.style.display = 'block';
         tHistoria.style.background = 'white'; tHistoria.style.color = '#333';
         tNota.style.background = 'transparent'; tNota.style.color = '#8e8e93';
 
-        // --- CORRECCIÓN AQUÍ ---
-        // Intentamos obtener el nombre del paciente del input antes de cargar
-        const nombreInput = document.getElementById('hc-nombre').value;
-        if (nombreInput) {
-            const idLimpio = nombreInput.replace(/\s+/g, '_').toLowerCase();
+        // --- SOLUCIÓN AL ERROR ---
+        const nombreParaCargar = document.getElementById('hc-nombre').value;
+        if (nombreParaCargar && nombreParaCargar.trim() !== "") {
+            const idLimpio = nombreParaCargar.replace(/\s+/g, '_').toLowerCase();
             cargarHistoriaClinica(idLimpio); 
+        } else {
+            console.log("Pestaña cambiada, pero no hay nombre para buscar en Firebase.");
         }
     }
 };
@@ -3410,67 +3413,71 @@ async function cargarHistoriaClinica(pacienteId) {
             const d = docSnap.data();
             console.log("Datos encontrados, rellenando formulario...");
         
-        // Sección 1
-        document.getElementById('hc-nombre').value = d.nombre || '';
-        document.getElementById('hc-edad').value = d.edad || '';
-        document.getElementById('hc-nacionalidad').value = d.nacionalidad || '';
-        document.getElementById('hc-ocupacion').value = d.ocupacion || '';
-        document.getElementById('hc-fecha-nac').value = d.fechaNacimiento || '';
-        document.getElementById('hc-religion').value = d.religion || '';
-        document.getElementById('hc-escolaridad').value = d.escolaridad || '';
-        document.getElementById('hc-telefono').value = d.telefono || '';
-        document.getElementById('hc-emergencia').value = d.emergencia || '';
-        document.getElementById('hc-motivo').value = d.motivo || '';
-        document.getElementById('hc-tratamientos-prev').value = d.tratamientosPrev || '';
+            // Sección 1
+            document.getElementById('hc-nombre').value = d.nombre || '';
+            document.getElementById('hc-edad').value = d.edad || '';
+            document.getElementById('hc-nacionalidad').value = d.nacionalidad || '';
+            document.getElementById('hc-ocupacion').value = d.ocupacion || '';
+            document.getElementById('hc-fecha-nac').value = d.fechaNacimiento || '';
+            document.getElementById('hc-religion').value = d.religion || '';
+            document.getElementById('hc-escolaridad').value = d.escolaridad || '';
+            document.getElementById('hc-telefono').value = d.telefono || '';
+            document.getElementById('hc-emergencia').value = d.emergencia || '';
+            document.getElementById('hc-motivo').value = d.motivo || '';
+            document.getElementById('hc-tratamientos-prev').value = d.tratamientosPrev || '';
 
-        // Sección 2
-        document.getElementById('hc-emb-historia').value = d.embarazo || '';
-        document.getElementById('hc-parto-tipo').value = d.parto || '';
-        document.getElementById('hc-gestacion').value = d.gestacion || '';
-        document.getElementById('hc-emb-alcohol').value = d.alcohol || '';
-        document.getElementById('hc-emb-emocion').value = d.emocionMadre || '';
-        document.getElementById('hc-dif-desarrollo').value = d.difDesarrollo || '';
-        document.getElementById('hc-gateo').value = d.gateo || '';
-        document.getElementById('hc-camino').value = d.camino || '';
-        document.getElementById('hc-hablo').value = d.hablo || '';
-        document.getElementById('hc-enuresis').value = d.enuresis || '';
-        document.getElementById('hc-encopresis').value = d.encopresis || '';
+            // Sección 2
+            document.getElementById('hc-emb-historia').value = d.embarazo || '';
+            document.getElementById('hc-parto-tipo').value = d.parto || '';
+            document.getElementById('hc-gestacion').value = d.gestacion || '';
+            document.getElementById('hc-emb-alcohol').value = d.alcohol || '';
+            document.getElementById('hc-emb-emocion').value = d.emocionMadre || '';
+            document.getElementById('hc-dif-desarrollo').value = d.difDesarrollo || '';
+            document.getElementById('hc-gateo').value = d.gateo || '';
+            document.getElementById('hc-camino').value = d.camino || '';
+            document.getElementById('hc-hablo').value = d.hablo || '';
+            document.getElementById('hc-enuresis').value = d.enuresis || '';
+            document.getElementById('hc-encopresis').value = d.encopresis || '';
 
-        // Sección 3
-        document.getElementById('hc-familia-tabla').value = d.familia || '';
-        document.getElementById('hc-crianza-estilo').value = d.estiloCrianza || 'DEMOCRATICO';
+            // Sección 3
+            document.getElementById('hc-familia-tabla').value = d.familia || '';
+            document.getElementById('hc-crianza-estilo').value = d.estiloCrianza || 'DEMOCRATICO';
 
-        // Sección 4
-        document.getElementById('hc-med-enf').value = d.med_enfermedades || '';
-        document.getElementById('hc-med-hosp').value = d.med_hospitalizacion || '';
-        document.getElementById('hc-meds-actuales').value = d.med_actuales || '';
-        document.getElementById('hc-med-herencia').value = d.med_herencia || '';
+            // Sección 4
+            document.getElementById('hc-med-enf').value = d.med_enfermedades || '';
+            document.getElementById('hc-med-hosp').value = d.med_hospitalizacion || '';
+            document.getElementById('hc-meds-actuales').value = d.med_actuales || '';
+            document.getElementById('hc-med-herencia').value = d.med_herencia || '';
 
-        // Sección 5
-        document.getElementById('hc-esc-inicio').value = d.esc_inicio || '';
-        document.getElementById('hc-esc-acad').value = d.esc_academico || '';
-        document.getElementById('hc-esc-cond').value = d.esc_conductual || '';
-        document.getElementById('hc-esc-repite').value = d.esc_repite || '';
-        document.getElementById('hc-esc-expect').value = d.esc_expectativas || '';
+            // Sección 5
+            document.getElementById('hc-esc-inicio').value = d.esc_inicio || '';
+            document.getElementById('hc-esc-acad').value = d.esc_academico || '';
+            document.getElementById('hc-esc-cond').value = d.esc_conductual || '';
+            document.getElementById('hc-esc-repite').value = d.esc_repite || '';
+            document.getElementById('hc-esc-expect').value = d.esc_expectativas || '';
 
-        // Sección 6
-        document.getElementById('hc-soc-rel').value = d.soc_relaciones || '';
-        document.getElementById('hc-soc-int').value = d.soc_intereses || '';
-        document.getElementById('hc-soc-tipo').value = d.soc_tipo || '';
-        document.getElementById('hc-soc-deporte').value = d.soc_deporte || '';
-        document.getElementById('hc-soc-amigos').value = d.soc_amigos || '';
-        document.getElementById('hc-soc-delito').value = d.soc_delito || '';
-        document.getElementById('hc-soc-ansiedad').value = d.soc_ansiedad || 5;
+            // Sección 6
+            document.getElementById('hc-soc-rel').value = d.soc_relaciones || '';
+            document.getElementById('hc-soc-int').value = d.soc_intereses || '';
+            document.getElementById('hc-soc-tipo').value = d.soc_tipo || '';
+            document.getElementById('hc-soc-deporte').value = d.soc_deporte || '';
+            document.getElementById('hc-soc-amigos').value = d.soc_amigos || '';
+            document.getElementById('hc-soc-delito').value = d.soc_delito || '';
+            document.getElementById('hc-soc-ansiedad').value = d.soc_ansiedad || 5;
 
-        // Sección 7
-        document.getElementById('hc-diag-desc').value = d.diag_desc || '';
-        document.getElementById('hc-diag-fort').value = d.diag_fortalezas || '';
-        document.getElementById('hc-diag-debi').value = d.diag_debilidades || '';
-        document.getElementById('hc-diag-signos').value = d.diag_signos || '';
+            // Sección 7
+            document.getElementById('hc-diag-desc').value = d.diag_desc || '';
+            document.getElementById('hc-diag-fort').value = d.diag_fortalezas || '';
+            document.getElementById('hc-diag-debi').value = d.diag_debilidades || '';
+            document.getElementById('hc-diag-signos').value = d.diag_signos || '';
 
-        console.log("Datos cargados!");
-    } else {
-        console.log("No existe el documento");
+            console.log("¡Datos cargados!");
+        } else {
+            console.log("No existe el documento");
+        }
+    } catch (error) { 
+        // ESTO ES LO QUE FALTABA
+        console.error("Error en la carga:", error);
     }
 }
 
