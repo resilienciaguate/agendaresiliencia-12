@@ -301,67 +301,65 @@ html, body {
     color: #333;
     line-height: 1.4;
 }
+
+        
 /* ================================================================
-   SOLUCIÓN DEFINITIVA: CALENDARIO TIPO APPLE (MÓVIL)
+   --- 🍏 iPHONE CALENDAR STYLE (SOLO MÓVIL) ---
    ================================================================ */
 @media (max-width: 768px) {
-    /* 1. Liberamos el contenedor para que no aplaste nada */
+    /* 1. Contenedor principal estático */
     #app-content {
-        display: block !important; /* Cambiamos flex por block para evitar amontonamiento */
-        height: auto !important;
-        overflow: visible !important;
-        padding: 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        height: calc(100vh - 60px) !important; /* Altura fija total */
+        overflow: hidden !important; /* Prohibido el scroll general */
+        padding: 0 !important;
     }
 
-    /* 2. El panel de búsqueda (side-panel) se vuelve una franja delgada */
-    .side-panel {
-        width: 100% !important;
-        height: auto !important;
-        padding: 10px !important;
-        margin-bottom: 15px !important;
-        box-shadow: none !important;
-        border-bottom: 1px solid #eee;
-    }
-
-    /* 3. Forzamos al calendario a tener su propio espacio */
+    /* 2. El Calendario (Los números) se queda arriba y pequeño */
     .main-stage {
-        display: block !important;
-        width: 100% !important;
-        height: auto !important;
-    }
-
-    .calendar-card {
-        padding: 5px !important;
-        border: none !important;
-        box-shadow: none !important;
-        background: transparent !important;
-    }
-
-    /* 4. ALTURA DEL CALENDARIO: Esto es lo que evita que se "rejunte" */
-    #calendar {
-        height: 85vh !important; /* Ocupa casi toda la pantalla del cel */
-        min-height: 550px !important;
+        flex: 0 0 auto !important; /* No crece, no se encoge */
+        height: 320px !important; /* Altura perfecta para ver los números */
         background: white !important;
-        border-radius: 15px;
-        padding: 10px;
+        overflow: hidden !important;
     }
 
-    /* 5. Diseño de Citas (Modo Lista Apple) */
+    /* 3. Ajuste de la cuadrícula de FullCalendar */
+    .fc-view-harness {
+        height: 280px !important; 
+    }
+
+    /* 4. La "Ventana Estática" de Pacientes (Debajo) */
+    /* Buscamos la sección de la lista y la hacemos scrollable */
+    .fc-list, .fc-scroller {
+        height: auto !important;
+        max-height: calc(100vh - 400px) !important; /* El resto de la pantalla */
+        overflow-y: auto !important; /* Solo esta parte se desliza */
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* 5. Diseño Visual Apple */
+    .fc-header-toolbar {
+        padding: 10px !important;
+        margin-bottom: 0 !important;
+        font-size: 12px !important;
+    }
+
+    /* Estilo de la lista de pacientes (px) */
     .fc-list-event {
-        background: #fff !important;
-        border-bottom: 0.5px solid #e5e5ea !important;
+        border-left: 4px solid var(--brand-main) !important;
+        margin: 5px 10px !important;
+        border-radius: 8px !important;
+        background: #f9f9f9 !important;
     }
 
-    .fc-list-event-title {
-        font-size: 14px !important;
-        font-weight: 600 !important;
-        padding: 10px 0 !important;
+    /* Ocultamos los paneles laterales y logos para que no estorben */
+    .side-panel {
+        display: none !important; /* En Apple el buscador suele estar oculto o arriba */
     }
 
-    /* Escondemos cosas innecesarias en móvil para ganar espacio */
-    .app-logo-clinic, .logo-text, .app-logo-dynamic {
-        display: none !important;
-    }
+    /* Si quieres mantener el buscador, descomenta lo siguiente y quita el side-panel display none */
+    /* .side-panel { flex: 0 0 auto !important; height: 60px !important; } */
 }
 
         </style>
