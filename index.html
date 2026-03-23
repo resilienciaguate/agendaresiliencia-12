@@ -2817,53 +2817,25 @@ if (typeof interact !== 'undefined') {
 }
 
 window.guardarHistoriaClinica = async function() {
-    console.log("Iniciando guardado de expediente con protección total...");
-    
-    // 1. Función de rescate mejorada: Evita CUALQUIER error de tipo 'null'
     const safeGet = (id) => {
         const el = document.getElementById(id);
-        if (!el) {
-            console.warn(`Campo no encontrado en el HTML: ${id}`);
-            return ""; 
-        }
-        // Retornamos el valor, y si por alguna razón .value falla, retornamos string vacío
-        try {
-            return el.value || "";
-        } catch (e) {
-            console.error(`Error al leer valor de ${id}:`, e);
-            return "";
-        }
+        return el ? el.value || "" : ""; 
     };
 
     try {
-        // Obtenemos el elemento del nombre con cuidado extremo
-        const nombreElemento = document.getElementById('hc-nombre');
-        
-        if (!nombreElemento) {
-            alert("❌ Error crítico: No se encontró el campo de nombre ('hc-nombre') en la página.");
-            return;
-        }
-
-        const nombrePaciente = nombreElemento.value ? nombreElemento.value.trim() : "";
-        
+        const nombrePaciente = safeGet('hc-nombre').trim();
         if (!nombrePaciente) {
-            alert("⚠️ Por favor, ingresa al menos el nombre del paciente para guardar.");
+            alert("⚠️ Por favor, ingresa el nombre del paciente.");
             return;
         }
 
-        // Generamos el ID del documento basado en el nombre (limpiando caracteres prohibidos en Firebase)
-        const docId = nombrePaciente.toLowerCase()
-            .replace(/\s+/g, '_')
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quita tildes
-            .replace(/[^a-z0-9_]/g, '');
+        const docId = nombrePaciente.toLowerCase().replace(/\s+/g, '_')
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
         
-        // Usamos la ruta oficial de la app según las reglas de seguridad
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const docRef = doc(db, "artifacts", appId, "public", "data", "historias_clinicas", docId);
+        const docRef = doc(db, "historias_clinicas", docId);
 
-        // 2. Captura masiva protegida (Cualquier ID que falte aquí NO romperá el código)
         const datos = {
-            // SECCIÓN 1: DATOS GENERALES
+            // SECCIÓN 1
             nombre: nombrePaciente,
             edad: safeGet('hc-edad'),
             nacionalidad: safeGet('hc-nacionalidad'),
@@ -2875,8 +2847,7 @@ window.guardarHistoriaClinica = async function() {
             emergencia: safeGet('hc-emergencia'),
             motivo: safeGet('hc-motivo'),
             tratamientosPrev: safeGet('hc-tratamientos-prev'),
-
-            // SECCIÓN 2: DESARROLLO
+            // SECCIÓN 2
             embarazo: safeGet('hc-emb-historia'),
             parto: safeGet('hc-parto-tipo'),
             gestacion: safeGet('hc-gestacion'),
@@ -2888,25 +2859,21 @@ window.guardarHistoriaClinica = async function() {
             hablo: safeGet('hc-hablo'),
             enuresis: safeGet('hc-enuresis'),
             encopresis: safeGet('hc-encopresis'),
-
-            // SECCIÓN 3: FAMILIA
+            // SECCIÓN 3
             familia: safeGet('hc-familia-tabla'),
             estiloCrianza: safeGet('hc-crianza-estilo'),
-
-            // SECCIÓN 4: MÉDICA
+            // SECCIÓN 4
             med_enfermedades: safeGet('hc-med-enf'),
             med_hospitalizacion: safeGet('hc-med-hosp'),
             med_actuales: safeGet('hc-meds-actuales'),
             med_herencia: safeGet('hc-med-herencia'),
-
-            // SECCIÓN 5: ESCOLAR
+            // SECCIÓN 5
             esc_inicio: safeGet('hc-esc-inicio'),
             esc_acad: safeGet('hc-esc-acad'),
             esc_cond: safeGet('hc-esc-cond'),
             esc_repite: safeGet('hc-esc-repite'),
-            esc_expectativas: safeGet('hc-esc-expect'),
-
-            // SECCIÓN 6: SOCIAL
+            esc_expect: safeGet('hc-esc-expect'),
+            // SECCIÓN 6
             soc_relaciones: safeGet('hc-soc-rel'),
             soc_intereses: safeGet('hc-soc-int'),
             soc_tipo: safeGet('hc-soc-tipo'),
@@ -2914,8 +2881,7 @@ window.guardarHistoriaClinica = async function() {
             soc_amigos: safeGet('hc-soc-amigos'),
             soc_delito: safeGet('hc-soc-delito'),
             soc_ansiedad: safeGet('hc-soc-ansiedad'),
-
-            // SECCIÓN 7: IMPRESIÓN CLÍNICA
+            // SECCIÓN 7
             diag_desc: safeGet('hc-diag-desc'),
             diag_fortalezas: safeGet('hc-diag-fort'),
             diag_debilidades: safeGet('hc-diag-debi'),
@@ -2925,14 +2891,10 @@ window.guardarHistoriaClinica = async function() {
             timestamp: serverTimestamp()
         };
 
-        // 3. Guardado con merge
         await setDoc(docRef, datos, { merge: true });
-        
-        alert("✅ ¡Expediente de " + nombrePaciente + " actualizado con éxito!");
-
+        alert("✅ ¡Expediente de " + nombrePaciente + " actualizado!");
     } catch (error) {
-        console.error("Error fatal al intentar guardar:", error);
-        alert("❌ Error al guardar el expediente: " + error.message);
+        console.error("Error al guardar:", error);
     }
 };
 
@@ -3385,19 +3347,30 @@ window.cambiarPestana = function(tipo) {
         tNota.style.background = 'white'; tNota.style.color = '#333';
         tHistoria.style.background = 'transparent'; tHistoria.style.color = '#8e8e93';
     } else {
-        // Corregido: Limpiamos la visualización
         sNota.style.display = 'none';
         sHistoria.style.display = 'block';
         tHistoria.style.background = 'white'; tHistoria.style.color = '#333';
         tNota.style.background = 'transparent'; tNota.style.color = '#8e8e93';
 
-        // --- SOLUCIÓN AL ERROR ---
-        const nombreParaCargar = document.getElementById('hc-nombre').value;
-        if (nombreParaCargar && nombreParaCargar.trim() !== "") {
-            const idLimpio = nombreParaCargar.replace(/\s+/g, '_').toLowerCase();
-            cargarHistoriaClinica(idLimpio); 
+        // --- LÓGICA AUTOMÁTICA ---
+        // 1. Extraemos el nombre del paciente que ya está cargado en el encabezado de la nota
+        const tituloNota = document.getElementById('puntos-clave-titulo')?.innerText || "";
+        // Quitamos la palabra "Paciente: " para quedarnos solo con el nombre
+        const nombrePaciente = tituloNota.replace("Paciente: ", "").trim();
+
+        // 2. Si hay un paciente seleccionado (y no es el texto por defecto)
+        if (nombrePaciente && nombrePaciente !== "Seleccione un paciente" && nombrePaciente !== "") {
+            
+            // Llenamos el campo de nombre de la historia clínica automáticamente
+            document.getElementById('hc-nombre').value = nombrePaciente;
+            
+            // Cargamos de Firebase usando ese nombre
+            const idLimpio = nombrePaciente.replace(/\s+/g, '_').toLowerCase();
+            cargarHistoriaClinica(idLimpio);
+            
+            console.log("Cargando automáticamente historia de:", nombrePaciente);
         } else {
-            console.log("Pestaña cambiada, pero no hay nombre para buscar en Firebase.");
+            console.log("No hay un paciente seleccionado en la agenda todavía.");
         }
     }
 };
@@ -3436,11 +3409,7 @@ window.guardarHistoriaClinica = async function() {
 
 // Función para cargar la Historia Clínica
 async function cargarHistoriaClinica(pacienteId) {
-    // VALIDACIÓN: Si el ID no existe, es nulo o está vacío, no continuar
-    if (!pacienteId || pacienteId === "" || typeof pacienteId !== "string") {
-        console.log("Esperando un ID de paciente válido para cargar...");
-        return; 
-    }
+    if (!pacienteId || typeof pacienteId !== "string") return;
 
     try {
         const docRef = doc(db, "historias_clinicas", pacienteId);
@@ -3448,73 +3417,62 @@ async function cargarHistoriaClinica(pacienteId) {
 
         if (docSnap.exists()) {
             const d = docSnap.data();
-            console.log("Datos encontrados, rellenando formulario...");
-        
-            // Sección 1
-            document.getElementById('hc-nombre').value = d.nombre || '';
-            document.getElementById('hc-edad').value = d.edad || '';
-            document.getElementById('hc-nacionalidad').value = d.nacionalidad || '';
-            document.getElementById('hc-ocupacion').value = d.ocupacion || '';
-            document.getElementById('hc-fecha-nac').value = d.fechaNacimiento || '';
-            document.getElementById('hc-religion').value = d.religion || '';
-            document.getElementById('hc-escolaridad').value = d.escolaridad || '';
-            document.getElementById('hc-telefono').value = d.telefono || '';
-            document.getElementById('hc-emergencia').value = d.emergencia || '';
-            document.getElementById('hc-motivo').value = d.motivo || '';
-            document.getElementById('hc-tratamientos-prev').value = d.tratamientosPrev || '';
+            
+            // Función auxiliar para rellenar de forma segura
+            const fill = (id, val) => {
+                const el = document.getElementById(id);
+                if(el) el.value = val || '';
+            };
 
-            // Sección 2
-            document.getElementById('hc-emb-historia').value = d.embarazo || '';
-            document.getElementById('hc-parto-tipo').value = d.parto || '';
-            document.getElementById('hc-gestacion').value = d.gestacion || '';
-            document.getElementById('hc-emb-alcohol').value = d.alcohol || '';
-            document.getElementById('hc-emb-emocion').value = d.emocionMadre || '';
-            document.getElementById('hc-dif-desarrollo').value = d.difDesarrollo || '';
-            document.getElementById('hc-gateo').value = d.gateo || '';
-            document.getElementById('hc-camino').value = d.camino || '';
-            document.getElementById('hc-hablo').value = d.hablo || '';
-            document.getElementById('hc-enuresis').value = d.enuresis || '';
-            document.getElementById('hc-encopresis').value = d.encopresis || '';
+            fill('hc-nombre', d.nombre);
+            fill('hc-edad', d.edad);
+            fill('hc-nacionalidad', d.nacionalidad);
+            fill('hc-ocupacion', d.ocupacion);
+            fill('hc-fecha-nac', d.fechaNacimiento);
+            fill('hc-religion', d.religion);
+            fill('hc-escolaridad', d.escolaridad);
+            fill('hc-telefono', d.telefono);
+            fill('hc-emergencia', d.emergencia);
+            fill('hc-motivo', d.motivo);
+            fill('hc-tratamientos-prev', d.tratamientosPrev);
+            fill('hc-emb-historia', d.embarazo);
+            fill('hc-parto-tipo', d.parto);
+            fill('hc-gestacion', d.gestacion);
+            fill('hc-emb-alcohol', d.alcohol);
+            fill('hc-emb-emocion', d.emocionMadre);
+            fill('hc-dif-desarrollo', d.difDesarrollo);
+            fill('hc-gateo', d.gateo);
+            fill('hc-camino', d.camino);
+            fill('hc-hablo', d.hablo);
+            fill('hc-enuresis', d.enuresis);
+            fill('hc-encopresis', d.encopresis);
+            fill('hc-familia-tabla', d.familia);
+            fill('hc-crianza-estilo', d.estiloCrianza);
+            fill('hc-med-enf', d.med_enfermedades);
+            fill('hc-med-hosp', d.med_hospitalizacion);
+            fill('hc-meds-actuales', d.med_actuales);
+            fill('hc-med-herencia', d.med_herencia);
+            fill('hc-esc-inicio', d.esc_inicio);
+            fill('hc-esc-acad', d.esc_acad);
+            fill('hc-esc-cond', d.esc_cond);
+            fill('hc-esc-repite', d.esc_repite);
+            fill('hc-esc-expect', d.esc_expect);
+            fill('hc-soc-rel', d.soc_relaciones);
+            fill('hc-soc-int', d.soc_intereses);
+            fill('hc-soc-tipo', d.soc_tipo);
+            fill('hc-soc-deporte', d.soc_deporte);
+            fill('hc-soc-amigos', d.soc_amigos);
+            fill('hc-soc-delito', d.soc_delito);
+            fill('hc-soc-ansiedad', d.soc_ansiedad);
+            fill('hc-diag-desc', d.diag_desc);
+            fill('hc-diag-fortalezas', d.diag_fortalezas);
+            fill('hc-diag-debilidades', d.diag_debilidades);
+            fill('hc-diag-signos', d.diag_signos);
 
-            // Sección 3
-            document.getElementById('hc-familia-tabla').value = d.familia || '';
-            document.getElementById('hc-crianza-estilo').value = d.estiloCrianza || 'DEMOCRATICO';
-
-            // Sección 4
-            document.getElementById('hc-med-enf').value = d.med_enfermedades || '';
-            document.getElementById('hc-med-hosp').value = d.med_hospitalizacion || '';
-            document.getElementById('hc-meds-actuales').value = d.med_actuales || '';
-            document.getElementById('hc-med-herencia').value = d.med_herencia || '';
-
-            // Sección 5
-            document.getElementById('hc-esc-inicio').value = d.esc_inicio || '';
-            document.getElementById('hc-esc-acad').value = d.esc_academico || '';
-            document.getElementById('hc-esc-cond').value = d.esc_conductual || '';
-            document.getElementById('hc-esc-repite').value = d.esc_repite || '';
-            document.getElementById('hc-esc-expect').value = d.esc_expectativas || '';
-
-            // Sección 6
-            document.getElementById('hc-soc-rel').value = d.soc_relaciones || '';
-            document.getElementById('hc-soc-int').value = d.soc_intereses || '';
-            document.getElementById('hc-soc-tipo').value = d.soc_tipo || '';
-            document.getElementById('hc-soc-deporte').value = d.soc_deporte || '';
-            document.getElementById('hc-soc-amigos').value = d.soc_amigos || '';
-            document.getElementById('hc-soc-delito').value = d.soc_delito || '';
-            document.getElementById('hc-soc-ansiedad').value = d.soc_ansiedad || 5;
-
-            // Sección 7
-            document.getElementById('hc-diag-desc').value = d.diag_desc || '';
-            document.getElementById('hc-diag-fort').value = d.diag_fortalezas || '';
-            document.getElementById('hc-diag-debi').value = d.diag_debilidades || '';
-            document.getElementById('hc-diag-signos').value = d.diag_signos || '';
-
-            console.log("¡Datos cargados!");
-        } else {
-            console.log("No existe el documento");
+            console.log("¡Carga completa!");
         }
-    } catch (error) { 
-        // ESTO ES LO QUE FALTABA
-        console.error("Error en la carga:", error);
+    } catch (error) {
+        console.error("Error al cargar:", error);
     }
 }
 
