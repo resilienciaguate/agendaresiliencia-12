@@ -302,8 +302,105 @@ html, body {
     line-height: 1.4;
 }
 
-</style>
+@media (max-width: 768px) {
+    /* 1. Reset de fondo y scroll */
+    html, body {
+        overflow-x: hidden !important;
+        background: #f2f2f7 !important;
+        width: 100% !important;
+    }
 
+    /* 2. PANEL DE PSICÓLOGAS ULTRA COMPACTO (Sin Scroll) */
+    .side-panel {
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important; /* Quitamos el límite para evitar scroll interno */
+        padding: 5px 8px !important; /* Padding mínimo */
+        margin-bottom: 10px !important;
+        background: white !important;
+        border-radius: 12px !important;
+        overflow: hidden !important; /* Eliminamos cualquier rastro de scroll bar */
+        display: block !important;
+    }
+
+    /* Forzamos que los textos, labels y selects dentro del panel sean mini */
+    .side-panel h2, .side-panel h3 { font-size: 12px !important; margin: 2px 0 !important; }
+    .side-panel label, .side-panel span, .side-panel p { font-size: 10px !important; margin: 0 !important; }
+    
+    /* Si tienes un buscador o selectores dentro */
+    .side-panel select, .side-panel input {
+        height: 28px !important;
+        font-size: 11px !important;
+        margin: 2px 0 !important;
+        padding: 2px 5px !important;
+    }
+
+    /* 3. TUS PESTAÑAS (Barra Inferior) */
+    .nav-links {
+        display: flex !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 65px !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        border-top: 0.5px solid #d1d1d6 !important;
+        z-index: 999999 !important;
+        justify-content: space-around !important;
+        align-items: center !important;
+        padding: 0 5px 10px 5px !important;
+        margin: 0 !important;
+    }
+
+    .nav-item, .nav-links a {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-decoration: none !important;
+        color: #8e8e93 !important;
+        font-size: 9px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+    }
+
+    .nav-item::before, .nav-links a::before {
+        font-size: 20px !important;
+        display: block !important;
+        margin-bottom: 2px;
+    }
+
+    .nav-item[onclick*="agenda"]::before, .nav-links a:contains("Agenda")::before { content: "📅"; }
+    .nav-item[onclick*="pacientes"]::before, .nav-links a:contains("Pacientes")::before { content: "👥"; }
+    .nav-item[onclick*="reportes"]::before, .nav-links a:contains("Reportes")::before { content: "📊"; }
+
+    /* 4. ELIMINAR ESTIMULACIÓN Y RECIBO */
+    .nav-item[onclick*="estimulacion"], .nav-links a[onclick*="estimulacion"],
+    .nav-item[onclick*="recibo"], .nav-links a[onclick*="recibo"],
+    .nav-item[onclick*="recino"], .nav-links a[onclick*="recino"] {
+        display: none !important;
+    }
+    .nav-item.active, .nav-links a.active { color: #a5c941 !important; }
+
+    /* 5. EL CONTENIDO (Agenda, Pacientes, etc.) */
+    #app-content {
+        display: block !important;
+        padding: 10px 10px 80px 10px !important;
+        width: 100% !important;
+    }
+
+    .main-stage, .calendar-card, #agenda, #pacientes, #reportes {
+        width: 100% !important;
+        display: block !important;
+        margin: 0 !important;
+    }
+    .top-nav .logo-text, .app-logo-clinic, .app-logo-dynamic, .logo-text {
+        display: none !important;
+    }
+    #calendar { height: 60vh !important; font-size: 10px !important; }
+}
+
+</style>
 </head>
 <body>
 
