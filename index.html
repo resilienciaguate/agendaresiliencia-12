@@ -416,6 +416,250 @@ html, body {
     }
 }
 
+/* EL CONTENEDOR QUE FALTA */
+.ios-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 99999; /* Para que esté por encima de TODO */
+    display: none;  /* Se vuelve 'flex' con el clic */
+    flex-direction: column;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Cabecera del modal */
+.ios-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background: #f2f2f7;
+    border-bottom: 1px solid #d1d1d6;
+}
+
+.ios-note-card {
+    position: relative; /* Para posicionar la X */
+    padding: 15px;
+    border-bottom: 1px solid #e5e5ea;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-eliminar-nota {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #ff3b30; /* Rojo iOS */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0; /* Oculto por defecto */
+    transition: opacity 0.2s;
+}
+
+.ios-note-card:hover .btn-eliminar-nota {
+    opacity: 1; /* Aparece al pasar el mouse */
+}
+
+
+.btn-back-ios {
+    display: flex;
+    align-items: center;
+    background: #e9e9eb; /* Gris claro sutil */
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: #a5c941; /* Tu verde institucional */
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.btn-back-ios span {
+    font-size: 24px;
+    margin-right: 5px;
+    line-height: 0;
+    margin-top: -2px;
+}
+
+.btn-back-ios:hover {
+    background: #d1d1d6;
+    transform: translateX(-2px); /* Pequeño efecto de movimiento a la izquierda */
+}
+
+.btn-back-ios:active {
+    transform: scale(0.95);
+}
+
+/* --- ESTILO DE NOTIFICACIONES (TOASTS) --- */
+.toast-container {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100001;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    background: rgba(44, 44, 46, 0.95);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 2.7s forwards;
+}
+
+@keyframes toastIn {
+    from { transform: translateY(100px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes toastOut {
+    to { transform: translateY(100px); opacity: 0; }
+}
+
+/* --- MODAL DE CONFIRMACIÓN ELEGANTE --- */
+.confirm-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    z-index: 100002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s;
+}
+
+.confirm-dialog {
+    background: white;
+    width: 280px;
+    border-radius: 14px;
+    text-align: center;
+    overflow: hidden;
+    animation: scaleIn 0.2s;
+}
+
+.confirm-content { padding: 20px; }
+.confirm-title { font-weight: 600; font-size: 17px; margin-bottom: 5px; }
+.confirm-text { font-size: 13px; color: #333; }
+
+.confirm-buttons {
+    display: flex;
+    border-top: 1px solid #d1d1d6;
+}
+
+.confirm-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.confirm-btn-cancel { color: #007aff; border-right: 1px solid #d1d1d6; }
+.confirm-btn-delete { color: #ff3b30; font-weight: 600; }
+
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes scaleIn { from { transform: scale(1.1); opacity: 0; } }
+
+
+/* DISEÑO EVOLUCIÓN ESTILO MAIL */
+.ios-split-view {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    height: calc(100vh - 60px); /* Ajuste para cabecera */
+}
+
+.ios-sidebar-history {
+    width: 300px;
+    border-right: 1px solid #e5e5ea;
+    background: #f8f8fa;
+    overflow-y: auto;
+}
+
+.ios-main-editor {
+    flex: 1;
+    padding: 30px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Campos de información superior */
+.editor-fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.field-item label {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    color: #a5c941;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.field-item input {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #e5e5ea;
+    padding: 5px 0;
+    font-size: 14px;
+    outline: none;
+    background: transparent;
+}
+
+#texto-evolucion {
+    flex: 1;
+    width: 100%;
+    border: 1px solid #f2f2f7;
+    border-radius: 12px;
+    padding: 20px;
+    font-size: 16px;
+    line-height: 1.5;
+    outline: none;
+    resize: none;
+    background: #fafafa;
+}
+
+.ios-note-card {
+    padding: 15px;
+    border-bottom: 1px solid #e5e5ea;
+    cursor: pointer;
+}
+
+.ios-note-card:hover { background: #f0f0f2; }
+
+
 
 </style>
 </head>
@@ -912,7 +1156,92 @@ html, body {
     </div>
 </div>
 
+
+<div id="modal-historial" class="ios-modal" style="display:none;">
+    <div class="ios-modal-header" style="background:#f2f2f7; border-bottom:1px solid #d1d1d6;">
+       <button onclick="cerrarHistorial()" class="btn-back-ios"><span>‹</span> Pacientes</button>
+        <h2 id="px-nombre-titulo" style="font-size:17px; margin:0;">Evolución</h2>
+        <button onclick="prepararNuevaNota()" class="ios-add-btn" style="color:#a5c941;">+</button>
+    </div>
+
+    <div class="ios-split-view">
+        <div class="ios-sidebar-history" id="lista-evoluciones">
+            </div>
+
+        <div class="ios-main-editor">
+            <div class="editor-fields-grid">
+                <div class="field-item">
+                    <label>Paciente</label>
+                    <input type="text" id="ev-nombre-px" readonly>
+                </div>
+                <div class="field-item">
+                    <label>Hora</label>
+                    <input type="time" id="ev-hora">
+                </div>
+                <div class="field-item">
+                    <label>Especialista</label>
+                    <input type="text" id="ev-especialista">
+                </div>
+            </div>
+            
+            <div style="flex:1; display:flex; flex-direction:column;">
+                <label style="font-size:10px; font-weight:700; color:#a5c941; margin-bottom:10px;">NOTA DE SESIÓN</label>
+                <textarea id="texto-evolucion" placeholder="Escribe el progreso aquí..."></textarea>
+            </div>
+
+            <div style="text-align:right; margin-top:15px;">
+                <button id="btn-guardar-ev" onclick="guardarNuevaEvolucion()" 
+                        style="background:#a5c941; color:white; border:none; padding:12px 25px; border-radius:20px; font-weight:600; cursor:pointer;">
+                    Guardar Evolución
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
    <script type="module">
+
+// Función para mostrar Toasts elegantes
+window.showToast = function(mensaje) {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<span>✓</span> ${mensaje}`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+};
+
+// Función para Confirmación estilo iOS
+window.confirmarAccion = function(titulo, texto, callback) {
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay';
+    overlay.innerHTML = `
+        <div class="confirm-dialog">
+            <div class="confirm-content">
+                <div class="confirm-title">${titulo}</div>
+                <div class="confirm-text">${texto}</div>
+            </div>
+            <div class="confirm-buttons">
+                <button class="confirm-btn confirm-btn-cancel" id="confirm-cancel">Cancelar</button>
+                <button class="confirm-btn confirm-btn-delete" id="confirm-yes">Eliminar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    document.getElementById('confirm-cancel').onclick = () => overlay.remove();
+    document.getElementById('confirm-yes').onclick = () => {
+        callback();
+        overlay.remove();
+    };
+};
+
 
     let mesReporte = new Date().getMonth();
     let anioReporte = new Date().getFullYear();
@@ -998,7 +1327,9 @@ window.prepararEdicionEgreso = (id) => {
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-   import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+   import { 
+    getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, getDoc, setDoc, query, getDocs, where, orderBy 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { apiKey: "AIzaSyC-cNJm__gM_e0lijaG7DgYPikXfnuHRZA", authDomain: "agendaresiliencia-12.firebaseapp.com", projectId: "agendaresiliencia-12", storageBucket: "agendaresiliencia-12.firebasestorage.app", appId: "1:1068233469888:web:f958c72f406ac8698da225" };
     const app = initializeApp(firebaseConfig);
@@ -2069,7 +2400,6 @@ window.renderizarTablaPacientes = () => {
         const nombreLimpio = c.title ? c.title.trim() : "Sin Nombre";
         const key = nombreLimpio.toLowerCase();
         
-        // Si no hay servicio en Firebase, ahora ponemos "(Sin asignar)"
         const servicioCita = c.servicio || "(Sin asignar)";
         
         if (!pacientesMap[key]) {
@@ -2084,7 +2414,6 @@ window.renderizarTablaPacientes = () => {
         
         pacientesMap[key].citasCount++;
 
-        // Actualizamos al servicio de la cita más reciente
         if (new Date(c.start) > new Date(pacientesMap[key].ultimaCita)) { 
             pacientesMap[key].ultimaCita = c.start; 
             pacientesMap[key].servicio = servicioCita; 
@@ -2106,7 +2435,7 @@ window.renderizarTablaPacientes = () => {
 
     tbody.innerHTML = listaUnica.map(p => {
         // LÓGICA DE COLORES POR SERVICIO
-        let bgColor = "#f1f5f9"; // Gris por defecto (Sin asignar)
+        let bgColor = "#f1f5f9"; 
         let textColor = "#64748b";
         let border = "rgba(0,0,0,0.05)";
 
@@ -2120,9 +2449,17 @@ window.renderizarTablaPacientes = () => {
             bgColor = "#fff7ed"; textColor = "#9a3412"; border = "#fed7aa";
         }
 
+        // Limpiamos el nombre para que no rompa el onclick si tiene comillas
+        const nombreEscapado = p.nombre.replace(/'/g, "\\'");
+
         return `
         <tr style="border-bottom:1px solid #f3f4f6;">
-            <td style="padding:12px; font-weight:600; color:#333;">${p.nombre}</td>
+            <td onclick="abrirHistorial('${nombreEscapado}', '${nombreEscapado}')" 
+                style="padding:12px; font-weight:600; color:#333; cursor:pointer; transition:0.2s;"
+                onmouseover="this.style.color='#a5c941'" 
+                onmouseout="this.style.color='#333'">
+                ${p.nombre}
+            </td>
             
             <td style="padding:12px;">
                 <span style="background:${bgColor}; color:${textColor}; padding:4px 10px; border-radius:12px; font-size:10px; font-weight:700; border:1px solid ${border}; white-space: nowrap;">
@@ -2137,7 +2474,7 @@ window.renderizarTablaPacientes = () => {
             <td style="padding:12px; text-align:center;"><span class="report-count">${p.citasCount}</span></td>
             <td style="padding:12px;">
                 <button class="btn-action btn-secondary" style="padding:5px 10px; font-size:10px; width:auto;" 
-                onclick="window.abrirGestionPorNombre('${p.nombre.replace(/'/g, "\\'")}')">GESTIONAR</button>
+                onclick="window.abrirGestionPorNombre('${nombreEscapado}')">GESTIONAR</button>
             </td>
         </tr>
     `}).join('');
@@ -2609,6 +2946,208 @@ async function saludarEstiloIphone() {
     }, 6500);
 }
 
+// --- SISTEMA DE EVOLUCIÓN ---
+let currentPxId = ""; 
+let notaEditandoId = null; 
+
+window.abrirHistorial = function(id, nombre) {
+    console.log("Abriendo historial para:", nombre);
+    currentPxId = id;
+    
+    // Referencias a elementos
+    const modal = document.getElementById('modal-historial');
+    const titulo = document.getElementById('px-nombre-titulo');
+    const inputNombre = document.getElementById('ev-nombre-px');
+
+    if (titulo) titulo.innerText = "Historial: " + nombre;
+    if (inputNombre) inputNombre.value = nombre;
+    
+    if (modal) {
+        modal.style.display = 'flex'; // Usamos flex para el split-view
+    } else {
+        console.error("No se encontró el modal-historial");
+    }
+    
+    window.prepararNuevaNota();
+    consultarEvoluciones(id);
+};
+
+window.prepararNuevaNota = function() {
+    notaEditandoId = null;
+    const texto = document.getElementById('texto-evolucion');
+    const btn = document.getElementById('btn-guardar-ev');
+    const hora = document.getElementById('ev-hora');
+    
+    if (texto) texto.value = "";
+    if (btn) btn.innerText = "Guardar Evolución";
+    
+    if (hora) {
+        const ahora = new Date();
+        hora.value = ahora.getHours().toString().padStart(2, '0') + ":" + 
+                     ahora.getMinutes().toString().padStart(2, '0');
+    }
+    
+    const especialista = document.getElementById('ev-especialista');
+    if (especialista) {
+        especialista.value = document.getElementById('display-profile-name')?.innerText || "";
+    }
+};
+
+window.cerrarHistorial = function() {
+    const modal = document.getElementById('modal-historial');
+    if (modal) modal.style.display = 'none';
+};
+
+window.eliminarEvolucion = function(e, notaId) {
+    e.stopPropagation(); // Esto evita que se abra la nota al querer borrarla
+    
+    console.log("Intentando eliminar nota con ID:", notaId); // Esto es para probar en consola (F12)
+
+    window.confirmarAccion(
+        "¿Eliminar Nota?", 
+        "Esta acción no se puede deshacer.", 
+        async () => {
+            try {
+                // Usamos doc() y deleteDoc() que importamos de Firebase
+                const docRef = doc(db, "pacientes", currentPxId, "evoluciones", notaId);
+                await deleteDoc(docRef);
+                
+                window.showToast("Nota eliminada correctamente");
+                
+                // Si la nota borrada estaba en el editor, lo limpiamos
+                if (notaEditandoId === notaId) {
+                    window.prepararNuevaNota();
+                }
+                
+                // Refrescamos la lista de la izquierda
+                consultarEvoluciones(currentPxId);
+            } catch (error) {
+                console.error("Error al eliminar de Firebase:", error);
+                window.showToast("❌ Error al eliminar");
+            }
+        }
+    );
+};
+
+// 1. La que crea el mensaje flotante (Toast)
+window.showToast = function(mensaje) {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<span>✓</span> ${mensaje}`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.remove(); }, 3000);
+};
+
+// 2. La que crea la ventanita de confirmación
+window.confirmarAccion = function(titulo, texto, callback) {
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay';
+    overlay.innerHTML = `
+        <div class="confirm-dialog">
+            <div class="confirm-content">
+                <div class="confirm-title">${titulo}</div>
+                <div class="confirm-text">${texto}</div>
+            </div>
+            <div class="confirm-buttons">
+                <button class="confirm-btn confirm-btn-cancel" id="confirm-cancel">Cancelar</button>
+                <button class="confirm-btn confirm-btn-delete" id="confirm-yes">Eliminar</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    document.getElementById('confirm-cancel').onclick = () => overlay.remove();
+    document.getElementById('confirm-yes').onclick = () => {
+        callback(); // Aquí ejecuta el borrado en Firebase
+        overlay.remove();
+    };
+};
+
+window.guardarNuevaEvolucion = async function() {
+    const nota = document.getElementById('texto-evolucion').value;
+    const hora = document.getElementById('ev-hora').value;
+    const especialista = document.getElementById('ev-especialista').value;
+
+    if (!nota.trim()) {
+        window.showToast("⚠️ La nota no puede estar vacía");
+        return;
+    }
+
+    const payload = {
+        nota: nota,
+        hora: hora,
+        especialista: especialista,
+        fecha: new Date().toISOString()
+    };
+
+    try {
+        if (notaEditandoId) {
+            const docRef = doc(db, "pacientes", currentPxId, "evoluciones", notaEditandoId);
+            await updateDoc(docRef, payload);
+            window.showToast("Nota actualizada correctamente"); // <--- TOAST ELEGANTE
+        } else {
+            const colRef = collection(db, "pacientes", currentPxId, "evoluciones");
+            await addDoc(colRef, payload);
+            window.showToast("Evolución guardada correctamente"); // <--- TOAST ELEGANTE
+        }
+
+        window.prepararNuevaNota();
+        consultarEvoluciones(currentPxId);
+    } catch (e) {
+        console.error("Error al guardar:", e);
+        window.showToast("❌ Error al guardar en la base de datos");
+    }
+};
+
+async function consultarEvoluciones(id) {
+    const lista = document.getElementById('lista-evoluciones');
+    if (!lista) return;
+    
+    lista.innerHTML = '<p style="padding:20px; color:#8e8e93;">Cargando...</p>';
+    
+    try {
+        // Aquí es donde fallaba por falta de 'query' y 'orderBy' en los imports
+        const q = query(collection(db, "pacientes", id, "evoluciones"), orderBy("fecha", "desc"));
+        const querySnapshot = await getDocs(q);
+        lista.innerHTML = "";
+
+        if (querySnapshot.empty) {
+            lista.innerHTML = '<p style="padding:20px; color:#8e8e93;">Sin notas previas.</p>';
+            return;
+        }
+
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            const card = document.createElement('div');
+            card.className = "ios-note-card";
+            card.innerHTML = `
+    <div style="padding-right: 30px;">
+        <div style="font-size:11px; color:#8e8e93;">${new Date(data.fecha).toLocaleDateString()}</div>
+        <div style="font-weight:600; color:#333; font-size:13px;">${data.nota.substring(0, 35)}...</div>
+    </div>
+    <button class="btn-eliminar-nota" onclick="window.eliminarEvolucion(event, '${docSnap.id}')">✕</button>
+`;
+
+            card.onclick = () => {
+                document.getElementById('texto-evolucion').value = data.nota;
+                document.getElementById('ev-hora').value = data.hora || "";
+                document.getElementById('ev-especialista').value = data.especialista;
+                notaEditandoId = docSnap.id; 
+                document.getElementById('btn-guardar-ev').innerText = "Actualizar Cambios";
+            };
+            lista.appendChild(card);
+        });
+    } catch (e) {
+        console.error("Error al consultar:", e);
+        lista.innerHTML = '<p style="padding:20px; color:red;">Error al cargar historial.</p>';
+    }
+}
 
 </script>
 </body>
