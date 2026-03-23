@@ -3391,11 +3391,19 @@ window.guardarHistoriaClinica = async function() {
 
 // Función para cargar la Historia Clínica
 async function cargarHistoriaClinica(pacienteId) {
-    const docRef = doc(db, "historias_clinicas", pacienteId);
-    const docSnap = await getDoc(docRef);
+    // VALIDACIÓN: Si el ID no existe, es nulo o está vacío, no continuar
+    if (!pacienteId || pacienteId === "" || typeof pacienteId !== "string") {
+        console.log("Esperando un ID de paciente válido para cargar...");
+        return; 
+    }
 
-    if (docSnap.exists()) {
-        const d = docSnap.data();
+    try {
+        const docRef = doc(db, "historias_clinicas", pacienteId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const d = docSnap.data();
+            console.log("Datos encontrados, rellenando formulario...");
         
         // Sección 1
         document.getElementById('hc-nombre').value = d.nombre || '';
