@@ -1169,33 +1169,285 @@ html, body {
             </div>
 
         <div class="ios-main-editor">
-            <div class="editor-fields-grid">
-                <div class="field-item">
-                    <label>Paciente</label>
-                    <input type="text" id="ev-nombre-px" readonly>
-                </div>
-                <div class="field-item">
-                    <label>Hora</label>
-                    <input type="time" id="ev-hora">
-                </div>
-                <div class="field-item">
-                    <label>Especialista</label>
-                    <input type="text" id="ev-especialista">
-                </div>
-            </div>
-            
-            <div style="flex:1; display:flex; flex-direction:column;">
-                <label style="font-size:10px; font-weight:700; color:#a5c941; margin-bottom:10px;">NOTA DE SESIÓN</label>
-                <textarea id="texto-evolucion" placeholder="Escribe el progreso aquí..."></textarea>
-            </div>
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; background: #f2f2f7; padding: 5px; border-radius: 12px; width: fit-content;">
+        <button onclick="cambiarPestana('nota')" id="tab-nota" 
+                style="padding: 8px 16px; border: none; border-radius: 9px; cursor: pointer; background: white; font-weight: 600; color: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.3s;">
+            Evolución
+        </button>
+        <button onclick="cambiarPestana('historia')" id="tab-historia" 
+                style="padding: 8px 16px; border: none; border-radius: 9px; cursor: pointer; background: transparent; font-weight: 600; color: #8e8e93; transition: 0.3s;">
+            Historia Clínica
+        </button>
+    </div>
 
-            <div style="text-align:right; margin-top:15px;">
-                <button id="btn-guardar-ev" onclick="guardarNuevaEvolucion()" 
-                        style="background:#a5c941; color:white; border:none; padding:12px 25px; border-radius:20px; font-weight:600; cursor:pointer;">
-                    Guardar Evolución
-                </button>
+    <div id="seccion-nota">
+        <div class="editor-fields-grid">
+            <div class="field-item">
+                <label>Paciente</label>
+                <input type="text" id="ev-nombre-px" readonly>
+            </div>
+            <div class="field-item">
+                <label>Hora</label>
+                <input type="time" id="ev-hora">
+            </div>
+            <div class="field-item">
+                <label>Especialista</label>
+                <input type="text" id="ev-especialista">
             </div>
         </div>
+        
+        <div style="flex:1; display:flex; flex-direction:column; margin-top:15px;">
+            <label style="font-size:10px; font-weight:700; color:#a5c941; margin-bottom:10px;">NOTA DE SESIÓN</label>
+            <textarea id="texto-evolucion" style="height: 300px;" placeholder="Escribe el progreso aquí..."></textarea>
+        </div>
+
+        <div style="text-align:right; margin-top:15px;">
+            <button id="btn-guardar-ev" onclick="guardarNuevaEvolucion()" 
+                    style="background:#a5c941; color:white; border:none; padding:12px 25px; border-radius:20px; font-weight:600; cursor:pointer;">
+                Guardar Evolución
+            </button>
+        </div>
+    </div>
+
+  <div id="seccion-historia" style="display: none; flex-direction: column; gap: 25px; height: 100%; overflow-y: auto; padding: 10px 15px 40px 5px; scrollbar-width: thin;">
+    
+    <style>
+        .hc-panel {
+            background: white;
+            border: 1px solid #d1d1d6;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .hc-panel-header {
+            background: #3a3a3c;
+            padding: 12px 20px;
+            text-align: center; /* CENTRADO DE HEADERS */
+        }
+        .hc-panel-header label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+        .hc-panel-body { padding: 20px; }
+        .field-item label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #8e8e93;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            display: block;
+        }
+        .hc-input, .hc-select, .hc-textarea {
+            width: 100%;
+            border: 1px solid #e5e5ea;
+            border-radius: 6px;
+            padding: 10px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            background: #fcfcfc;
+        }
+        /* Estilo específico para el select de crianza */
+        .hc-select-compact {
+            max-width: 250px; /* Tamaño reducido */
+        }
+
+        .hc-input:focus, .hc-textarea:focus {
+            border-color: #a5c941;
+            background: white;
+            outline: none;
+        }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        /* Contenedor de Ansiedad Compacto con Escala */
+        .ansiedad-wrapper {
+            max-width: 350px;
+            background: #f8f8fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e5e5ea;
+            margin-top: 15px;
+        }
+        .ansiedad-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #e5e5ea;
+            border-radius: 2px;
+            outline: none;
+        }
+        .ansiedad-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #a5c941;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .escala-numerica {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            padding: 0 4px;
+        }
+        .escala-numerica span {
+            font-size: 9px;
+            font-weight: 700;
+            color: #3a3a3c;
+            width: 12px;
+            text-align: center;
+        }
+        .escala-texto {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 8px;
+            color: #8e8e93;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+    </style>
+
+    <div class="hc-panel">
+        <div class="hc-panel-header"><label>1. Datos Generales y Contacto</label></div>
+        <div class="hc-panel-body">
+            <div class="grid-3">
+                <div class="field-item"><label>Nombre Completo</label><input type="text" id="hc-nombre" class="hc-input"></div>
+                <div class="field-item"><label>Edad</label><input type="text" id="hc-edad" class="hc-input"></div>
+                <div class="field-item"><label>Nacionalidad</label><input type="text" id="hc-nacionalidad" class="hc-input"></div>
+                <div class="field-item"><label>Ocupación</label><input type="text" id="hc-ocupacion" class="hc-input"></div>
+                <div class="field-item"><label>Fecha de Nacimiento</label><input type="date" id="hc-fecha-nac" class="hc-input"></div>
+                <div class="field-item"><label>Religión</label><input type="text" id="hc-religion" class="hc-input"></div>
+                <div class="field-item"><label>Escolaridad</label><input type="text" id="hc-escolaridad" class="hc-input"></div>
+                <div class="field-item"><label>Número de Teléfono</label><input type="tel" id="hc-telefono" class="hc-input"></div>
+                <div class="field-item"><label>Contacto de Emergencia</label><input type="text" id="hc-emergencia" class="hc-input"></div>
+            </div>
+            <div class="grid-2" style="margin-top:15px;">
+                <div class="field-item">
+                    <label>Motivo de Consulta</label>
+                    <textarea id="hc-motivo" class="hc-textarea" style="height:80px;" placeholder="¿Cuándo se notó? ¿Evento precipitante? ¿Qué alivia o empeora?"></textarea>
+                </div>
+                <div class="field-item">
+                    <label>Tratamientos Previos</label>
+                    <textarea id="hc-tratamientos-prev" class="hc-textarea" style="height:80px;" placeholder="Tipo, Efecto, Fecha..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hc-panel">
+        <div class="hc-panel-header"><label>2. Historial del Desarrollo</label></div>
+        <div class="hc-panel-body">
+            <div class="grid-3">
+                <div class="field-item"><label>Historia del embarazo</label><input type="text" id="hc-emb-historia" class="hc-input"></div>
+                <div class="field-item"><label>Parto (Natural/Cesárea)</label><input type="text" id="hc-parto-tipo" class="hc-input"></div>
+                <div class="field-item"><label>Edad Gestacional</label><input type="text" id="hc-gestacion" class="hc-input"></div>
+                <div class="field-item"><label>Consumió Alcohol</label><input type="text" id="hc-emb-alcohol" class="hc-input"></div>
+                <div class="field-item"><label>Estado emocional madre</label><input type="text" id="hc-emb-emocion" class="hc-input"></div>
+                <div class="field-item"><label>Dificultad del desarrollo</label><input type="text" id="hc-dif-desarrollo" class="hc-input"></div>
+                <div class="field-item"><label>Edad Gateó</label><input type="text" id="hc-gateo" class="hc-input"></div>
+                <div class="field-item"><label>Edad Caminó</label><input type="text" id="hc-camino" class="hc-input"></div>
+                <div class="field-item"><label>Edad Habló</label><input type="text" id="hc-hablo" class="hc-input"></div>
+                <div class="field-item"><label>Enuresis</label><input type="text" id="hc-enuresis" class="hc-input"></div>
+                <div class="field-item"><label>Encopresis</label><input type="text" id="hc-encopresis" class="hc-input"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hc-panel">
+        <div class="hc-panel-header"><label>3. Historia Familiar</label></div>
+        <div class="hc-panel-body">
+            <div class="field-item">
+                <label>Dinámica Familiar (Nombre, Parentesco, Edad, Relación: Distante, Conflictiva, Significativa)</label>
+                <textarea id="hc-familia-tabla" class="hc-textarea" style="height:100px; margin-bottom:15px;"></textarea>
+            </div>
+            <div class="field-item">
+                <label>Estilo de crianza predominante</label>
+                <select id="hc-crianza-estilo" class="hc-select hc-select-compact"> <option value="DEMOCRATICO">DEMOCRÁTICO</option>
+                    <option value="AUTORITARIO">AUTORITARIO</option>
+                    <option value="PERMISIVO">PERMISIVO</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="hc-panel">
+        <div class="hc-panel-header"><label>4. Historia Médica</label></div>
+        <div class="hc-panel-body">
+            <div class="grid-2">
+                <div class="field-item"><label>Enfermedades Significativas / Accidentes</label><textarea id="hc-med-enf" class="hc-textarea" style="height:60px;"></textarea></div>
+                <div class="field-item"><label>Hospitalización</label><textarea id="hc-med-hosp" class="hc-textarea" style="height:60px;"></textarea></div>
+                <div class="field-item"><label>Medicamentos Actuales (Dosis e Inicio)</label><textarea id="hc-meds-actuales" class="hc-textarea" style="height:60px;"></textarea></div>
+                <div class="field-item"><label>Enfermedades Hereditarias</label><textarea id="hc-med-herencia" class="hc-textarea" style="height:60px;"></textarea></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hc-panel">
+        <div class="hc-panel-header"><label>5. Historia Escolar</label></div>
+        <div class="hc-panel-body">
+            <div class="grid-2">
+                <div class="field-item"><label>Edad de inicio de estudios</label><input type="text" id="hc-esc-inicio" class="hc-input"></div>
+                <div class="field-item"><label>Rendimiento Académico</label><input type="text" id="hc-esc-acad" class="hc-input"></div>
+                <div class="field-item"><label>Rendimiento Conductual</label><input type="text" id="hc-esc-cond" class="hc-input"></div>
+                <div class="field-item"><label>Repetición de grado</label><input type="text" id="hc-esc-repite" class="hc-input"></div>
+            </div>
+            <div class="field-item" style="margin-top:15px;">
+                <label>Expectativas para el futuro</label>
+                <textarea id="hc-esc-expect" class="hc-textarea" style="height:60px;"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="hc-panel">
+        <div class="hc-panel-header"><label>6. Historia Social</label></div>
+        <div class="hc-panel-body">
+            <div class="grid-3">
+                <div class="field-item"><label>Relaciones Interpersonales (Duración/Calidad)</label><input type="text" id="hc-soc-rel" class="hc-input"></div>
+                <div class="field-item"><label>Intereses Sociales</label><input type="text" id="hc-soc-int" class="hc-input"></div>
+                <div class="field-item"><label>Rasgos (Extro/Intro)</label><input type="text" id="hc-soc-tipo" class="hc-input"></div>
+                <div class="field-item"><label>Practica algún deporte</label><input type="text" id="hc-soc-deporte" class="hc-input"></div>
+                <div class="field-item"><label>Hace amigos con facilidad</label><input type="text" id="hc-soc-amigos" class="hc-input"></div>
+                <div class="field-item"><label>Historial Delictivo</label><input type="text" id="hc-soc-delito" class="hc-input"></div>
+            </div>
+
+            <div class="ansiedad-wrapper">
+                <label style="font-size: 10px; font-weight: 700; color: #3a3a3c; text-transform: uppercase; margin-bottom: 15px; display: block;">
+                    Comodidad con desconocidos
+                </label>
+                <input type="range" id="hc-soc-ansiedad" class="ansiedad-slider" min="1" max="10" step="1" value="5">
+                <div class="escala-numerica">
+                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+                </div>
+                <div class="escala-texto">
+                    <span>Muy Relajado</span>
+                    <span>Muy Ansioso</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hc-panel">
+        <div class="hc-panel-header"><label>7. Impresión Clínica</label></div>
+        <div class="hc-panel-body">
+            <div class="field-item"><label>Descripción del Paciente</label><textarea id="hc-diag-desc" class="hc-textarea" style="height:60px;"></textarea></div>
+            <div class="grid-2" style="margin-top:10px;">
+                <div class="field-item"><label>Fortalezas</label><textarea id="hc-diag-fort" class="hc-textarea" style="height:60px; border-left: 4px solid #a5c941;"></textarea></div>
+                <div class="field-item"><label>Debilidades</label><textarea id="hc-diag-debi" class="hc-textarea" style="height:60px; border-left: 4px solid #ff3b30;"></textarea></div>
+            </div>
+            <div class="field-item" style="margin-top:10px;"><label>Signos y Síntomas</label><textarea id="hc-diag-signos" class="hc-textarea" style="height:60px;"></textarea></div>
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 10px; padding-bottom: 40px;">
+        <button onclick="window.imprimirSeccion('seccion-historia', 'Expediente Clínico')" style="background:#f2f2f7; color:#3a3a3c; border:none; padding:14px 25px; border-radius:8px; font-weight:700; cursor:pointer;">Vista Previa 📄</button>
+        <button onclick="guardarHistoriaClinica()" style="background:#a5c941; color:white; border:none; padding:14px 30px; border-radius:8px; font-weight:700; cursor:pointer; box-shadow: 0 4px 12px rgba(165,201,65,0.2);">Actualizar Expediente Completo</button>
     </div>
 </div>
 
@@ -2563,6 +2815,90 @@ if (typeof interact !== 'undefined') {
     });
 }
 
+window.guardarHistoriaClinica = async function() {
+    // Usamos el nombre del paciente como ID único (puedes cambiarlo por DNI o ID generado)
+    const nombrePaciente = document.getElementById('hc-nombre').value;
+    
+    if (!nombrePaciente) {
+        alert("Por favor, ingresa al menos el nombre del paciente.");
+        return;
+    }
+
+    const docId = nombrePaciente.replace(/\s+/g, '_').toLowerCase();
+    const docRef = doc(db, "historias_clinicas", docId);
+
+    // Recopilación masiva de todos los campos que diseñamos
+    const datos = {
+        // Sección 1: Datos Generales
+        nombre: nombrePaciente,
+        edad: document.getElementById('hc-edad').value,
+        nacionalidad: document.getElementById('hc-nacionalidad').value,
+        ocupacion: document.getElementById('hc-ocupacion').value,
+        fechaNacimiento: document.getElementById('hc-fecha-nac').value,
+        religion: document.getElementById('hc-religion').value,
+        escolaridad: document.getElementById('hc-escolaridad').value,
+        telefono: document.getElementById('hc-telefono').value,
+        emergencia: document.getElementById('hc-emergencia').value,
+        motivo: document.getElementById('hc-motivo').value,
+        tratamientosPrev: document.getElementById('hc-tratamientos-prev').value,
+
+        // Sección 2: Desarrollo
+        embarazo: document.getElementById('hc-emb-historia').value,
+        parto: document.getElementById('hc-parto-tipo').value,
+        gestacion: document.getElementById('hc-gestacion').value,
+        alcohol: document.getElementById('hc-emb-alcohol').value,
+        emocionMadre: document.getElementById('hc-emb-emocion').value,
+        difDesarrollo: document.getElementById('hc-dif-desarrollo').value,
+        gateo: document.getElementById('hc-gateo').value,
+        camino: document.getElementById('hc-camino').value,
+        hablo: document.getElementById('hc-hablo').value,
+        enuresis: document.getElementById('hc-enuresis').value,
+        encopresis: document.getElementById('hc-encopresis').value,
+
+        // Sección 3: Familia y Crianza
+        familia: document.getElementById('hc-familia-tabla').value,
+        estiloCrianza: document.getElementById('hc-crianza-estilo').value,
+
+        // Sección 4: Historia Médica (CORREGIDOS AQUÍ)
+        med_historia: document.getElementById('hc-med-enf').value, // Antes tenías uno que no existía
+        med_hospitalizacion: document.getElementById('hc-med-hosp').value, // ID del HTML
+        med_actuales: document.getElementById('hc-meds-actuales').value, 
+        med_herencia: document.getElementById('hc-med-herencia').value,
+
+        // Sección 5: Historia Escolar (CORREGIDOS AQUÍ)
+        esc_inicio: document.getElementById('hc-esc-inicio').value,
+        esc_academico: document.getElementById('hc-esc-acad').value,
+        esc_conductual: document.getElementById('hc-esc-cond').value,
+        esc_repite: document.getElementById('hc-esc-repite').value,
+        esc_expectativas: document.getElementById('hc-esc-expect').value,
+
+        // Sección 6: Historia Social
+        soc_relaciones: document.getElementById('hc-soc-rel').value,
+        soc_intereses: document.getElementById('hc-soc-int').value,
+        soc_tipo: document.getElementById('hc-soc-tipo').value,
+        soc_deporte: document.getElementById('hc-soc-deporte').value,
+        soc_amigos: document.getElementById('hc-soc-amigos').value,
+        soc_delito: document.getElementById('hc-soc-delito').value,
+        soc_ansiedad: document.getElementById('hc-soc-ansiedad').value,
+
+        // Sección 7: Diagnóstico (CORREGIDOS AQUÍ)
+        diag_desc: document.getElementById('hc-diag-desc').value,
+        diag_fortalezas: document.getElementById('hc-diag-fort').value,
+        diag_debilidades: document.getElementById('hc-diag-debi').value,
+        diag_signos: document.getElementById('hc-diag-signos').value, // Faltaba este
+        
+        ultimaEdicion: new Date().toLocaleString()
+    };
+
+    try {
+        await setDoc(docRef, datos, { merge: true });
+        alert("✅ Expediente de " + nombrePaciente + " guardado con éxito.");
+    } catch (error) {
+        console.error("Error al guardar:", error);
+        alert("❌ Error al guardar en Firebase.");
+    }
+};
+
 // Funciones de personalización del reporte
 window.ajustarLogo = function() {
     const img = document.getElementById('logoImg');
@@ -2670,7 +3006,8 @@ window.mppControlador = {
             window.dibujarGraficoEstimulacion([g, f, c, s, l]);
         }
     },
-    
+
+
     // 2. Guarda los resultados actuales en Firebase
     guardarEnFirebase: async function() {
         const selectBebe = document.getElementById('select-bebe-mpp');
@@ -2997,6 +3334,132 @@ window.cerrarHistorial = function() {
     const modal = document.getElementById('modal-historial');
     if (modal) modal.style.display = 'none';
 };
+
+// Función para cambiar entre Nota e Historia Clínica
+window.cambiarPestana = function(tipo) {
+    const sNota = document.getElementById('seccion-nota');
+    const sHistoria = document.getElementById('seccion-historia');
+    const tNota = document.getElementById('tab-nota');
+    const tHistoria = document.getElementById('tab-historia');
+
+    if (tipo === 'nota') {
+        sNota.style.display = 'block';
+        sHistoria.style.display = 'none';
+        tNota.style.background = 'white'; tNota.style.color = '#333';
+        tHistoria.style.background = 'transparent'; tHistoria.style.color = '#8e8e93';
+    } else {
+        sNota.style.display = 'block'; // Usamos block y flex según diseño
+        sNota.style.display = 'none';
+        sHistoria.style.display = 'block';
+        tHistoria.style.background = 'white'; tHistoria.style.color = '#333';
+        tNota.style.background = 'transparent'; tNota.style.color = '#8e8e93';
+        cargarHistoriaClinica(); // Carga los datos cuando entras a la pestaña
+    }
+};
+
+// Función para guardar la Historia Clínica en Firebase
+window.guardarHistoriaClinica = async function() {
+    // Verificamos que tengamos un paciente seleccionado
+    if (!currentPxId) {
+        window.showToast("❌ Error: No se ha seleccionado un paciente");
+        return;
+    }
+
+    const dataHC = {
+        nombres: document.getElementById('hc-nombres').value,
+        apellidos: document.getElementById('hc-apellidos').value,
+        edad: document.getElementById('hc-edad').value,
+        sexo: document.getElementById('hc-sexo').value,
+        fechaNacimiento: document.getElementById('hc-fecha-nac').value,
+        estadoCivil: document.getElementById('hc-estado-civil').value,
+        ocupacion: document.getElementById('hc-ocupacion').value,
+        direccion: document.getElementById('hc-direccion').value,
+        detalles: document.getElementById('hc-detalles').value, // El textarea grande
+        ultimaActualizacion: new Date().toISOString()
+    };
+
+    try {
+        const hcRef = doc(db, "pacientes", currentPxId, "datosClinicos", "historia");
+        // setDoc es mejor aquí porque solo queremos UN documento de historia por paciente
+        await setDoc(hcRef, dataHC);
+        window.showToast("✅ Expediente actualizado correctamente");
+    } catch (e) {
+        console.error("Error al guardar historia:", e);
+        window.showToast("❌ Error al guardar los datos");
+    }
+};
+
+// Función para cargar la Historia Clínica
+async function cargarHistoriaClinica(pacienteId) {
+    const docRef = doc(db, "historias_clinicas", pacienteId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        const d = docSnap.data();
+        
+        // Sección 1
+        document.getElementById('hc-nombre').value = d.nombre || '';
+        document.getElementById('hc-edad').value = d.edad || '';
+        document.getElementById('hc-nacionalidad').value = d.nacionalidad || '';
+        document.getElementById('hc-ocupacion').value = d.ocupacion || '';
+        document.getElementById('hc-fecha-nac').value = d.fechaNacimiento || '';
+        document.getElementById('hc-religion').value = d.religion || '';
+        document.getElementById('hc-escolaridad').value = d.escolaridad || '';
+        document.getElementById('hc-telefono').value = d.telefono || '';
+        document.getElementById('hc-emergencia').value = d.emergencia || '';
+        document.getElementById('hc-motivo').value = d.motivo || '';
+        document.getElementById('hc-tratamientos-prev').value = d.tratamientosPrev || '';
+
+        // Sección 2
+        document.getElementById('hc-emb-historia').value = d.embarazo || '';
+        document.getElementById('hc-parto-tipo').value = d.parto || '';
+        document.getElementById('hc-gestacion').value = d.gestacion || '';
+        document.getElementById('hc-emb-alcohol').value = d.alcohol || '';
+        document.getElementById('hc-emb-emocion').value = d.emocionMadre || '';
+        document.getElementById('hc-dif-desarrollo').value = d.difDesarrollo || '';
+        document.getElementById('hc-gateo').value = d.gateo || '';
+        document.getElementById('hc-camino').value = d.camino || '';
+        document.getElementById('hc-hablo').value = d.hablo || '';
+        document.getElementById('hc-enuresis').value = d.enuresis || '';
+        document.getElementById('hc-encopresis').value = d.encopresis || '';
+
+        // Sección 3
+        document.getElementById('hc-familia-tabla').value = d.familia || '';
+        document.getElementById('hc-crianza-estilo').value = d.estiloCrianza || 'DEMOCRATICO';
+
+        // Sección 4
+        document.getElementById('hc-med-enf').value = d.med_enfermedades || '';
+        document.getElementById('hc-med-hosp').value = d.med_hospitalizacion || '';
+        document.getElementById('hc-meds-actuales').value = d.med_actuales || '';
+        document.getElementById('hc-med-herencia').value = d.med_herencia || '';
+
+        // Sección 5
+        document.getElementById('hc-esc-inicio').value = d.esc_inicio || '';
+        document.getElementById('hc-esc-acad').value = d.esc_academico || '';
+        document.getElementById('hc-esc-cond').value = d.esc_conductual || '';
+        document.getElementById('hc-esc-repite').value = d.esc_repite || '';
+        document.getElementById('hc-esc-expect').value = d.esc_expectativas || '';
+
+        // Sección 6
+        document.getElementById('hc-soc-rel').value = d.soc_relaciones || '';
+        document.getElementById('hc-soc-int').value = d.soc_intereses || '';
+        document.getElementById('hc-soc-tipo').value = d.soc_tipo || '';
+        document.getElementById('hc-soc-deporte').value = d.soc_deporte || '';
+        document.getElementById('hc-soc-amigos').value = d.soc_amigos || '';
+        document.getElementById('hc-soc-delito').value = d.soc_delito || '';
+        document.getElementById('hc-soc-ansiedad').value = d.soc_ansiedad || 5;
+
+        // Sección 7
+        document.getElementById('hc-diag-desc').value = d.diag_desc || '';
+        document.getElementById('hc-diag-fort').value = d.diag_fortalezas || '';
+        document.getElementById('hc-diag-debi').value = d.diag_debilidades || '';
+        document.getElementById('hc-diag-signos').value = d.diag_signos || '';
+
+        console.log("Datos cargados!");
+    } else {
+        console.log("No existe el documento");
+    }
+}
 
 window.eliminarEvolucion = function(e, notaId) {
     e.stopPropagation(); // Esto evita que se abra la nota al querer borrarla
