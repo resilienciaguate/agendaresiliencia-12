@@ -18,6 +18,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.11/interact.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root { --bg-page: #f1f3f6; --brand-dark: #1f2937; --brand-main: #a5c941; --text-light: #f9fafb; --border-color: #e5e7eb; }
@@ -954,14 +955,90 @@ html, body {
     </section>
 </div>
 
-    <div id="view-recibo" class="main-stage" style="display:none;">
-        <div class="calendar-card">
-            <h2 style="color: var(--brand-dark); text-align: center;">Módulo de Recibos</h2>
-            <div id="contenedor-recibo">
-                <p style="text-align: center; color: #999; margin-top: 20px;">Área en mantenimiento.</p>
+   <div id="view-recibo" class="main-stage" style="display:none;">
+    <div class="calendar-card">
+        <h2 style="color: var(--brand-dark); text-align: center; margin-bottom: 20px;">Módulo de Recibos</h2>
+        
+        <div id="viewport-receipt" style="display: flex; justify-content: center; overflow-x: auto; background: #cbd5e1; padding: 20px; border-radius: 15px;">
+            <div id="receipt-canvas" style="width: 8.5in; height: 11in; background: white; position: relative; overflow: hidden; color: #333; box-shadow: 0 0 30px rgba(0,0,0,0.2); font-family: 'Roboto', sans-serif;">
+                
+                <div id="receipt-box-logo" class="movable" style="top: 0.5in; left: 0.6in; width: 3in; position: absolute; cursor: move;">
+                    <img id="receipt-preview" src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" style="width: 160px; display: block; margin-bottom: 10px;">
+                    <div style="font-size: 11px; color: #555; line-height: 1.4;">
+                        <b style="color: #8aa561; font-size: 13px;">Clínica de psicología RESILIENCIA</b><br>
+                        <span>www.resilienciaguate.com</span><br>
+                        <span>+502 3360-8429</span><br>
+                        <span>5ta avenida 1-97 Residencial Valle de la Mariposa, Amatitlán.</span>
+                    </div>
+                </div>
+
+                <div id="receipt-box-info" class="movable" style="top: 0.8in; left: 5.8in; text-align: right; width: 2.1in; position: absolute; cursor: move;">
+                    <h1 style="margin:0; color:#8aa561; font-size: 28px; font-weight: bold;">RECIBO</h1>
+                    <p style="margin:5px 0; font-size: 16px; font-weight: bold;"># <span id="receipt-correl">0000001</span></p>
+                    <p style="font-size: 13px; color: #444;">Fecha: <span id="receipt-curDate">-- de -- de ----</span></p>
+                </div>
+
+                <div id="receipt-box-patient" class="movable" style="top: 2.3in; left: 0.6in; position: absolute; cursor: move;">
+                    <div style="width: 7.3in; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+                        <div style="display: flex; border-bottom: 1px solid #e2e8f0;">
+                            <div style="background: #f8fafc; width: 120px; padding: 10px; font-size: 11px; font-weight: bold; color: #8aa561;">NOMBRE:</div>
+                            <div style="flex: 1; padding: 10px;"><input type="text" id="receipt-pName" placeholder="Nombre completo del paciente" style="width: 100%; border: none; outline: none; font-size: 13px; font-weight: bold;"></div>
+                        </div>
+                        <div style="display: flex; border-bottom: 1px solid #e2e8f0;">
+                            <div style="background: #f8fafc; width: 120px; padding: 10px; font-size: 11px; font-weight: bold; color: #8aa561;">TELÉFONO:</div>
+                            <div style="flex: 1; padding: 10px;"><input type="text" placeholder="Número de contacto" style="width: 100%; border: none; outline: none; font-size: 13px;"></div>
+                        </div>
+                        <div style="display: flex;">
+                            <div style="background: #f8fafc; width: 120px; padding: 10px; font-size: 11px; font-weight: bold; color: #8aa561;">DIRECCIÓN:</div>
+                            <div style="flex: 1; padding: 10px;"><input type="text" placeholder="Ciudad / Domicilio" style="width: 100%; border: none; outline: none; font-size: 13px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="receipt-box-table" class="movable" style="top: 4in; left: 0.6in; width: 7.3in; position: absolute; cursor: move;">
+                    <h3 style="color: #8aa561; font-size: 14px; margin-bottom: 10px; border-bottom: 2px solid #8aa561; padding-bottom: 5px;">Descripción de Servicios</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: #8aa561; color: white;">
+                                <th style="padding: 12px; font-size: 12px; text-align: left;">Descripción</th>
+                                <th style="width:120px; text-align:right; padding: 12px;">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody id="receipt-body">
+                            <tr>
+                                <td style="border-bottom: 1px solid #eee; padding: 12px;"><input type="text" placeholder="Ej. Sesión de psicología..." style="border:none; width:100%; outline:none; font-size: 13px;"></td>
+                                <td style="border-bottom: 1px solid #eee; padding: 12px;"><input type="number" class="receipt-p" value="0" oninput="updateTotalRecibo()" style="border:none; width:100%; text-align:right; outline:none; font-weight: bold; font-size: 13px;"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="no-print" onclick="addRowRecibo()" style="background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1; padding:5px 12px; border-radius:5px; margin-top:10px; cursor:pointer; font-size:11px; font-weight: bold;">+ Añadir Línea</button>
+                    
+                    <div style="margin-top: 40px; display: flex; justify-content: flex-end;">
+                        <div style="width: 250px; border-top: 3px solid #8aa561; padding-top: 10px; text-align: right;">
+                            <span style="font-size: 12px; font-weight: bold; color: #666; text-transform: uppercase;">Monto Total</span>
+                            <h2 id="receipt-totalDisp" style="margin: 5px 0 0; font-size: 32px; color: #333;">Q 0.00</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="position: absolute; bottom: 0.6in; left: 0.6in; width: 7.3in; text-align: center; border-top: 1px solid #eee; padding-top: 15px;">
+                    <p style="font-size: 12px; color: #8aa561; font-style: italic; margin: 0; line-height: 1.5;">
+                        "Tu espacio seguro para el bienestar emocional y el crecimiento personal.<br>Cuidamos tu salud mental."
+                    </p>
+                </div>
             </div>
         </div>
-</div> <div id="view-estimulacion" class="main-stage" style="display:none; width: 100%; min-height: 100vh; background: #f4f7f6; flex-direction: column; align-items: center; position: relative;">
+        
+       <div style="text-align: center; padding: 40px 0;" class="no-print">
+    <button onclick="makePDFRecibo(event)" style="background: #1e293b; color: white; border: none; padding: 16px 50px; border-radius: 50px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.4s; box-shadow: 0 10px 25px rgba(30,41,59,0.2); border: 1px solid rgba(255,255,255,0.1);">
+        Exportar PDF
+    </button>
+</div>
+    </div>
+</div>
+
+
+<div id="view-estimulacion" class="main-stage" style="display:none; width: 100%; min-height: 100vh; background: #f4f7f6; flex-direction: column; align-items: center; position: relative;">
     <button class="no-print" onclick="window.print();" 
         style="position: absolute; top: 20px; right: 20px; z-index: 3000; background: #a5c941; color: white; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px;">
         <span>📄</span> EXPORTAR REPORTE PDF
@@ -1539,6 +1616,94 @@ html, body {
 
 
    <script type="module">
+
+// 1. Configuración de Fecha Automática al cargar
+document.addEventListener('DOMContentLoaded', () => {
+    const opciones = { day: '2-digit', month: 'long', year: 'numeric' };
+    document.getElementById('receipt-curDate').innerText = new Date().toLocaleDateString('es-GT', opciones);
+});
+
+// 2. Agregar Filas a la Tabla (Manteniendo la elegancia)
+function addRowRecibo() {
+    const tbody = document.getElementById('receipt-body');
+    const row = document.createElement('tr');
+    row.style.borderBottom = "1px solid #f1f5f9";
+    row.innerHTML = `
+        <td style="padding: 18px 10px;"><input type="text" placeholder="Escriba el concepto..." style="border:none; width:100%; outline:none; font-size: 14px; color: #334155;"></td>
+        <td style="padding: 18px 10px;"><input type="number" class="receipt-p" value="0" oninput="updateTotalRecibo()" style="border:none; width:100%; text-align:right; outline:none; font-weight: 700; font-size: 15px; color: #1e293b;"></td>
+    `;
+    tbody.appendChild(row);
+}
+
+// 1. Cálculo de Total con formato de moneda (Global)
+window.updateTotalRecibo = function() {
+    let total = 0;
+    const precios = document.querySelectorAll('.receipt-p');
+    precios.forEach(input => {
+        total += parseFloat(input.value) || 0;
+    });
+    const display = document.getElementById('receipt-totalDisp');
+    if (display) {
+        display.innerText = `Q ${total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    }
+};
+
+// 2. Exportar PDF con Ajustes de Alta Precisión (Global)
+window.makePDFRecibo = function(event) {
+    if (event) event.preventDefault();
+
+    // El elemento que contiene el diseño (debe medir 8.5in x 11in)
+    const el = document.getElementById('receipt-canvas');
+    const btn = event ? (event.currentTarget || event.target) : null;
+    
+    // Ocultamos elementos que no queremos en el PDF (botones)
+    const h = document.querySelectorAll('.no-print');
+    h.forEach(b => b.style.opacity = '0');
+
+    if (btn) {
+        btn.innerText = "GENERANDO...";
+        btn.style.opacity = "0.6";
+    }
+
+    const opt = {
+        margin: 0,
+        filename: `Recibo_Resiliencia_${document.getElementById('receipt-correl').innerText}.pdf`,
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: { 
+            scale: 3, // ALTA RESOLUCIÓN como el código original
+            useCORS: true,
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            width: 816,  // Ancho exacto de papel carta a 96dpi
+            height: 1056 // Alto exacto de papel carta a 96dpi
+        },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    // Ejecución de la librería
+    html2pdf().from(el).set(opt).save().then(() => {
+        // Restauramos visibilidad de botones
+        h.forEach(b => b.style.opacity = '1');
+        
+        if (btn) {
+            btn.innerText = "Exportar PDF";
+            btn.style.opacity = "1";
+        }
+
+        // Actualizar correlativo
+        let correlEl = document.getElementById('receipt-correl');
+        if (correlEl) {
+            let next = parseInt(correlEl.innerText) + 1;
+            correlEl.innerText = next.toString().padStart(7, '0');
+        }
+    }).catch(err => {
+        console.error("Error:", err);
+        h.forEach(b => b.style.opacity = '1');
+    });
+};
+
+
 
 // 1. Variable global (El cerebro de la app)
 window.pacienteActivoId = "";
@@ -3169,7 +3334,7 @@ window.dibujarGraficoEstimulacion = function(datos = [80, 75, 90, 70]) {
     const canvas = document.getElementById('graficoAvances');
     if (!canvas) return; // Seguridad por si no encuentra el canvas
     
-    const ctx = canvas.getContext('2d');
+   const ctx = canvas.getContext('2d', { willReadFrequently: true });
     
     if (window.miGraficoRadar) {
         window.miGraficoRadar.destroy();
