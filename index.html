@@ -2214,9 +2214,34 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
     const idPacienteUrl = params.get('id');
 
     if (esModoPaciente && idPacienteUrl) {
+        try {
+            // VERIFICACIÓN DE UN SOLO USO: Consultamos si ya se llenó
+            const docRef = doc(db, "historias_clinicas", idPacienteUrl);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists() && docSnap.data().fichaLlenada === true) {
+                // BLOQUEO: Si ya se llenó, mostramos pantalla de éxito y abortamos
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('nav-bar').style.display = 'none';
+                document.getElementById('app-content').style.display = 'flex';
+                document.getElementById('app-content').innerHTML = `
+                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100vh; background:#f2f2f7; font-family:-apple-system, sans-serif; padding:20px;">
+                        <div style="background:white; padding:40px; border-radius:24px; box-shadow:0 10px 40px rgba(0,0,0,0.05); text-align:center; max-width:400px;">
+                            <div style="font-size:60px; margin-bottom:20px;">✅</div>
+                            <h2 style="color:#1c1c1e; margin-bottom:10px;">¡Expediente Recibido!</h2>
+                            <p style="color:#8e8e93; line-height:1.5;">Muchas gracias. Sus datos han sido registrados correctamente en <b>Clínica Resiliencia</b>.</p>
+                            <p style="margin-top:20px; font-size:13px; color:#c7c7cc;">Por seguridad, este enlace de acceso único ha sido desactivado.</p>
+                        </div>
+                    </div>`;
+                return; // Detiene la ejecución aquí
+            }
+        } catch (e) {
+            console.error("Error validando estado del link:", e);
+        }
+
+        // SI NO ESTÁ LLENADA: Acceso autorizado
         console.log("Acceso autorizado para paciente: " + idPacienteUrl);
         
-        // Encendido de interfaz mínima
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('nav-bar').style.display = 'none'; 
         document.getElementById('app-content').style.display = 'flex';
@@ -2225,35 +2250,40 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
         if(modal) modal.style.display = 'block';
 
         setTimeout(() => {
-    if (typeof irAHistoria === 'function') irAHistoria();
-    
-    // 1. Ocultar elementos por ID o Clase específica
-    const elementosPx = [
-        '.btn-back-ios', 
-        '.ios-add-btn', 
-        '#tab-nota', 
-        '.ios-sidebar-history', 
-        '#admin-selector-wrapper'
-    ];
+            if (typeof irAHistoria === 'function') irAHistoria();
+            
+            // Ocultar elementos administrativos
+            const elementosPx = [
+                '.btn-back-ios', 
+                '.ios-add-btn', 
+                '#tab-nota', 
+                '.ios-sidebar-history', 
+                '#admin-selector-wrapper'
+            ];
 
-    elementosPx.forEach(sel => {
-        const el = document.querySelector(sel) || document.getElementById(sel.replace('#',''));
-        if(el) el.style.display = 'none';
-    });
+            elementosPx.forEach(sel => {
+                const el = document.querySelector(sel) || document.getElementById(sel.replace('#',''));
+                if(el) el.style.display = 'none';
+            });
 
-    // 2. FUERZA BRUTA PARA LOS BOTONES DE DOCTOR
-    // Buscamos TODOS los que tengan la clase .solo-doctor y los borramos
-    document.querySelectorAll('.solo-doctor').forEach(el => {
-        el.setAttribute('style', 'display: none !important;');
-    });
+            // Fuerza bruta para borrar botones de doctor (Imprimir/Compartir)
+            document.querySelectorAll('.solo-doctor').forEach(el => {
+                el.setAttribute('style', 'display: none !important;');
+            });
 
-    window.pacienteActivoId = idPacienteUrl;
-    if (typeof cargarDatosHistoriaClinica === 'function') {
-        cargarDatosHistoriaClinica(idPacienteUrl);
+            window.pacienteActivoId = idPacienteUrl;
+            if (typeof cargarDatosHistoriaClinica === 'function') {
+                cargarDatosHistoriaClinica(idPacienteUrl);
+            }
+        }, 400);
+        return; 
     }
-}, 400);
-        return; // Finaliza aquí para pacientes
+
+    // --- 2. LÓGICA ORIGINAL PARA DOCTOR / ADMIN ---
+    if (user) {
+        // ... (el resto de tu código de admin/psicóloga sigue igual)
     }
+});
 
     // --- 2. LÓGICA ORIGINAL PARA DOCTOR / ADMIN ---
     if (user) {
@@ -3758,12 +3788,10 @@ async function consultarEvoluciones(id) {
 window.guardarHistoriaClinica = async function() {
     console.log("Iniciando guardado de Historia Clínica...");
     
-    // 1. DETECTAR EL MODO Y EL ID DESDE LA URL (Para el paciente)
     const urlParams = new URLSearchParams(window.location.search);
     const esModoPaciente = urlParams.get('modo') === 'px' || urlParams.get('modo') === 'paciente';
     const idDesdeUrl = urlParams.get('id');
 
-    // Prioridad de ID: 1. URL (paciente), 2. Variable Global, 3. Header
     if (esModoPaciente && idDesdeUrl) {
         window.pacienteActivoId = idDesdeUrl;
     } else if (!window.pacienteActivoId) {
@@ -3780,10 +3808,8 @@ window.guardarHistoriaClinica = async function() {
     const safeGet = (id) => document.getElementById(id)?.value || "";
 
     try {
-        // Usamos doc(db, ...) como ya lo tienes
         const docRef = doc(db, "historias_clinicas", window.pacienteActivoId);
 
-        // 2. DATOS QUE AMBOS PUEDEN LLENAR
         const datos = {
             idPaciente: window.pacienteActivoId,
             nombreFormulario: safeGet('hc-nombre'),
@@ -3827,10 +3853,13 @@ window.guardarHistoriaClinica = async function() {
             soc_delito: safeGet('hc-soc-delito'),
             soc_ansiedad: safeGet('hc-soc-ansiedad'),
             ultimaEdicion: new Date().toLocaleString(),
-            editadoPor: esModoPaciente ? 'PACIENTE' : 'DOCTOR'
+            editadoPor: esModoPaciente ? 'PACIENTE' : 'DOCTOR',
+            
+            // --- EL SELLO DE SEGURIDAD ---
+            // Solo se activa si es el paciente quien guarda
+            ...(esModoPaciente && { fichaLlenada: true })
         };
 
-        // 3. DATOS QUE SOLO EL DOCTOR GUARDA (Protegemos tus notas)
         if (!esModoPaciente) {
             datos.diag_desc = safeGet('hc-diag-desc');
             datos.diag_fort = safeGet('hc-diag-fort');
@@ -3838,7 +3867,6 @@ window.guardarHistoriaClinica = async function() {
             datos.diag_signos = safeGet('hc-diag-signos');
         }
 
-        // El merge: true es VITAL aquí para no borrar lo que el otro escribió
         await setDoc(docRef, datos, { merge: true });
         
         if (typeof window.showToast === "function") {
@@ -3846,14 +3874,15 @@ window.guardarHistoriaClinica = async function() {
             window.showToast(msg, "✅");
         }
 
-        // Si es paciente, podemos deshabilitar el botón para que sepa que ya terminó
         if (esModoPaciente) {
-            const btn = document.getElementById('btn-guardar-hc'); // Asegúrate que este sea el ID de tu botón
+            const btn = document.getElementById('btn-guardar-hc');
             if (btn) {
                 btn.disabled = true;
                 btn.innerText = "ENVIADO";
                 btn.style.background = "#ccc";
             }
+            // Opcional: Recargar la página después de 2 segundos para que vean el bloqueo
+            setTimeout(() => location.reload(), 2000);
         }
 
     } catch (error) {
