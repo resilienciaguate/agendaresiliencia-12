@@ -1525,12 +1525,13 @@ html, body {
         Guardar
     </button>
 
-    <button onclick="window.imprimirSeccion('seccion-historia', 'Expediente Clínico')" 
+   <div style="display:flex; gap:10px;">
+    <button class="solo-doctor" onclick="window.imprimirSeccion('seccion-historia', 'Expediente Clínico')" 
             style="background:#f2f2f7; color:#3a3a3c; border:none; padding:14px 25px; border-radius:8px; font-weight:700; cursor:pointer;">
         Imprimir
     </button>
 
-    <button onclick="compartirLinkPaciente()" 
+    <button class="solo-doctor" onclick="compartirLinkPaciente()" 
             style="background:#25d366; color:white; border:none; padding:10px 20px; border-radius:20px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px;">
         <span>Compartir con Paciente</span>
     </button>    
@@ -1961,43 +1962,45 @@ window.enviarWhatsAppRecordatorio = () => {
 
  // --- 1. FUNCIÓN link Historia Clínica WHATSAPP ---
 window.compartirLinkPaciente = function() {
-    // 1. Intentamos sacar el número de los campos del panel lateral (donde ya están cargados)
-    const codigoPais = document.getElementById('edit-pais')?.value || ""; 
-    const telefono = document.getElementById('edit-whatsapp')?.value || "";
-    
-    // 2. Si esos están vacíos, probamos con el de la ficha técnica
-    const telefonoFicha = document.getElementById('hc-telefono')?.value || "";
+    // 1. Buscamos el elemento que dice "Historial: Odett Pineda"
+    // He revisado tu captura, buscaremos por el texto del encabezado
+    const headers = document.querySelectorAll('h1, h2, h3, .historial-title'); 
+    let nombreCompleto = "";
 
-    // 3. Unimos y LIMPIAMOS (Solo para quitar espacios o guiones que bloquean WhatsApp)
-    let numeroFinal = "";
-    
-    if (telefono !== "") {
-        numeroFinal = (codigoPais + telefono).replace(/\D/g, '');
+    headers.forEach(h => {
+        if(h.innerText.includes("Historial:")) {
+            // Quitamos "Historial: " y nos queda "Odett Pineda"
+            nombreCompleto = h.innerText.replace("Historial:", "").trim();
+        }
+    });
+
+    if (!nombreCompleto) {
+        // Si no lo halla en el H1, usamos la llave que ya tenemos
+        nombreCompleto = window.pacienteActivoId.replace(/_/g, ' ');
+    }
+
+    // 2. BUSCAMOS EN LA COLECCIÓN "CITAS" (citasGlobal)
+    // Buscamos la cita donde el title coincida con el nombre que acabamos de leer
+    const citaEncontrada = citasGlobal.find(c => 
+        c.title && c.title.toLowerCase().trim() === nombreCompleto.toLowerCase().trim()
+    );
+
+    if (citaEncontrada && citaEncontrada.tel) {
+        // 3. EXTRAER TELÉFONO DE LA CITA
+        const numeroWhatsApp = citaEncontrada.tel.toString().replace(/\D/g, '');
+        
+        const urlBase = window.location.origin + window.location.pathname;
+        const linkFinal = `${urlBase}?modo=px&id=${window.pacienteActivoId}`;
+        
+        const mensaje = encodeURIComponent(
+            `Hola ${nombreCompleto}, le saluda Clínica Resiliencia. 🌿\n\n` +
+            `Para completar su expediente clínico, por favor ingrese al siguiente enlace:\n\n${linkFinal}`
+        );
+
+        window.open(`https://wa.me/${numeroWhatsApp}?text=${mensaje}`, '_blank');
     } else {
-        numeroFinal = telefonoFicha.replace(/\D/g, '');
+        alert("⚠️ No encontré la cita de '" + nombreCompleto + "' en la colección 'citas' para obtener su número.");
     }
-
-    // 4. Validaciones de seguridad
-    const nombre = document.getElementById('hc-nombre')?.value || "Paciente";
-    const idPaciente = window.pacienteActivoId;
-
-    if (!numeroFinal) {
-        alert("No se encontró el teléfono del paciente en el panel.");
-        return;
-    }
-
-    if (!idPaciente) {
-        alert("No hay un ID de paciente activo.");
-        return;
-    }
-
-    // 5. Construcción del link
-    const urlBase = window.location.origin + window.location.pathname;
-    const linkFinal = `${urlBase}?modo=px&id=${idPaciente}`;
-    const msg = encodeURIComponent(`Hola ${nombre}, te saludamos de Clínica Resiliencia. 🌿\n\nPor favor, completa tu ficha clínica en este enlace:\n${linkFinal}`);
-
-    // 6. Abrir WhatsApp
-    window.open(`https://wa.me/${numeroFinal}?text=${msg}`, '_blank');
 };
 
 // --- 2. FUNCIÓN ACTUALIZAR ---
@@ -2222,20 +2225,30 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
         if(modal) modal.style.display = 'block';
 
         setTimeout(() => {
-            if (typeof irAHistoria === 'function') irAHistoria();
-            
-            // Ocultar elementos administrativos
-            const elementosPx = ['.btn-back-ios', '.ios-add-btn', '#tab-nota', '.ios-sidebar-history', '#admin-selector-wrapper'];
-            elementosPx.forEach(sel => {
-                const el = document.querySelector(sel) || document.getElementById(sel.replace('#',''));
-                if(el) el.style.display = 'none';
-            });
+    if (typeof irAHistoria === 'function') irAHistoria();
+    
+    // Ocultar elementos administrativos
+    // AGREGAMOS '.solo-doctor' A ESTA LISTA:
+    const elementosPx = [
+        '.btn-back-ios', 
+        '.ios-add-btn', 
+        '#tab-nota', 
+        '.ios-sidebar-history', 
+        '#admin-selector-wrapper',
+        '.solo-doctor' // <--- ESTA ES LA CLAVE
+    ];
 
-            window.pacienteActivoId = idPacienteUrl;
-            if (typeof cargarDatosHistoriaClinica === 'function') {
-                cargarDatosHistoriaClinica(idPacienteUrl);
-            }
-        }, 400);
+    elementosPx.forEach(sel => {
+        // Buscamos por clase o por ID
+        const el = document.querySelector(sel) || document.getElementById(sel.replace('#',''));
+        if(el) el.style.display = 'none';
+    });
+
+    window.pacienteActivoId = idPacienteUrl;
+    if (typeof cargarDatosHistoriaClinica === 'function') {
+        cargarDatosHistoriaClinica(idPacienteUrl);
+    }
+}, 400);
         return; // Finaliza aquí para pacientes
     }
 
