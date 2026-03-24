@@ -1446,12 +1446,6 @@ html, body {
         </div>
     </div>
 
-    <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 10px; padding-bottom: 40px;">
-        <button onclick="window.imprimirSeccion('seccion-historia', 'Expediente Clínico')" style="background:#f2f2f7; color:#3a3a3c; border:none; padding:14px 25px; border-radius:8px; font-weight:700; cursor:pointer;">Vista Previa 📄</button>
-        <button onclick="guardarHistoriaClinica()" style="background:#a5c941; color:white; border:none; padding:14px 30px; border-radius:8px; font-weight:700; cursor:pointer; box-shadow: 0 4px 12px rgba(165,201,65,0.2);">Actualizar Expediente Completo</button>
-    </div>
-</div>
-
 
    <script type="module">
 
@@ -3570,13 +3564,23 @@ window.guardarHistoriaClinica = async function() {
             ultimaEdicion: new Date().toLocaleString()
         };
 
-        await setDoc(docRef, datos, { merge: true });
-        alert("✅ Expediente actualizado correctamente.");
-        console.log("Guardado en Firebase bajo el ID:", window.pacienteActivoId);
+      await setDoc(docRef, datos, { merge: true });
+        
+        // CAMBIO: De alert a Toast elegante
+        if (typeof window.showToast === "function") {
+            window.showToast(`Expediente de ${safeGet('hc-nombre') || window.pacienteActivoId} actualizado`, "✅");
+        } else {
+            // Backup por si el toast falla
+            console.log("✅ Expediente actualizado correctamente.");
+        }
 
     } catch (error) {
         console.error("Error al guardar:", error);
-        alert("❌ Error: " + error.message);
+        if (typeof window.showToast === "function") {
+            window.showToast("Error al guardar: " + error.message, "❌");
+        } else {
+            alert("❌ Error: " + error.message);
+        }
     }
 };
 
