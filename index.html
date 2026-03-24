@@ -1519,22 +1519,21 @@ html, body {
         </div>
     </div>
 
-    <button onclick="compartirLinkPaciente()" 
-            style="background:#25d366; color:white; border:none; padding:10px 20px; border-radius:20px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px;">
-        <span>Compartir con Paciente</span>
-    </button>   
-
-    <button onclick="window.imprimirSeccion('seccion-historia', 'Expediente Clínico')" 
-            style="background:#4d4e4b; color:#ffffff; border:none; padding:14px 25px; border-radius:8px; font-weight:700; cursor:pointer;">
-        Imprimir
-    </button> 
-
-    <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 10px; padding-bottom: 40px;">
+   <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 10px; padding-bottom: 40px;">
     <button id="btn-guardar-hc" onclick="guardarHistoriaClinica()" 
-            style="background:#4d4e4b; color:white; border:none; padding:14px 30px; border-radius:8px; font-weight:700; cursor:pointer; box-shadow: 0 4px 12px rgba(165,201,65,0.2);">
+            style="background:#a5c941; color:white; border:none; padding:14px 30px; border-radius:8px; font-weight:700; cursor:pointer; box-shadow: 0 4px 12px rgba(165,201,65,0.2);">
         Guardar
     </button>
 
+    <button onclick="window.imprimirSeccion('seccion-historia', 'Expediente Clínico')" 
+            style="background:#f2f2f7; color:#3a3a3c; border:none; padding:14px 25px; border-radius:8px; font-weight:700; cursor:pointer;">
+        Imprimir
+    </button>
+
+    <button onclick="compartirLinkPaciente()" 
+            style="background:#25d366; color:white; border:none; padding:10px 20px; border-radius:20px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px;">
+        <span>Compartir con Paciente</span>
+    </button>    
 </div>
 
 
@@ -2206,6 +2205,46 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
     // -----------------------------------------------
 
    onAuthStateChanged(auth, async (user) => {
+    // --- NUEVO: DETECCIÓN DE MODO PACIENTE (SALTO DE LOGIN) ---
+    const params = new URLSearchParams(window.location.search);
+    const esModoPaciente = params.get('modo') === 'px';
+    const idPacienteUrl = params.get('id');
+
+    if (esModoPaciente && idPacienteUrl) {
+        console.log("Acceso autorizado para paciente: " + idPacienteUrl);
+        
+        // 1. Mostrar la estructura de la app pero ocultar navegación
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('nav-bar').style.display = 'none'; 
+        document.getElementById('app-content').style.display = 'flex';
+        
+        // 2. Abrir el modal de historia clínica automáticamente
+        const modal = document.getElementById('modal-historial');
+        if(modal) modal.style.display = 'block';
+
+        // 3. Limpiar interfaz para el paciente (ocultar lo privado)
+        setTimeout(() => {
+            // Forzar vista de Historia (no Evolución)
+            if (typeof irAHistoria === 'function') irAHistoria();
+            
+            // Ocultar botones y pestañas sensibles
+            const elementosPx = ['.btn-back-ios', '.ios-add-btn', '#tab-nota', '.ios-sidebar-history', '#admin-selector-wrapper'];
+            elementosPx.forEach(sel => {
+                const el = document.querySelector(sel) || document.getElementById(sel.replace('#',''));
+                if(el) el.style.display = 'none';
+            });
+
+            // Cargar los datos del paciente específico
+            window.pacienteActivoId = idPacienteUrl;
+            if (typeof cargarDatosHistoriaClinica === 'function') {
+                cargarDatosHistoriaClinica(idPacienteUrl);
+            }
+        }, 400);
+
+        return; // Detener aquí para que no pida login de Google al paciente
+    }
+
+    // --- LÓGICA ORIGINAL FUNCIONAL (DOCTOR / ADMIN) ---
     if (user) {
         const CORREO_ADMIN_OFICIAL = "resilienciaguate@gmail.com"; 
         const userEmail = user.email.toLowerCase().trim();
@@ -2240,11 +2279,10 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
         iniciarApp(isAdmin, userEmail);
 
         // --- EL TOQUE FINAL: LANZAR EL SALUDO ---
-        // Esperamos 2 segundos para que Firebase termine de leer el perfil
         setTimeout(saludarEstiloIphone, 2000);
 
     } else {
-        // CIERRE DE SESIÓN
+        // CIERRE DE SESIÓN (O no hay modo paciente activo)
         document.getElementById('login-screen').style.display = 'block';
         document.getElementById('nav-bar').style.display = 'none';
         document.getElementById('app-content').style.display = 'none';
@@ -2252,22 +2290,23 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
 });
 
 function iniciarApp(isAdmin, emailActivo) {
+    // Si entramos en modo paciente, no es necesario escuchar perfiles ni agenda
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('modo') === 'px') return;
+
     // 1. Escucha de perfiles
     onSnapshot(collection(db, "perfiles"), (snap) => {
         perfilesGlobal = snap.docs.map(d => ({ email: d.id, ...d.data() }));
         
         const miP = perfilesGlobal.find(p => p.email.toLowerCase() === emailActivo);
         
-        // CORREO: Barra superior
         const navEmail = document.getElementById('display-profile-name');
         if (navEmail) navEmail.innerText = emailActivo; 
 
         if (miP) {
-            // NOMBRE REAL: Sidebar
             const sidebarName = document.getElementById('user-sidebar-name');
             if (sidebarName) sidebarName.innerText = miP.displayName || "";
 
-            // FOTO: Reemplazar logo si no es admin
             if (!isAdmin && miP.photo) {
                 const logo = document.getElementById('main-app-logo');
                 if (logo) {
@@ -2279,11 +2318,11 @@ function iniciarApp(isAdmin, emailActivo) {
             }
         }
         
-        // Ejecutar renderizado solo si la función existe
         if (typeof renderizarAdminUnified === 'function') {
             renderizarAdminUnified(isAdmin);
         }
     });
+}
 
     // 2. Escucha de PSICOLOGAS (Selectores)
     onSnapshot(collection(db, "psicologas"), (snap) => {
