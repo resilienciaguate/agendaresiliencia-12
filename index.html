@@ -2227,21 +2227,24 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
         setTimeout(() => {
     if (typeof irAHistoria === 'function') irAHistoria();
     
-    // Ocultar elementos administrativos
-    // AGREGAMOS '.solo-doctor' A ESTA LISTA:
+    // 1. Ocultar elementos por ID o Clase específica
     const elementosPx = [
         '.btn-back-ios', 
         '.ios-add-btn', 
         '#tab-nota', 
         '.ios-sidebar-history', 
-        '#admin-selector-wrapper',
-        '.solo-doctor' // <--- ESTA ES LA CLAVE
+        '#admin-selector-wrapper'
     ];
 
     elementosPx.forEach(sel => {
-        // Buscamos por clase o por ID
         const el = document.querySelector(sel) || document.getElementById(sel.replace('#',''));
         if(el) el.style.display = 'none';
+    });
+
+    // 2. FUERZA BRUTA PARA LOS BOTONES DE DOCTOR
+    // Buscamos TODOS los que tengan la clase .solo-doctor y los borramos
+    document.querySelectorAll('.solo-doctor').forEach(el => {
+        el.setAttribute('style', 'display: none !important;');
     });
 
     window.pacienteActivoId = idPacienteUrl;
