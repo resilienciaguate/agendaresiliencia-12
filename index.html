@@ -3586,7 +3586,7 @@ window.guardarHistoriaClinica = async function() {
  */
 async function cargarHistoriaClinica(pacienteId) {
     if (!pacienteId) return;
-    console.log("Buscando datos para:", pacienteId);
+    console.log("Buscando datos en Firebase para ID:", pacienteId);
 
     try {
         const docRef = doc(db, "historias_clinicas", pacienteId);
@@ -3600,8 +3600,12 @@ async function cargarHistoriaClinica(pacienteId) {
                 if (el) el.value = val || '';
             };
 
-            // Llenado masivo de campos
-            fill('hc-nombre', d.nombre);
+            // --- CORRECCIÓN CRUCIAL PARA EL NOMBRE ---
+            // Intentamos cargar 'nombreFormulario' (el nombre completo que tú escribiste).
+            // Si no existe, usamos 'nombre' (el que venía del panel).
+            fill('hc-nombre', d.nombreFormulario || d.nombre || "");
+
+            // Llenado masivo del resto de campos (Sincronizado con tu función de guardado)
             fill('hc-edad', d.edad);
             fill('hc-nacionalidad', d.nacionalidad);
             fill('hc-ocupacion', d.ocupacion);
@@ -3646,10 +3650,16 @@ async function cargarHistoriaClinica(pacienteId) {
             fill('hc-diag-debi', d.diag_debi);
             fill('hc-diag-signos', d.diag_signos);
 
-            console.log("✅ Carga de datos completada.");
+            console.log("✅ Carga de datos completada para:", d.nombreFormulario || pacienteId);
+        } else {
+            console.log("No se encontró historial previo. El formulario se mantendrá limpio.");
+            // Opcional: Podrías poner el nombre del paciente activo en el campo hc-nombre 
+            // aunque no tenga datos guardados aún:
+            const nombreHeader = document.getElementById('paciente-nombre-evolucion')?.innerText.replace(/Historial:\s*/i, '').trim();
+            if (nombreHeader) document.getElementById('hc-nombre').value = nombreHeader;
         }
     } catch (error) {
-        console.error("Error al cargar expediente:", error);
+        console.error("Error crítico al cargar expediente:", error);
     }
 }
 
