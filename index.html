@@ -19,6 +19,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.11/interact.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     
     <style>
         :root { --bg-page: #f1f3f6; --brand-dark: #1f2937; --brand-main: #a5c941; --text-light: #f9fafb; --border-color: #e5e7eb; }
@@ -819,6 +821,9 @@ html, body {
                     </tr>
                 </thead>
                 <tbody id="tabla-pacientes-body"></tbody>
+                <button class="no-print" onclick="addRowRecibo()" style="background: none; color: #8aa561; border: 1px dashed #8aa561; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 15px; transition: 0.3s;">
+    + Añadir línea
+</button>
             </table>
         </div>
     </section>
@@ -1683,24 +1688,41 @@ window.makePDFRecibo = function(event) {
 
     // Ejecución de la librería
     html2pdf().from(el).set(opt).save().then(() => {
-        // Restauramos visibilidad de botones
-        h.forEach(b => b.style.opacity = '1');
-        
-        if (btn) {
-            btn.innerText = "Exportar PDF";
-            btn.style.opacity = "1";
-        }
+    // 1. Restauramos visibilidad de botones
+    h.forEach(b => b.style.opacity = '1');
+    
+    if (btn) {
+        btn.innerText = "Exportar PDF";
+        btn.style.opacity = "1";
+        btn.disabled = false;
+    }
 
-        // Actualizar correlativo
-        let correlEl = document.getElementById('receipt-correl');
-        if (correlEl) {
-            let next = parseInt(correlEl.innerText) + 1;
-            correlEl.innerText = next.toString().padStart(7, '0');
-        }
-    }).catch(err => {
-        console.error("Error:", err);
-        h.forEach(b => b.style.opacity = '1');
-    });
+    // 2. Obtener el número que acabamos de imprimir
+    let correlEl = document.getElementById('receipt-correl');
+    if (correlEl) {
+        let numeroUsado = parseInt(correlEl.innerText);
+
+        // 3. ACTUALIZACIÓN EN LA NUBE (Firestore)
+        // Referencia al documento que creamos para el contador
+        const correlativoRef = doc(db, "configuracion", "contador_recibos");
+
+        // Guardamos el número actual en Firestore. 
+        // El 'onSnapshot' que pusimos antes se encargará de 
+        // actualizar el número en pantalla automáticamente para todos.
+        updateDoc(correlativoRef, {
+            ultimo_numero: numeroUsado
+        }).then(() => {
+            console.log("Firestore actualizado al recibo:", numeroUsado);
+        }).catch(error => {
+            console.error("Error al actualizar Firestore:", error);
+        });
+    }
+
+}).catch(err => {
+    console.error("Error al generar PDF:", err);
+    h.forEach(b => b.style.opacity = '1');
+    if (btn) btn.disabled = false;
+});
 };
 
 
@@ -4168,6 +4190,40 @@ window.addEventListener('load', () => {
         }
 
         window.showToast("Bienvenido. Por favor complete su información clínica.", "🌿");
+    }
+});
+
+
+window.addRowRecibo = function() {
+    const tbody = document.getElementById('receipt-body');
+    if (!tbody) return;
+
+    const row = document.createElement('tr');
+    row.style.borderBottom = "1px solid #f1f5f9";
+    
+    row.innerHTML = `
+        <td style="padding: 15px 10px;">
+            <input type="text" placeholder="Ej. Sesión de psicología..." style="border:none; width:100%; outline:none; font-size: 14px; color: #334155; background: transparent;">
+        </td>
+        <td style="padding: 15px 10px; text-align: right;">
+            <input type="number" class="receipt-p" value="0" oninput="updateTotalRecibo()" style="border:none; width:80px; text-align:right; outline:none; font-weight: 700; font-size: 15px; color: #1e293b; background: transparent;">
+        </td>
+    `;
+    
+    tbody.appendChild(row);
+};
+
+// Referencia al documento único que guarda el contador
+const correlativoRef = doc(db, "configuracion", "contador_recibos");
+
+// Escuchar cambios en tiempo real desde Firestore
+onSnapshot(correlativoRef, (docSnap) => {
+    if (docSnap.exists()) {
+        const nuevoNumero = docSnap.data().ultimo_numero + 1;
+        document.getElementById('receipt-correl').innerText = nuevoNumero.toString().padStart(7, '0');
+    } else {
+        // Si no existe el registro en la base de datos, lo creamos empezando en 0
+        setDoc(correlativoRef, { ultimo_numero: 0 });
     }
 });
 
