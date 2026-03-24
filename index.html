@@ -2204,8 +2204,8 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
 
     // -----------------------------------------------
 
-   onAuthStateChanged(auth, async (user) => {
-    // --- NUEVO: DETECCIÓN DE MODO PACIENTE (SALTO DE LOGIN) ---
+  onAuthStateChanged(auth, async (user) => {
+    // --- 1. DETECCIÓN DE MODO PACIENTE (SALTO DE SEGURIDAD) ---
     const params = new URLSearchParams(window.location.search);
     const esModoPaciente = params.get('modo') === 'px';
     const idPacienteUrl = params.get('id');
@@ -2213,52 +2213,43 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
     if (esModoPaciente && idPacienteUrl) {
         console.log("Acceso autorizado para paciente: " + idPacienteUrl);
         
-        // 1. Mostrar la estructura de la app pero ocultar navegación
+        // Encendido de interfaz mínima
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('nav-bar').style.display = 'none'; 
         document.getElementById('app-content').style.display = 'flex';
         
-        // 2. Abrir el modal de historia clínica automáticamente
         const modal = document.getElementById('modal-historial');
         if(modal) modal.style.display = 'block';
 
-        // 3. Limpiar interfaz para el paciente (ocultar lo privado)
         setTimeout(() => {
-            // Forzar vista de Historia (no Evolución)
             if (typeof irAHistoria === 'function') irAHistoria();
             
-            // Ocultar botones y pestañas sensibles
+            // Ocultar elementos administrativos
             const elementosPx = ['.btn-back-ios', '.ios-add-btn', '#tab-nota', '.ios-sidebar-history', '#admin-selector-wrapper'];
             elementosPx.forEach(sel => {
                 const el = document.querySelector(sel) || document.getElementById(sel.replace('#',''));
                 if(el) el.style.display = 'none';
             });
 
-            // Cargar los datos del paciente específico
             window.pacienteActivoId = idPacienteUrl;
             if (typeof cargarDatosHistoriaClinica === 'function') {
                 cargarDatosHistoriaClinica(idPacienteUrl);
             }
         }, 400);
-
-        return; // Detener aquí para que no pida login de Google al paciente
+        return; // Finaliza aquí para pacientes
     }
 
-    // --- LÓGICA ORIGINAL FUNCIONAL (DOCTOR / ADMIN) ---
+    // --- 2. LÓGICA ORIGINAL PARA DOCTOR / ADMIN ---
     if (user) {
         const CORREO_ADMIN_OFICIAL = "resilienciaguate@gmail.com"; 
         const userEmail = user.email.toLowerCase().trim();
         const isAdmin = userEmail === CORREO_ADMIN_OFICIAL;
         
-        // 1. ENCENDIDO DE LA INTERFAZ
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('nav-bar').style.display = 'flex';
         document.getElementById('app-content').style.display = 'flex';
         
-        // Texto por defecto inicial
         document.getElementById('display-profile-name').innerText = user.email;
-
-        // 2. CONFIGURACIÓN UNIFICADA
         document.getElementById('admin-selector-wrapper').style.display = 'block';
 
         if (isAdmin) {
@@ -2274,15 +2265,12 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
             }
         }
 
-        // 3. CARGA INICIAL
         showView('view-agenda'); 
         iniciarApp(isAdmin, userEmail);
-
-        // --- EL TOQUE FINAL: LANZAR EL SALUDO ---
         setTimeout(saludarEstiloIphone, 2000);
 
     } else {
-        // CIERRE DE SESIÓN (O no hay modo paciente activo)
+        // CIERRE DE SESIÓN
         document.getElementById('login-screen').style.display = 'block';
         document.getElementById('nav-bar').style.display = 'none';
         document.getElementById('app-content').style.display = 'none';
@@ -2290,23 +2278,22 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
 });
 
 function iniciarApp(isAdmin, emailActivo) {
-    // Si entramos en modo paciente, no es necesario escuchar perfiles ni agenda
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('modo') === 'px') return;
-
     // 1. Escucha de perfiles
     onSnapshot(collection(db, "perfiles"), (snap) => {
         perfilesGlobal = snap.docs.map(d => ({ email: d.id, ...d.data() }));
         
         const miP = perfilesGlobal.find(p => p.email.toLowerCase() === emailActivo);
         
+        // CORREO: Barra superior
         const navEmail = document.getElementById('display-profile-name');
         if (navEmail) navEmail.innerText = emailActivo; 
 
         if (miP) {
+            // NOMBRE REAL: Sidebar
             const sidebarName = document.getElementById('user-sidebar-name');
             if (sidebarName) sidebarName.innerText = miP.displayName || "";
 
+            // FOTO: Reemplazar logo si no es admin
             if (!isAdmin && miP.photo) {
                 const logo = document.getElementById('main-app-logo');
                 if (logo) {
@@ -2318,11 +2305,11 @@ function iniciarApp(isAdmin, emailActivo) {
             }
         }
         
+        // Ejecutar renderizado solo si la función existe
         if (typeof renderizarAdminUnified === 'function') {
             renderizarAdminUnified(isAdmin);
         }
     });
-}
 
     // 2. Escucha de PSICOLOGAS (Selectores)
     onSnapshot(collection(db, "psicologas"), (snap) => {
