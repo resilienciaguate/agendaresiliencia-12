@@ -159,6 +159,77 @@ html, body {
     border-radius: 2px;
 }
 
+@media print {
+    /* Configuración de la página física */
+    @page {
+        size: letter;
+        margin: 0; /* Quitamos el margen del navegador para controlarlo nosotros */
+    }
+
+    body > *:not(#print-area-temp) { display: none !important; }
+
+    #print-area-temp { 
+        display: block !important; 
+        position: relative;
+        width: 100%; 
+        font-family: 'Montserrat', sans-serif;
+        color: #000;
+        background: white;
+        
+        /* MARGENES TOTALES: 2cm arriba y abajo, 1.5cm a los lados */
+        padding: 2cm 1.5cm !important; 
+        box-sizing: border-box;
+        min-height: 100vh;
+    }
+
+    .print-header {
+        text-align: center;
+        border-bottom: 2px solid #000;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+    }
+
+    /* BLOQUES MÁS PEQUEÑOS Y COMPACTOS */
+    .bloque-dato {
+        margin-bottom: 8px; 
+        padding: 5px 0;
+        border-bottom: 1px dotted #ccc;
+        display: block;
+        /* EVITA QUE EL BLOQUE SE PARTA ENTRE HOJAS */
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .print-label {
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 10px; /* Etiqueta pequeña */
+        color: #555;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .print-valor {
+        font-size: 12px; /* Texto compacto */
+        display: block;
+        line-height: 1.3;
+        color: #000;
+    }
+
+    #print-area-temp h3 {
+        margin-top: 25px;
+        margin-bottom: 12px;
+        background: #f2f2f7 !important;
+        -webkit-print-color-adjust: exact;
+        padding: 8px;
+        font-size: 14px;
+        border-left: 5px solid #000;
+        page-break-after: avoid;
+    }
+}
+#print-area-temp { display: none; }
+
+
 /* --- VISTA DE PANTALLA --- */
 #view-estimulacion {
     display: none; /* Se activa con JS */
@@ -1202,13 +1273,17 @@ html, body {
             <textarea id="texto-evolucion" style="height: 300px;" placeholder="Escribe el progreso aquí..."></textarea>
         </div>
 
-        <div style="text-align:right; margin-top:15px;">
-            <button id="btn-guardar-ev" onclick="guardarNuevaEvolucion()" 
-                    style="background:#a5c941; color:white; border:none; padding:12px 25px; border-radius:20px; font-weight:600; cursor:pointer;">
-                Guardar Evolución
-            </button>
-        </div>
-    </div>
+      <div style="text-align:right; margin-top:15px; display: flex; justify-content: flex-end; gap: 10px;">
+    <button id="btn-guardar-ev" onclick="guardarNuevaEvolucion()" 
+            style="background:#a5c941; color:white; border:none; padding:12px 25px; border-radius:20px; font-weight:600; cursor:pointer;">
+        Guardar Evolución
+    </button>
+
+    <button onclick="window.imprimirEvolucion('seccion-nota')" 
+            style="background:#1c1c1e; color:white; border:none; padding:12px 25px; border-radius:20px; font-weight:600; cursor:pointer;">
+        Imprimir Evolución
+    </button>
+</div>
 
   <div id="seccion-historia" style="display: none; flex-direction: column; gap: 25px; height: 100%; overflow-y: auto; padding: 10px 15px 40px 5px; scrollbar-width: thin;">
     
@@ -1447,7 +1522,8 @@ html, body {
     </div>
 
     <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 10px; padding-bottom: 40px;">
-        <button onclick="guardarHistoriaClinica()" style="background:#a5c941; color:white; border:none; padding:14px 30px; border-radius:8px; font-weight:700; cursor:pointer; box-shadow: 0 4px 12px rgba(165,201,65,0.2);">Actualizar Expediente Completo</button>
+        <button onclick="guardarHistoriaClinica()" style="background:#a5c941; color:white; border:none; padding:14px 30px; border-radius:8px; font-weight:700; cursor:pointer; box-shadow: 0 4px 12px rgba(165,201,65,0.2);">Guardar</button>
+   <button onclick="window.imprimirSeccion('seccion-historia', 'Expediente Clínico')" style="background:#f2f2f7; color:#3a3a3c; border:none; padding:14px 25px; border-radius:8px; font-weight:700; cursor:pointer;">Imprimir</button>
     </div>
 </div>
 
@@ -1474,6 +1550,98 @@ function limpiarCamposHistoria() {
     });
     console.log("Formulario de Historia Clínica vaciado para nuevo paciente.");
 }
+
+window.imprimirEvolucion = function(idSeccion) {
+    const original = document.getElementById(idSeccion);
+    const nombre = document.getElementById('ev-nombre-px')?.value || "PACIENTE";
+    
+    if (!original) {
+        alert("No se encontró la sección de evolución");
+        return;
+    }
+
+    const area = document.createElement('div');
+    area.id = 'print-area-temp';
+    
+    // Header específico para Evolución
+    area.innerHTML = `
+        <div style="text-align:center; border-bottom:3px solid #000; margin-bottom:30px; padding-bottom:15px; font-family: Montserrat, sans-serif;">
+            <h1 style="font-size: 20px; margin:0; text-transform: uppercase;">Notas de Evolución Clínica</h1>
+            <h2 style="font-size: 18px; margin:5px 0;">PACIENTE: ${nombre.toUpperCase()}</h2>
+        </div>
+    `;
+
+    // Clonamos tu diseño de evolución (tablas, listas o bloques)
+    const copia = original.cloneNode(true);
+    
+    // Si tu evolución tiene muchos registros, esto evita que se corten feo entre páginas
+    const registros = copia.querySelectorAll('.registro-evolucion, tr, .bloque-nota');
+    registros.forEach(reg => {
+        reg.style.pageBreakInside = 'avoid';
+        reg.style.breakInside = 'avoid';
+    });
+
+    area.appendChild(copia);
+    document.body.appendChild(area);
+
+    setTimeout(() => {
+        window.print();
+        if (document.getElementById('print-area-temp')) {
+            document.body.removeChild(area);
+        }
+    }, 200);
+};
+
+window.imprimirSeccion = function(idSeccion, titulo) {
+    var elemento = document.getElementById(idSeccion);
+    if (!elemento) return;
+
+    var nombre = document.getElementById('hc-nombre')?.value || "Paciente";
+    var fecha = new Date().toLocaleDateString();
+
+    var area = document.createElement('div');
+    area.id = 'print-area-temp';
+    
+    // Encabezado con margen interno
+    var html = '<div class="print-header">';
+    html += '<h1 style="font-size: 22px; margin:0;">' + titulo.toUpperCase() + '</h1>';
+    html += '<p style="font-size: 14px; margin:8px 0;"><strong>PACIENTE:</strong> ' + nombre.toUpperCase() + ' | <strong>FECHA:</strong> ' + fecha + '</p>';
+    html += '</div>';
+
+    var copia = elemento.cloneNode(true);
+    var inputs = copia.querySelectorAll('input, textarea, select');
+    
+    for (var i = 0; i < inputs.length; i++) {
+        var valor = inputs[i].value;
+        var idOrig = inputs[i].id;
+        
+        if (valor && valor !== "---" && valor.trim() !== "") {
+            var labelEl = document.querySelector('label[for="' + idOrig + '"]');
+            var textoLabel = labelEl ? labelEl.innerText : "Dato";
+            
+            // Bloque compacto que no se parte
+            var divBloque = document.createElement('div');
+            divBloque.className = 'bloque-dato';
+            divBloque.innerHTML = '<span class="print-label">' + textoLabel + ':</span><span class="print-valor">' + valor + '</span>';
+            
+            inputs[i].parentNode.replaceChild(divBloque, inputs[i]);
+        } else {
+            inputs[i].remove();
+        }
+    }
+
+    area.innerHTML = html + copia.innerHTML;
+    document.body.appendChild(area);
+
+    window.print();
+    
+    setTimeout(function() {
+        if (document.getElementById('print-area-temp')) {
+            document.body.removeChild(area);
+        }
+    }, 1000);
+};
+
 
 // 3. Función para cambiar a la pestaña (Usando el ID inteligente)
 window.irAHistoria = function() {
