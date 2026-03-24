@@ -2208,19 +2208,18 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
     // -----------------------------------------------
 
   onAuthStateChanged(auth, async (user) => {
-    // --- 1. DETECCIÓN DE MODO PACIENTE (SALTO DE SEGURIDAD) ---
+    // --- 1. DETECCIÓN DE MODO PACIENTE ---
     const params = new URLSearchParams(window.location.search);
     const esModoPaciente = params.get('modo') === 'px';
     const idPacienteUrl = params.get('id');
 
     if (esModoPaciente && idPacienteUrl) {
         try {
-            // VERIFICACIÓN DE UN SOLO USO: Consultamos si ya se llenó
+            // Importante: Asegúrate que 'db' esté definido antes de este onAuthStateChanged
             const docRef = doc(db, "historias_clinicas", idPacienteUrl);
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists() && docSnap.data().fichaLlenada === true) {
-                // BLOQUEO: Si ya se llenó, mostramos pantalla de éxito y abortamos
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('nav-bar').style.display = 'none';
                 document.getElementById('app-content').style.display = 'flex';
@@ -2233,15 +2232,14 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
                             <p style="margin-top:20px; font-size:13px; color:#c7c7cc;">Por seguridad, este enlace de acceso único ha sido desactivado.</p>
                         </div>
                     </div>`;
-                return; // Detiene la ejecución aquí
+                return; 
             }
         } catch (e) {
             console.error("Error validando estado del link:", e);
+            // Si hay error de Firebase, dejamos que pase para no bloquear al paciente
         }
 
-        // SI NO ESTÁ LLENADA: Acceso autorizado
-        console.log("Acceso autorizado para paciente: " + idPacienteUrl);
-        
+        // Acceso autorizado para paciente
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('nav-bar').style.display = 'none'; 
         document.getElementById('app-content').style.display = 'flex';
@@ -2252,21 +2250,12 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
         setTimeout(() => {
             if (typeof irAHistoria === 'function') irAHistoria();
             
-            // Ocultar elementos administrativos
-            const elementosPx = [
-                '.btn-back-ios', 
-                '.ios-add-btn', 
-                '#tab-nota', 
-                '.ios-sidebar-history', 
-                '#admin-selector-wrapper'
-            ];
-
+            const elementosPx = ['.btn-back-ios', '.ios-add-btn', '#tab-nota', '.ios-sidebar-history', '#admin-selector-wrapper'];
             elementosPx.forEach(sel => {
                 const el = document.querySelector(sel) || document.getElementById(sel.replace('#',''));
                 if(el) el.style.display = 'none';
             });
 
-            // Fuerza bruta para borrar botones de doctor (Imprimir/Compartir)
             document.querySelectorAll('.solo-doctor').forEach(el => {
                 el.setAttribute('style', 'display: none !important;');
             });
@@ -2279,13 +2268,7 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
         return; 
     }
 
-    // --- 2. LÓGICA ORIGINAL PARA DOCTOR / ADMIN ---
-    if (user) {
-        // ... (el resto de tu código de admin/psicóloga sigue igual)
-    }
-});
-
-    // --- 2. LÓGICA ORIGINAL PARA DOCTOR / ADMIN ---
+    // --- 2. LÓGICA PARA DOCTOR / ADMIN ---
     if (user) {
         const CORREO_ADMIN_OFICIAL = "resilienciaguate@gmail.com"; 
         const userEmail = user.email.toLowerCase().trim();
@@ -2300,9 +2283,7 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
 
         if (isAdmin) {
             document.getElementById('side-panel-ui').style.display = 'block';
-            if(document.getElementById('psico-view-only')) {
-                document.getElementById('psico-view-only').style.display = 'none';
-            }
+            if(document.getElementById('psico-view-only')) document.getElementById('psico-view-only').style.display = 'none';
         } else {
             document.getElementById('side-panel-ui').style.display = 'none';
             if(document.getElementById('psico-view-only')) {
@@ -2316,7 +2297,7 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
         setTimeout(saludarEstiloIphone, 2000);
 
     } else {
-        // CIERRE DE SESIÓN
+        // CIERRE DE SESIÓN O SIN USUARIO
         document.getElementById('login-screen').style.display = 'block';
         document.getElementById('nav-bar').style.display = 'none';
         document.getElementById('app-content').style.display = 'none';
