@@ -1455,55 +1455,36 @@ html, body {
 
    <script type="module">
 
+// 1. Variable global (El cerebro de la app)
+window.pacienteActivoId = "";
 
-
-function obtenerNombreDelHeader() {
-    // Intentamos todos los IDs que podrías estar usando en tu header
-    const posiblesIds = ['paciente-nombre-evolucion', 'header-paciente-nombre', 'nombre-paciente-header'];
-    let textoEncontrado = "";
-
-    for (let id of posiblesIds) {
-        const el = document.getElementById(id);
-        if (el) {
-            textoEncontrado = el.value || el.innerText || "";
-            if (textoEncontrado) break;
-        }
-    }
-
-    // SI NO LO ENCUENTRA POR ID, buscamos por la clase o el texto que contenga "Historial:"
-    if (!textoEncontrado) {
-        // Buscamos cualquier elemento que tenga el texto "Historial:"
-        const todos = document.querySelectorAll('h1, h2, h3, div, span');
-        for (let el of todos) {
-            if (el.innerText.includes("Historial:")) {
-                textoEncontrado = el.innerText;
-                break;
-            }
-        }
-    }
-
-    // Limpiamos el prefijo "Historial:" y espacios
-    return textoEncontrado.replace(/Historial:\s*/i, '').trim();
+// 2. Función para limpiar nombres (Solo dejamos una versión)
+function generarIdLimpio(nombre) {
+    if (!nombre) return "";
+    return nombre.toLowerCase()
+        .replace(/[‹\+]/g, '') 
+        .replace(/Pacientes|Historial:/gi, '')
+        .trim().replace(/\s+/g, '_')
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
 }
 
+// 3. Función para cambiar a la pestaña (Usando el ID inteligente)
 window.irAHistoria = function() {
+    // Primero cambiamos la vista
     cambiarPestana('historia');
 
-    const nombreHeader = obtenerNombreDelHeader();
-    console.log("Nombre detectado en el header:", nombreHeader);
+    // Si por alguna razón el ID está vacío, intentamos rescatarlo del header
+    if (!window.pacienteActivoId) {
+        const headerEl = document.getElementById('paciente-nombre-evolucion');
+        const textoHeader = headerEl ? (headerEl.value || headerEl.innerText || "") : "";
+        window.pacienteActivoId = generarIdLimpio(textoHeader);
+    }
 
-    if (nombreHeader) {
-        const docId = nombreHeader.toLowerCase().replace(/\s+/g, '_')
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
-        
-        // Llenamos el campo del formulario automáticamente
-        const inputHC = document.getElementById('hc-nombre');
-        if (inputHC) inputHC.value = nombreHeader;
-
-        window.cargarHistoriaClinica(docId);
+    if (window.pacienteActivoId) {
+        console.log("Cargando historia para:", window.pacienteActivoId);
+        window.cargarHistoriaClinica(window.pacienteActivoId);
     } else {
-        console.error("Error: No se pudo localizar el nombre en el header.");
-        alert("Por favor, asegúrate de haber seleccionado un paciente.");
+        alert("Por favor, selecciona un paciente de la lista primero.");
     }
 };
 
@@ -2686,9 +2667,16 @@ function renderChart(id, type, label, labels, data, colors) {
 
 // --- OTROS COMPONENTES ---
 window.abrirGestionPorNombre = (nombrePx) => {
+    // 1. ACTIVAMOS EL ID MAESTRO (Indispensable para Historia Clínica)
+    window.pacienteActivoId = generarIdLimpio(nombrePx);
+    console.log("ID Maestro activado desde Gestión:", window.pacienteActivoId);
+
     const cita = citasGlobal.find(c => c.title === nombrePx);
-    if (cita) window.abrirGestion(cita.id);
-    else window.showToast("No se encontró el expediente", "⚠️");
+    if (cita) {
+        window.abrirGestion(cita.id);
+    } else {
+        window.showToast("No se encontró el expediente", "⚠️");
+    }
 };
 
 window.renderizarTablaPacientes = () => {
@@ -3260,7 +3248,15 @@ let notaEditandoId = null;
 
 window.abrirHistorial = function(id, nombre) {
     console.log("Abriendo historial para:", nombre);
+    
+    // 1. Mantenemos tu variable actual para no romper las evoluciones
     currentPxId = id;
+
+    // 2. ACTIVAMOS EL ID MAESTRO (Esto es lo que usará la Historia Clínica)
+    // Usamos el nombre que viene de la tabla para crear un ID limpio
+    window.pacienteActivoId = generarIdLimpio(nombre);
+    
+    console.log("ID Maestro activado para Historia Clínica:", window.pacienteActivoId);
     
     // Referencias a elementos
     const modal = document.getElementById('modal-historial');
@@ -3505,38 +3501,29 @@ async function consultarEvoluciones(id) {
 // ======================================================
 
 
-// 2. FUNCIÓN PARA GUARDAR (CORREGIDA)
 window.guardarHistoriaClinica = async function() {
-    const nombreHeader = obtenerNombreDelHeader();
-    if (!nombreHeader) {
-        alert("⚠️ No se detecta el nombre del paciente en el encabezado.");
+    console.log("Iniciando guardado de Historia Clínica...");
+    
+    // Si la variable global está vacía, intentamos rescatarla del header como último recurso
+    if (!window.pacienteActivoId) {
+        const headerEl = document.getElementById('paciente-nombre-evolucion');
+        const nombreFallback = headerEl ? (headerEl.value || headerEl.innerText || "") : "";
+        window.pacienteActivoId = generarIdLimpio(nombreFallback);
+    }
+
+    if (!window.pacienteActivoId) {
+        alert("⚠️ Error: No hay un paciente seleccionado en el panel.");
         return;
     }
 
+    const safeGet = (id) => document.getElementById(id)?.value || "";
+
     try {
-        // --- LA CLAVE ESTÁ AQUÍ ---
-        // Obtenemos el nombre del HEADER para saber EN QUÉ DOCUMENTO guardar
-        const headerEl = document.getElementById('paciente-nombre-evolucion');
-        let nombreHeader = headerEl ? (headerEl.value || headerEl.innerText || "") : "";
-        nombreHeader = nombreHeader.replace(/Historial:\s*/i, '').trim();
+        const docRef = doc(db, "historias_clinicas", window.pacienteActivoId);
 
-        if (!nombreHeader) {
-            alert("⚠️ No hay un paciente seleccionado en el panel principal.");
-            return;
-        }
-
-        // El ID de Firebase SIEMPRE se basa en el nombre del header para no perder el rastro
-        const docId = nombreHeader.toLowerCase().replace(/\s+/g, '_')
-            .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
-        
-        const docRef = doc(db, "historias_clinicas", docId);
-
-        // Los datos que guardamos (Aquí el nombre del formulario es solo un campo más)
         const datos = {
-            // Guardamos el nombre tal cual lo escribas en el formulario, 
-            // pero el "archivo" en Firebase se sigue llamando como el del header.
-            nombreFormulario: safeGet('hc-nombre'), 
-            nombreHeader: nombreHeader,
+            idPaciente: window.pacienteActivoId, // El ID vinculado al panel
+            nombreFormulario: safeGet('hc-nombre'), // El nombre que tú escribas a mano
             edad: safeGet('hc-edad'),
             nacionalidad: safeGet('hc-nacionalidad'),
             ocupacion: safeGet('hc-ocupacion'),
@@ -3584,8 +3571,8 @@ window.guardarHistoriaClinica = async function() {
         };
 
         await setDoc(docRef, datos, { merge: true });
-        alert("✅ Expediente de " + nombreHeader + " actualizado.");
-        console.log("Guardado exitoso en ID:", docId);
+        alert("✅ Expediente actualizado correctamente.");
+        console.log("Guardado en Firebase bajo el ID:", window.pacienteActivoId);
 
     } catch (error) {
         console.error("Error al guardar:", error);
