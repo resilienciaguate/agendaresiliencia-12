@@ -1467,12 +1467,19 @@ function generarIdLimpio(nombre) {
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9_]/g, '');
 }
 
+function limpiarCamposHistoria() {
+    const campos = document.querySelectorAll('[id^="hc-"]');
+    campos.forEach(campo => {
+        campo.value = "";
+    });
+    console.log("Formulario de Historia Clínica vaciado para nuevo paciente.");
+}
+
 // 3. Función para cambiar a la pestaña (Usando el ID inteligente)
 window.irAHistoria = function() {
-    // Primero cambiamos la vista
     cambiarPestana('historia');
 
-    // Si por alguna razón el ID está vacío, intentamos rescatarlo del header
+    // Recuperamos el ID si se perdió (tu lógica de respaldo)
     if (!window.pacienteActivoId) {
         const headerEl = document.getElementById('paciente-nombre-evolucion');
         const textoHeader = headerEl ? (headerEl.value || headerEl.innerText || "") : "";
@@ -1481,9 +1488,10 @@ window.irAHistoria = function() {
 
     if (window.pacienteActivoId) {
         console.log("Cargando historia para:", window.pacienteActivoId);
+        // Aquí es donde Firebase llena los campos que limpiamos antes
         window.cargarHistoriaClinica(window.pacienteActivoId);
     } else {
-        alert("Por favor, selecciona un paciente de la lista primero.");
+        window.showToast("Por favor, selecciona un paciente de la lista primero.", "⚠️");
     }
 };
 
@@ -3245,19 +3253,23 @@ async function saludarEstiloIphone() {
 let currentPxId = ""; 
 let notaEditandoId = null; 
 
+// 1. ABRIR EL HISTORIAL (MODAL)
 window.abrirHistorial = function(id, nombre) {
     console.log("Abriendo historial para:", nombre);
-    
-    // 1. Mantenemos tu variable actual para no romper las evoluciones
     currentPxId = id;
+    
+    // Generar ID de forma segura para evitar errores de referencia
+    if (typeof generarIdLimpio === "function") {
+        window.pacienteActivoId = generarIdLimpio(nombre);
+    } else {
+        window.pacienteActivoId = nombre.toLowerCase().replace(/\s+/g, '_');
+    }
+    
+    // Limpiar campos de la pestaña Historia Clínica
+    if (typeof limpiarCamposHistoria === "function") { 
+        limpiarCamposHistoria(); 
+    }
 
-    // 2. ACTIVAMOS EL ID MAESTRO (Esto es lo que usará la Historia Clínica)
-    // Usamos el nombre que viene de la tabla para crear un ID limpio
-    window.pacienteActivoId = generarIdLimpio(nombre);
-    
-    console.log("ID Maestro activado para Historia Clínica:", window.pacienteActivoId);
-    
-    // Referencias a elementos
     const modal = document.getElementById('modal-historial');
     const titulo = document.getElementById('px-nombre-titulo');
     const inputNombre = document.getElementById('ev-nombre-px');
@@ -3266,80 +3278,61 @@ window.abrirHistorial = function(id, nombre) {
     if (inputNombre) inputNombre.value = nombre;
     
     if (modal) {
-        modal.style.display = 'flex'; // Usamos flex para el split-view
-    } else {
-        console.error("No se encontró el modal-historial");
+        modal.style.display = 'flex'; 
     }
+    
+    // FORZAR SIEMPRE LA PESTAÑA DE EVOLUCIÓN (NOTA)
+    window.cambiarPestana('nota');
     
     window.prepararNuevaNota();
-    consultarEvoluciones(id);
-};
-
-window.prepararNuevaNota = function() {
-    notaEditandoId = null;
-    const texto = document.getElementById('texto-evolucion');
-    const btn = document.getElementById('btn-guardar-ev');
-    const hora = document.getElementById('ev-hora');
-    
-    if (texto) texto.value = "";
-    if (btn) btn.innerText = "Guardar Evolución";
-    
-    if (hora) {
-        const ahora = new Date();
-        hora.value = ahora.getHours().toString().padStart(2, '0') + ":" + 
-                     ahora.getMinutes().toString().padStart(2, '0');
-    }
-    
-    const especialista = document.getElementById('ev-especialista');
-    if (especialista) {
-        especialista.value = document.getElementById('display-profile-name')?.innerText || "";
+    if (typeof consultarEvoluciones === "function") {
+        consultarEvoluciones(id);
     }
 };
 
-window.cerrarHistorial = function() {
-    const modal = document.getElementById('modal-historial');
-    if (modal) modal.style.display = 'none';
-};
-
-// Función para cambiar entre Nota e Historia Clínica
+// 2. CAMBIAR PESTAÑAS (OPTIMIZADO Y SEGURO)
 window.cambiarPestana = function(tipo) {
     const sNota = document.getElementById('seccion-nota');
     const sHistoria = document.getElementById('seccion-historia');
     const tNota = document.getElementById('tab-nota');
     const tHistoria = document.getElementById('tab-historia');
 
-    if (tipo === 'nota') {
+    if (!sNota || !sHistoria) return;
+
+    if (tipo === 'nota' || tipo === 'evolucion') {
         sNota.style.display = 'block';
         sHistoria.style.display = 'none';
-        tNota.style.background = 'white'; tNota.style.color = '#333';
-        tHistoria.style.background = 'transparent'; tHistoria.style.color = '#8e8e93';
+        if(tNota) { tNota.style.background = 'white'; tNota.style.color = '#333'; tNota.style.fontWeight = 'bold'; }
+        if(tHistoria) { tHistoria.style.background = 'transparent'; tHistoria.style.color = '#8e8e93'; tHistoria.style.fontWeight = 'normal'; }
     } else {
         sNota.style.display = 'none';
         sHistoria.style.display = 'block';
-        tHistoria.style.background = 'white'; tHistoria.style.color = '#333';
-        tNota.style.background = 'transparent'; tNota.style.color = '#8e8e93';
+        if(tHistoria) { tHistoria.style.background = 'white'; tHistoria.style.color = '#333'; tHistoria.style.fontWeight = 'bold'; }
+        if(tNota) { tNota.style.background = 'transparent'; tNota.style.color = '#8e8e93'; tNota.style.fontWeight = 'normal'; }
 
-        // --- LÓGICA AUTOMÁTICA ---
-        // 1. Extraemos el nombre del paciente que ya está cargado en el encabezado de la nota
-        const tituloNota = document.getElementById('puntos-clave-titulo')?.innerText || "";
-        // Quitamos la palabra "Paciente: " para quedarnos solo con el nombre
-        const nombrePaciente = tituloNota.replace("Paciente: ", "").trim();
-
-        // 2. Si hay un paciente seleccionado (y no es el texto por defecto)
-        if (nombrePaciente && nombrePaciente !== "Seleccione un paciente" && nombrePaciente !== "") {
-            
-            // Llenamos el campo de nombre de la historia clínica automáticamente
-            document.getElementById('hc-nombre').value = nombrePaciente;
-            
-            // Cargamos de Firebase usando ese nombre
-            const idLimpio = nombrePaciente.replace(/\s+/g, '_').toLowerCase();
-            cargarHistoriaClinica(idLimpio);
-            
-            console.log("Cargando automáticamente historia de:", nombrePaciente);
-        } else {
-            console.log("No hay un paciente seleccionado en la agenda todavía.");
+        // Carga automática solo si entramos a Historia Clínica
+        if (window.pacienteActivoId && typeof window.cargarHistoriaClinica === "function") {
+            window.cargarHistoriaClinica(window.pacienteActivoId);
         }
     }
+};
+
+// 3. FUNCIONES DE APOYO
+window.prepararNuevaNota = function() {
+    notaEditandoId = null;
+    const texto = document.getElementById('texto-evolucion');
+    if (texto) texto.value = "";
+    const btn = document.getElementById('btn-guardar-ev');
+    if (btn) btn.innerText = "Guardar Evolución";
+};
+
+window.irAHistoria = function() {
+    window.cambiarPestana('historia');
+};
+
+window.cerrarHistorial = function() {
+    const modal = document.getElementById('modal-historial');
+    if (modal) modal.style.display = 'none';
 };
 
 
