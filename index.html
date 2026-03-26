@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Resiliencia | Bienestar Integral</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+    /* --- VARIABLES Y RESETEO --- */
+    :root {
+        --bg-color: #f6f3ef; 
+        --text-dark: #000000;
+        --text-light: #9b834b;
+        --accent: #535353; 
+        --serif: 'DM Serif Display', serif;
+        --sans: 'Inter', sans-serif;
+        --transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1); /* Transición más fluida */
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+
+    /* --- NAVEGACIÓN --- */
+   header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    /* Fondo con transparencia y desenfoque */
+    background-color: rgba(246, 243, 239, 0.7); 
+    backdrop-filter: blur(15px); 
+    -webkit-backdrop-filter: blur(15px);
+    z-index: 1000;
+    border-bottom: 1px solid rgba(58, 90, 64, 0.05);
+    transition: all 0.3s ease;
+}
+
+/* Detalle extra: Que el header se achique un poco al hacer scroll */
+header.scrolled {
+    padding: 0.5rem 0;
+    background-color: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+}
+
+.nav-links a {
+    position: relative;
+    padding-bottom: 5px;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: 0;
+    left: 0;
+    background-color: var(--accent);
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 1.5rem 5%;
+    }
+
+    .logo {
+        font-family: var(--serif);
+        font-size: 2rem;
+        text-decoration: none;
+        color: var(--text-dark);
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 2.2rem;
+        list-style: none;
+    }
+
+    .nav-links a {
+        text-decoration: none;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: var(--transition);
+        opacity: 0.8;
+    }
+
+    /* --- HERO SECTION --- */
+    .hero {
+        display: flex;
+        min-height: 100vh;
+        padding-top: 80px;
+        align-items: center;
+        background-color: #fff;
+    }
+
+    .hero-content {
+        flex: 1;
+        padding: 0 10% 0 5%;
+    }
+
+    .hero-content h1 {
+        font-family: var(--serif);
+        font-size: 5rem;
+        line-height: 1.05;
+        margin-bottom: 2rem;
+        letter-spacing: -1px;
+    }
+
+    .hero-content p {
+        font-size: 1.25rem;
+        font-weight: 300;
+        color: var(--text-light);
+        margin-bottom: 3rem;
+        max-width: 600px;
+        line-height: 1.7;
+    }
+
+    .btn-cta {
+        display: inline-block;
+        padding: 1.2rem 3rem;
+        background-color: var(--text-dark);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        text-transform: uppercase;
+        transition: var(--transition);
+    }
+
+    .btn-cta:hover {
+        background-color: var(--accent);
+        transform: translateY(-3px);
+    }
+
+    .hero-image {
+        flex: 1;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .hero-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* --- ESTADO INICIAL PARA REVEAL (FUNDAMENTAL) --- */
+    /* Quitamos las animaciones de CSS para que el JS tome el control total */
+    .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 1s ease, transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: opacity, transform;
+    }
+
+    /* Cuando la sección está en el centro de la pantalla */
+    .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Delays para cascada */
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+
+    /* --- RESPONSIVO --- */
+    @media (max-width: 1024px) {
+        .hero-content h1 { font-size: 3.5rem; }
+    }
+
+    @media (max-width: 768px) {
+        .hero { flex-direction: column-reverse; text-align: center; }
+        .hero-image { height: 50vh; width: 100%; }
+        .hero-content { padding: 4rem 5%; flex: none; }
+        .nav-links { display: none; }
+    }
+
+
+   /* --- DISEÑO DE SERVICIOS PREMIUM (CORREGIDO) --- */
+    /* --- SERVICIOS COMPACTOS Y PREMIUM --- */
+    .services-grid {
+        display: grid;
+        /* Reducimos el ancho mínimo de 320px a 260px para que quepan más en una fila */
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.5rem; /* Reducimos el espacio entre ellas */
+        padding: 2rem 0;
+    }
+
+    .card-premium {
+        position: relative;
+        padding: 2rem; /* Reducimos el padding interno */
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        border-left: 3px solid rgba(58, 90, 64, 0.2); 
+        transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .card-premium:hover {
+        border-left: 3px solid var(--accent);
+        transform: translateY(-5px); /* Cambio sutil hacia arriba */
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+    }
+
+    .card-premium i {
+        font-size: 1.4rem; /* Icono más discreto */
+        color: var(--accent);
+        margin-bottom: 1.2rem;
+        display: inline-block;
+    }
+
+    .card-premium h3 {
+        font-family: var(--serif);
+        font-size: 1.35rem; /* Título más pequeño y elegante */
+        margin-bottom: 0.8rem;
+        color: var(--text-dark);
+    }
+
+    .card-premium p {
+        color: var(--text-light);
+        font-size: 0.9rem; /* Texto más compacto */
+        line-height: 1.5;
+        font-weight: 300;
+    }
+
+    .services-grid-human {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2.5rem;
+    margin: 0 auto;
+}
+
+.card-human {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.card-photo-container {
+    width: 160px; /* Tamaño ideal para que se vea premium */
+    height: 160px;
+    margin: 0 auto 1.5rem auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #fff; /* Borde blanco para resaltar */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.card-photo-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-human h3 {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.card-human p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-light);
+}
+
+
+</style>
+    </head>
+<body>
+
+<header>
+       <nav>
+    <a href="#" class="logo" style="display: flex; align-items: center;">
+        <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" 
+             alt="Logo Clínica Resiliencia" 
+             style="height: 50px; width: auto;">
+    </a>
+   <ul class="nav-links">
+    <li><a href="#inicio">Inicio</a></li>
+    <li><a href="#servicios">Servicios</a></li>
+    <li><a href="#team">Nuestro Team</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+</ul>
+</nav>
+    </header>
+
+
+     <main>
+        <section class="hero" id="inicio">
+            <div class="hero-content">
+                <h1>Sanar es un<br>proceso humano.</h1>
+                <p>En Clínica Resiliencia cultivamos tu bienestar integral con un enfoque profesional, empático y transformador. Tu camino hacia el equilibrio comienza aquí.</p>
+                <a href="#contacto" class="btn-cta">Agendar Consulta</a>
+            </div>
+        </section>
+
+<section id="servicios" class="reveal" style="padding: 0; background-color: #fff;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; min-height: 90vh;">
+        
+        <div style="padding: 6rem 8% 8rem 8%; display: flex; flex-direction: column; justify-content: center; background-color: var(--bg-color);">
+            <div style="max-width: 600px; margin: 0 auto;">
+                <span style="text-transform: uppercase; letter-spacing: 4px; font-size: 0.8rem; color: var(--accent); font-weight: 600; display: block; margin-bottom: 2rem; opacity: 0.8;"></span>
+                <h2 style="font-family: var(--serif); font-size: 3.8rem; font-weight: 400; margin-bottom: 2.5rem; line-height: 1.1; letter-spacing: -1px;">
+                    Un espacio para sanar y reconectar.
+                </h2>
+                
+                <div style="color: var(--text-light); font-weight: 300; line-height: 1.9; font-size: 1.15rem;">
+                    <p style="margin-bottom: 1.5rem;">
+                        Somos un centro especializado en <strong>acompañar procesos emocionales</strong> desde el rigor profesional y la calidez humana. Nuestro equipo brinda atención integral a niños, adolescentes y adultos.
+                    </p>
+                    <p style="margin-bottom: 1.5rem; font-family: var(--serif); font-size: 1.4rem; color: var(--text-dark); font-style: italic; border-left: 2px solid var(--accent); padding-left: 1.5rem; margin-left: 0;">
+                        "Creemos en la capacidad del ser humano para reconstruirse después de la adversidad."
+                    </p>
+                    <p>
+                        Encuentra un entorno seguro. Cuidar tu salud mental es el primer paso hacia una vida en equilibrio.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div style="overflow: hidden; position: relative; background-color: var(--text-dark);">
+            <img src="https://lh3.googleusercontent.com/u/0/d/1-w2UrVEVHuYkazBb2E7fQiGwCoZeUfgL=w1600" " 
+                 alt="Equipo de Terapeutas en Clínica Resiliencia" 
+                 style="width: 100%; height: 100%; object-fit: cover; opacity: 0.85;">
+        </div>
+    </div>
+
+   <div style="max-width: 1200px; margin: -6rem auto 8rem auto; padding: 0 5%; position: relative; z-index: 10;">
+    <div class="services-grid-human">
+        
+        <div class="card-human reveal reveal-delay-1">
+            <div class="card-photo-container">
+                <img src="https://lh3.googleusercontent.com/d/1FssjI4PMEDvC7GMCzfqLOcHgvl24BRVY" alt="Terapia Psicológica">
+            </div>
+            <h3>Terapia Psicológica</h3>
+            <p>ofrecemos un espacio seguro y confidencial donde cada persona puede explorar sus emociones, experiencias y desafíos de vida. Nuestra terapia psicológica está dirigida a niños, adolescentes y adultos, con un enfoque humano, empático y profesional.</p>
+        </div>
+
+        <div class="card-human reveal reveal-delay-2">
+            <div class="card-photo-container">
+                <img src="https://lh3.googleusercontent.com/d/1oDATaf1ujsJU4pdRA4CfBqKdl9dLjK_3" alt="Terapia de Lenguaje">
+            </div>
+            <h3>Terapia de Lenguaje</h3>
+            <p>Nuestro objetivo es fortalecer las habilidades lingüísticas y comunicativas, adaptándonos a las necesidades específicas de cada persona. Trabajamos casos como:v Retrasos en el desarrollo del habla, Trastornos del lenguaje y la articulación, Dificultades de comprensión o expresión, Intervención en personas con condiciones como TEA/TDAH entre otros, Rehabilitación del lenguaje en adultos (por ACV, traumas, etc.)</p>
+        </div>
+
+        <div class="card-human reveal reveal-delay-3">
+            <div class="card-photo-container">
+                <img src="https://lh3.googleusercontent.com/d/1WdGVl2Naox-L6Cu8PloURx0D1aAP5pax" alt="Estimulación Temprana">
+    </div>
+            <h3>Estimulación Temprana</h3>
+            <p>La estimulación oportuna es un conjunto de actividades diseñadas para favorecer el desarrollo físico, cognitivo, emocional y social de los bebés desde sus primeros meses de vida.
+
+En Clínica Resiliencia acompañamos a tu bebé desde los 3 meses de edad, brindando sesiones personalizadas que apoyan su crecimiento integral a través del juego, el movimiento, la exploración sensorial y la interacción afectiva.</p>
+        </div>
+
+       <div class="card-human reveal reveal-delay-1">
+    <div class="card-photo-container">
+        <img src="https://lh3.googleusercontent.com/u/0/d/1ZbLkXFjCswj4W33vZYQhJ7PLh5bG9wPI" alt="Club de Lectura">
+    </div>
+    <h3>Club de Lectura</h3>
+    <p>Hay libros que se quedan grabados, pero los mejores son los que te dan de qué hablar. Nuestro club de lectura es ese respiro en tu agenda para disfrutar de una buena taza de café, intercambiar puntos de vista y descubrir nuevas perspectivas. Aquí no venimos a estudiar, venimos a disfrutar del placer de leer en comunidad.</p>
+</div>
+
+        <div class="card-human reveal reveal-delay-2">
+            <div class="card-photo-container">
+                <img src="https://lh3.googleusercontent.com/d/18wj30irwWCDrWuHO8S1NEgUR61Bg3rmD" alt="Talleres Integrales">
+            </div>
+            <h3>Talleres</h3>
+            <p>Creemos que el aprendizaje más profundo ocurre cuando conectamos la mente con la creatividad. Nuestras experiencias grupales están diseñadas para instituciones educativas, empresas y organizaciones que buscan ir más allá de una charla convencional. A través de la introspección guiada y el uso del arte como herramienta de expresión, facilitamos procesos de sanación y crecimiento colectivo.</p>
+        </div>
+
+    </div>
+</div>
+
+
+<section id="comunidad" class="reveal" style="padding: 10rem 5%; background-color: #fff;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+        
+        <div style="text-align: center; margin-bottom: 5rem;">
+            <span style="text-transform: uppercase; letter-spacing: 4px; font-size: 0.8rem; color: var(--accent); font-weight: 700; display: block; margin-bottom: 1rem;">Nuestra Comunidad</span>
+            <h2 style="font-family: var(--serif); font-size: 3.5rem; line-height: 1.1; margin-bottom: 1.5rem;">Crecemos contigo en Redes</h2>
+            <p style="color: var(--text-light); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
+                Síguenos para recibir consejos diarios, novedades de nuestros talleres y píldoras de bienestar. 
+                <br>
+                <a href="https://www.instagram.com/resilienciaguate/" target="_blank" style="color: var(--text-dark); font-weight: 700; text-decoration: none; border-bottom: 2px solid var(--accent);">@resilienciaguate</a>
+            </p>
+        </div>
+
+        <div style="border-radius: 30px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid #eee; padding: 20px; background: #fafafa;">
+            <script src="https://elfsightcdn.com/platform.js" async></script>
+            <div class="elfsight-app-824abe94-5c85-47f8-ad12-3a0c67a70a9c" data-elfsight-app-lazy></div>
+        </div>
+
+    </div>
+</section>
+
+<section id="team" style="padding: 10rem 5%; background-color: var(--bg-color); text-align: center; overflow: hidden; position: relative; border-bottom: 2px solid var(--accent);">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        
+        <h2 style="font-family: var(--serif); font-size: 3.5rem; margin-bottom: 5rem; color: var(--text-dark);">Nuestro Team</h2>
+        
+        <div class="team-thumbnail-container" style="display: flex; gap: 2.5rem; justify-content: center; margin-bottom: 5rem; max-width: 800px; margin-left: auto; margin-right: auto; flex-wrap: wrap;">
+            
+            <div onclick="showTeamMember(0)" style="cursor: pointer; position: relative; flex: 1; max-width: 150px; text-align: center;">
+                <div class="card-photo-container team-thumbnail team-thumbnail-0 active" style="width: 110px; height: 110px; border: 4px solid var(--accent); transform: scale(1.1); box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin: 0 auto;">
+                    <img src="https://lh3.googleusercontent.com/d/11JWONXgG-kjr6_JWjqOEMmZYowsaTV4V" alt="Odett Pineda">
+                </div>
+                <p style="font-size: 0.9rem; font-weight: 600; margin-top: 1.2rem; color: var(--accent);">Odett Pineda</p>
+            </div>
+
+            <div onclick="showTeamMember(1)" style="cursor: pointer; position: relative; flex: 1; max-width: 150px; text-align: center;">
+                <div class="card-photo-container team-thumbnail team-thumbnail-1" style="width: 110px; height: 110px; border: 4px solid transparent; margin: 0 auto;">
+                    <img src="https://lh3.googleusercontent.com/d/1mSmiAAhC7FdeaWG2gAhqV0J0E_lxgDIh" alt="Fátima Rodas">
+                </div>
+                <p style="font-size: 0.9rem; font-weight: 500; margin-top: 1.2rem; color: var(--text-light); opacity: 0.7;">Fátima Rodas</p>
+            </div>
+
+            <div onclick="showTeamMember(2)" style="cursor: pointer; position: relative; flex: 1; max-width: 150px; text-align: center;">
+                <div class="card-photo-container team-thumbnail team-thumbnail-2" style="width: 110px; height: 110px; border: 4px solid transparent; margin: 0 auto;">
+                    <img src="https://lh3.googleusercontent.com/d/1iJyIrxs5Z8Zdnm6agcgdxoLmun6weE3A" alt="Rebeca López">
+                </div>
+                <p style="font-size: 0.9rem; font-weight: 500; margin-top: 1.2rem; color: var(--text-light); opacity: 0.7;">Rebeca López</p>
+            </div>
+
+        </div>
+
+        <div id="team-info-stage" style="position: relative; min-height: 550px; text-align: left; background: rgba(255,255,255,0.3); border-radius: 30px; overflow: hidden; padding: 4rem 0;">
+            
+            <div id="team-info-0" class="team-member-info" style="display: grid; grid-template-columns: 1fr 2fr; gap: 4rem; align-items: start; max-width: 950px; margin: 0 auto; position: absolute; width: 100%; top: 4rem; left: 0; opacity: 1; transform: translateX(0); transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);">
+                <div style="width: 320px; height: 320px; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 8px solid #fff; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
+                    <img src="https://lh3.googleusercontent.com/d/11JWONXgG-kjr6_JWjqOEMmZYowsaTV4V" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div style="padding-right: 2rem;">
+                    <span style="text-transform: uppercase; letter-spacing: 3px; font-size: 0.8rem; color: var(--accent); font-weight: 600;">founder & licda. en psicología</span>
+                    <h3 style="font-family: var(--serif); font-size: 3.5rem; margin-top: 10px; margin-bottom: 2rem; color: var(--text-dark);">Odett Pineda</h3>
+                    <ul style="list-style: none; font-size: 1.1rem; color: var(--text-light); line-height: 1.8; border-left: 2px solid var(--accent); padding-left: 2rem; display: grid; gap: 1rem;">
+                        <li><span style="font-weight:700; color:var(--accent);">● Master:</span> Neuropsicología Clínica (EN CURSO)</li>
+                        <li><span style="font-weight:700; color:var(--accent);">● Licenciatura:</span> Psicología Clínica</li>
+                        <li><span style="font-weight:700; color:var(--accent);">● Diplomado:</span> Terapia Racional Emotivo-Conductual con énfasis en depresión y ansiedad</li>
+                    </ul>
+                    <p style="margin-top: 2.5rem; font-family: var(--serif); font-style: italic; font-size: 1.3rem; opacity: 0.8;">"Las sesiones pueden realizarse en modalidad presencial o virtual."</p>
+                </div>
+            </div>
+
+            <div id="team-info-1" class="team-member-info" style="display: grid; grid-template-columns: 1fr 2fr; gap: 4rem; align-items: start; max-width: 950px; margin: 0 auto; position: absolute; width: 100%; top: 4rem; left: 0; opacity: 0; transform: translateX(100px); pointer-events: none; transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);">
+                <div style="width: 320px; height: 320px; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 8px solid #fff; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
+                    <img src="https://lh3.googleusercontent.com/d/1mSmiAAhC7FdeaWG2gAhqV0J0E_lxgDIh" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div style="padding-right: 2rem;">
+                    <span style="text-transform: uppercase; letter-spacing: 3px; font-size: 0.8rem; color: var(--accent); font-weight: 600;">licda. en psicología clínica</span>
+                    <h3 style="font-family: var(--serif); font-size: 3.5rem; margin-top: 10px; margin-bottom: 2rem; color: var(--text-dark);">Fátima Rodas</h3>
+                    <ul style="list-style: none; font-size: 1.1rem; color: var(--text-light); border-left: 2px solid var(--accent); padding-left: 2rem;">
+                        <li><span style="font-weight:700; color:var(--accent);">● Licenciatura:</span> Psicología Clínica</li>
+                    </ul>
+                    <p style="margin-top: 2.5rem; font-family: var(--serif); font-style: italic; font-size: 1.3rem; opacity: 0.8;">"Las sesiones pueden realizarse en modalidad presencial o virtual."</p>
+                </div>
+            </div>
+
+            <div id="team-info-2" class="team-member-info" style="display: grid; grid-template-columns: 1fr 2fr; gap: 4rem; align-items: start; max-width: 950px; margin: 0 auto; position: absolute; width: 100%; top: 4rem; left: 0; opacity: 0; transform: translateX(100px); pointer-events: none; transition: all 0.7s cubic-bezier(0.22, 1, 0.36, 1);">
+                <div style="width: 320px; height: 320px; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 8px solid #fff; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
+                    <img src="https://lh3.googleusercontent.com/d/1iJyIrxs5Z8Zdnm6agcgdxoLmun6weE3A" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div style="padding-right: 2rem;">
+                    <span style="text-transform: uppercase; letter-spacing: 3px; font-size: 0.8rem; color: var(--accent); font-weight: 600;">licda. en psicología clínica</span>
+                    <h3 style="font-family: var(--serif); font-size: 3.5rem; margin-top: 10px; margin-bottom: 2rem; color: var(--text-dark);">Rebeca López</h3>
+                    <ul style="list-style: none; font-size: 1.1rem; color: var(--text-light); border-left: 2px solid var(--accent); padding-left: 2rem;">
+                        <li><span style="font-weight:700; color:var(--accent);">● Licenciatura:</span> Psicología Clínica</li>
+                    </ul>
+                    <p style="margin-top: 2.5rem; font-family: var(--serif); font-style: italic; font-size: 1.3rem; opacity: 0.8;">"Las sesiones pueden realizarse en modalidad presencial o virtual."</p>
+                </div>
+            </div>
+
+</section>
+
+<section id="testimonios" style="padding: 10rem 5%; background-color: var(--bg-color); text-align: center; overflow: hidden;">
+    <div style="max-width: 900px; margin: 0 auto; position: relative; min-height: 400px;">
+        <h2 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 4rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 3px;">Historias de Resiliencia</h2>
+        
+        <div id="testimonial-slider">
+            
+            <div class="testimonial-item" style="display: block;">
+                <p style="font-family: var(--serif); font-size: 1.8rem; font-style: italic; line-height: 1.4; color: var(--text-dark); margin-bottom: 2rem;">
+                    "Como mamá de un bebé prematuro de 7 meses, mi mayor miedo era su desarrollo. En Resiliencia encontramos la guía exacta y el amor que necesitábamos. Ver sus avances hoy es nuestro mayor regalo."
+                </p>
+                <p style="font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.85rem; color: var(--accent);">— Mamá de Mateo, Estimulación Temprana</p>
+                <div style="color: #d4af37; margin-top: 1rem; letter-spacing: 5px; font-size: 1.1rem;">★★★★★</div>
+            </div>
+
+            <div class="testimonial-item" style="display: none;">
+                <p style="font-family: var(--serif); font-size: 1.8rem; font-style: italic; line-height: 1.4; color: var(--text-dark); margin-bottom: 2rem;">
+                    "Llegamos por dificultades en el habla y nos quedamos por la calidez. La paciencia de las terapeutas ha logrado que mi hijo se comunique con seguridad por primera vez. ¡Gracias infinitas!"
+                </p>
+                <p style="font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.85rem; color: var(--accent);">— FAMILIA ESTRADA, Terapia de Lenguaje</p>
+                <div style="color: #d4af37; margin-top: 1rem; letter-spacing: 5px; font-size: 1.1rem;">★★★★★</div>
+            </div>
+
+            <div class="testimonial-item" style="display: none;">
+                <p style="font-family: var(--serif); font-size: 1.8rem; font-style: italic; line-height: 1.4; color: var(--text-dark); margin-bottom: 2rem;">
+                    "Encontré un lugar donde mi salud mental es prioridad. El enfoque profesional me ha dado herramientas reales para manejar la ansiedad y reencontrarme conmigo misma."
+                </p>
+                <p style="font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.85rem; color: var(--accent);">— Lucía R., Paciente de Psicología</p>
+                <div style="color: #d4af37; margin-top: 1rem; letter-spacing: 5px; font-size: 1.1rem;">★★★★★</div>
+            </div>
+
+            <div class="testimonial-item" style="display: none;">
+                <p style="font-family: var(--serif); font-size: 1.8rem; font-style: italic; line-height: 1.4; color: var(--text-dark); margin-bottom: 2rem;">
+                    "Un equipo con mucha ética y vocación. Se nota que aman lo que hacen y eso se refleja en la confianza que mi hija siente en cada sesión de terapia."
+                </p>
+                <p style="font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.85rem; color: var(--accent);">— Ricardo S., Padre de familia</p>
+                <div style="color: #d4af37; margin-top: 1rem; letter-spacing: 5px; font-size: 1.1rem;">★★★★☆</div>
+            </div>
+
+        </div>
+    </div>
+</section>
+ </main>
+
+ 
+
+
+<footer id="contacto" style="background-color: #0b0d0b; color: #fff; padding: 10rem 5% 4rem 5%; position: relative;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+        
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr 1.1fr; gap: 7rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6rem;">
+            
+            <div>
+                <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" 
+                     style="height: 60px; filter: brightness(0) invert(1); margin-bottom: 2rem;">
+                <p style="font-family: var(--serif); font-size: 2rem; line-height: 1.3; margin-bottom: 2.5rem; color: #fff;">
+                    Tu proceso de sanación <br><span style="color: var(--accent);">merece un espacio seguro.</span>
+                </p>
+                <div style="display: flex; gap: 1.5rem;">
+                    <a href="https://www.instagram.com/resilienciaguate" target="_blank" style="width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); display: flex; justify-content: center; align-items: center; color: #fff; text-decoration: none; transition: 0.3s;" onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'"><i class="bi bi-instagram"></i></a>
+                    <a href="https://api.whatsapp.com/send?phone=50233608429" target="_blank" style="width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); display: flex; justify-content: center; align-items: center; color: #fff; text-decoration: none; transition: 0.3s;" onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'"><i class="bi bi-whatsapp"></i></a>
+                    <a href="https://www.facebook.com/share/1H9evnADKy/" target="_blank" style="width: 45px; height: 45px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); display: flex; justify-content: center; align-items: center; color: #fff; text-decoration: none; transition: 0.3s;" onmouseover="this.style.borderColor='var(--accent)'; this.style.color='var(--accent)'"><i class="bi bi-facebook"></i></a>
+                </div>
+            </div>
+
+            <div style="padding-top: 1rem;">
+                <h4 style="text-transform: uppercase; letter-spacing: 3px; font-size: 0.75rem; color: var(--accent); margin-bottom: 2.5rem;">Encuéntranos</h4>
+                
+                <a href="tel:+50266104442" style="display: flex; align-items: center; gap: 15px; color: #fff; text-decoration: none; margin-bottom: 2rem; transition: 0.3s;" onmouseover="this.style.color='var(--accent)'">
+                    <i class="bi bi-telephone-fill" style="color: var(--accent); font-size: 1.2rem;"></i>
+                    <span style="font-size: 1.1rem; font-weight: 500;">+502 6610-4442</span>
+                </a>
+
+                <div style="display: flex; align-items: flex-start; gap: 15px; margin-bottom: 2.5rem;">
+                    <i class="bi bi-geo-alt-fill" style="color: var(--accent); font-size: 1.2rem; margin-top: 3px;"></i>
+                    <p style="opacity: 0.7; font-size: 0.95rem; line-height: 1.6;">5a Avenida 1-97, Residenciales Valle de la Mariposa, Amatitlán.</p>
+                </div>
+
+                <a href="https://waze.com/ul/h9fxd3fgfy" target="_blank" style="display: inline-flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); color: #fff; text-decoration: none; padding: 12px 25px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;" onmouseover="this.style.background='var(--accent)'; this.style.color='#000'; this.style.borderColor='var(--accent)'">
+                    <i class="bi bi-cursor-fill"></i> Abrir en Waze
+                </a>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.02); padding: 3rem; border-radius: 25px; border: 1px solid rgba(255,255,255,0.05);">
+                <h4 style="text-transform: uppercase; letter-spacing: 3px; font-size: 0.75rem; color: var(--accent); margin-bottom: 2rem;">Escríbenos</h4>
+                <form action="https://formsubmit.co/resilienciaguate@gmail.com" method="POST" style="display: grid; gap: 1.5rem;">
+                    <input type="text" name="name" placeholder="Nombre" required style="background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.8rem 0; color: #fff; font-family: var(--sans); outline: none;">
+                    <input type="email" name="email" placeholder="Email" required style="background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.8rem 0; color: #fff; font-family: var(--sans); outline: none;">
+                    <textarea name="message" placeholder="¿Cómo podemos apoyarte?" rows="2" required style="background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.8rem 0; color: #fff; font-family: var(--sans); outline: none; resize: none;"></textarea>
+                    <button type="submit" style="background-color: var(--accent); color: #0b0d0b; border: none; padding: 1.2rem; border-radius: 50px; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 1rem; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">
+                        Enviar Mensaje
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 3rem; opacity: 0.3; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px;">
+            <p>© 2026 Clínica Resiliencia</p>
+            <p>Design by <span style="font-family: var(--serif); font-style: italic; font-size: 1rem; text-transform: none; opacity: 1;">Antony de León</span></p>
+        </div>
+    </div>
+</footer>
+ 
+<script>
+let activeTeamIndex = 0;
+
+    function showTeamMember(newIndex) {
+        if (newIndex === activeTeamIndex) return;
+
+        const allInfos = document.querySelectorAll('.team-member-info');
+        const allThumbs = document.querySelectorAll('.team-thumbnail');
+        const allNames = document.querySelectorAll('.team-thumbnail-container p');
+
+        // 1. Actualizar Selectores
+        allThumbs.forEach((t, i) => {
+            t.style.border = i === newIndex ? '4px solid var(--accent)' : '4px solid transparent';
+            t.style.transform = i === newIndex ? 'scale(1.1)' : 'scale(1)';
+            t.style.boxShadow = i === newIndex ? '0 5px 15px rgba(0,0,0,0.15)' : 'none';
+        });
+        allNames.forEach((n, i) => {
+            n.style.color = i === newIndex ? 'var(--accent)' : 'var(--text-light)';
+            n.style.opacity = i === newIndex ? '1' : '0.7';
+        });
+
+        // 2. Animación de Salida
+        const currentInfo = allInfos[activeTeamIndex];
+        currentInfo.style.opacity = '0';
+        currentInfo.style.transform = 'translateX(-50px)';
+        currentInfo.style.pointerEvents = 'none';
+
+        // 3. Animación de Entrada
+        const nextInfo = allInfos[newIndex];
+        nextInfo.style.transition = 'none';
+        nextInfo.style.transform = 'translateX(50px)';
+        nextInfo.offsetHeight; // Reset
+        nextInfo.style.transition = 'all 0.7s cubic-bezier(0.22, 1, 0.36, 1)';
+        nextInfo.style.opacity = '1';
+        nextInfo.style.transform = 'translateX(0)';
+        nextInfo.style.pointerEvents = 'auto';
+
+        activeTeamIndex = newIndex;
+    }
+
+    /* --- LÓGICA DE REVELADO Y DESVANECIMIENTO DINÁMICO --- */
+    function handleReveal() {
+        // Seleccionamos todos los elementos que deben tener el efecto
+        const reveals = document.querySelectorAll(".reveal, .hero, #servicios, .card-hover, #testimonios");
+        const windowHeight = window.innerHeight;
+        const visibleThreshold = 150; 
+
+        reveals.forEach(el => {
+            const elementTop = el.getBoundingClientRect().top;
+            const elementBottom = el.getBoundingClientRect().bottom;
+
+            // Condición: Si el elemento está en la zona central de la pantalla
+            if (elementTop < windowHeight - visibleThreshold && elementBottom > visibleThreshold) {
+                el.classList.add("active");
+                // Forzamos estilos de visibilidad por si el CSS se queda corto
+                el.style.opacity = "1";
+                el.style.transform = "translateY(0)";
+            } 
+            // Si sale de la pantalla por arriba o abajo, se desvanece
+            else {
+                el.classList.remove("active");
+                el.style.opacity = "0";
+                el.style.transform = "translateY(30px)";
+                el.style.transition = "all 0.8s cubic-bezier(0.22, 1, 0.36, 1)";
+            }
+        });
+    }
+
+    // Eventos de Scroll y Carga
+    window.addEventListener("scroll", handleReveal);
+    window.addEventListener("load", handleReveal);
+
+    /* --- LÓGICA DEL CARRUSEL DE TESTIMONIOS --- */
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.testimonial-item');
+
+    function showSlide(index) {
+        if (slides.length === 0) return;
+        slides.forEach((slide, i) => {
+            slide.style.display = i === index ? 'block' : 'none';
+            if (i === index) {
+                slide.style.animation = 'fadeInUp 0.8s ease forwards';
+            }
+        });
+    }
+
+    function nextSlide() {
+        if (slides.length === 0) return;
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    // Iniciar cambio automático cada 5 segundos
+    if (slides.length > 0) {
+        setInterval(nextSlide, 5000);
+    }
+
+    
+</script>
+
+</body>
+</html>
