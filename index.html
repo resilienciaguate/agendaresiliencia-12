@@ -162,75 +162,60 @@ html, body {
     border-radius: 2px;
 }
 
-@media print {
-    /* Configuración de la página física */
+/@media print {
+    /* 1. Ocultar TODA la interfaz de usuario de la agenda */
+    .top-nav, .side-panel, #mpp-data-panel, .no-print, #login-screen, button, .nav-links {
+        display: none !important;
+    }
+
+    /* 2. Liberar contenedores para que no bloqueen el renderizado */
+    body, html, #app-content {
+        display: block !important;
+        background: white !important;
+        height: auto !important;
+        overflow: visible !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 3. Forzar visibilidad de las áreas de reporte y recibo */
+    #view-estimulacion, #view-recibo {
+        display: block !important;
+        visibility: visible !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        z-index: 9999 !important;
+    }
+
+    /* 4. Asegurar que el Gráfico de Radar (Canvas) se capture */
+    canvas {
+        display: block !important;
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    /* 5. Ajuste de la Hoja Carta para el PDF */
+    .hoja-carta, #receipt-canvas {
+        margin: 0 auto !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
     @page {
         size: letter;
-        margin: 0; /* Quitamos el margen del navegador para controlarlo nosotros */
-    }
-
-    body > *:not(#print-area-temp) { display: none !important; }
-
-    #print-area-temp { 
-        display: block !important; 
-        position: relative;
-        width: 100%; 
-        font-family: 'Montserrat', sans-serif;
-        color: #000;
-        background: white;
-        
-        /* MARGENES TOTALES: 2cm arriba y abajo, 1.5cm a los lados */
-        padding: 2cm 1.5cm !important; 
-        box-sizing: border-box;
-        min-height: 100vh;
-    }
-
-    .print-header {
-        text-align: center;
-        border-bottom: 2px solid #000;
-        margin-bottom: 30px;
-        padding-bottom: 20px;
-    }
-
-    /* BLOQUES MÁS PEQUEÑOS Y COMPACTOS */
-    .bloque-dato {
-        margin-bottom: 8px; 
-        padding: 5px 0;
-        border-bottom: 1px dotted #ccc;
-        display: block;
-        /* EVITA QUE EL BLOQUE SE PARTA ENTRE HOJAS */
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-    }
-
-    .print-label {
-        font-weight: bold;
-        text-transform: uppercase;
-        font-size: 10px; /* Etiqueta pequeña */
-        color: #555;
-        display: block;
-        margin-bottom: 2px;
-    }
-
-    .print-valor {
-        font-size: 12px; /* Texto compacto */
-        display: block;
-        line-height: 1.3;
-        color: #000;
-    }
-
-    #print-area-temp h3 {
-        margin-top: 25px;
-        margin-bottom: 12px;
-        background: #f2f2f7 !important;
-        -webkit-print-color-adjust: exact;
-        padding: 8px;
-        font-size: 14px;
-        border-left: 5px solid #000;
-        page-break-after: avoid;
+        margin: 0;
     }
 }
-#print-area-temp { display: none; }
+
+/* Regla crítica para que salgan los colores del radar y el logo */
+* {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+}
+
 
 
 /* --- VISTA DE PANTALLA --- */
