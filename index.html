@@ -2106,15 +2106,35 @@ window.cerrarConfirm = () => {
 
 // Esta es la función que conectamos al botón rojo directamente
 window.ejecutarConfirmacion = async () => {
-    if (typeof accionConfirmar === 'function') {
+    // CASO 1: Borrar Bebé de Estimulación (usa idParaBorrar)
+    if (typeof idParaBorrar !== 'undefined' && idParaBorrar !== null) {
         try {
-            await accionConfirmar(); // Aquí es donde realmente se borra en Firebase
+            const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+            await deleteDoc(doc(window.db, "pacientes_estimulacion", idParaBorrar));
+            
+            window.showToast("Registro eliminado", "❌");
+            idParaBorrar = null; // Limpiamos la variable para el siguiente
+            
+            // Refrescar la interfaz
+            if(document.getElementById('select-bebe-mpp')) document.getElementById('select-bebe-mpp').value = "";
+            if(typeof resetearSlidersMPP === 'function') resetearSlidersMPP();
+            
+        } catch (error) {
+            console.error("Error al borrar bebé:", error);
+            window.showToast("Error al eliminar", "⚠️");
+        }
+    } 
+    // CASO 2: Borrar Citas/Psicólogas (usa accionConfirmar)
+    else if (typeof accionConfirmar === 'function') {
+        try {
+            await accionConfirmar();
         } catch (error) {
             console.error("Error al ejecutar acción:", error);
             window.showToast("Error al procesar", "❌");
         }
     }
-    window.cerrarConfirm(); // Cerramos siempre al final
+
+    window.cerrarConfirm(); // Cerramos el modal siempre al final
 };
 
 
