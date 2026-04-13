@@ -2630,12 +2630,34 @@ window.generarReportes = () => {
     if(document.getElementById('stat-ingreso-real')) document.getElementById('stat-ingreso-real').innerText = 'Q' + totalRecaudado.toLocaleString();
     if(document.getElementById('stat-por-cobrar')) document.getElementById('stat-por-cobrar').innerText = 'Q' + totalPorCobrar.toLocaleString();
     
-    // NUEVO: Mostrar Utilidad Neta con cambio de color automático
-    const elementoUtilidad = document.getElementById('utilidad-neta');
-    if (elementoUtilidad) {
-        elementoUtilidad.innerText = `Q${utilidadNeta.toLocaleString()}`;
-        elementoUtilidad.style.color = utilidadNeta < 0 ? "#dc2626" : "#059669"; 
-    }
+   // 1. Calculamos el Saldo de meses anteriores (Ingresos - Egresos históricos)
+const fechaInicioMesActual = new Date(anioReporte, mesReporte, 1);
+
+const ingresosHistoricos = citasGlobal
+    .filter(c => c.pagado && new Date(c.start) < fechaInicioMesActual)
+    .reduce((acc, cur) => acc + (Number(cur.monto) || 0), 0);
+
+const egresosHistoricos = egresosGlobal
+    .filter(e => new Date(e.fecha + "T00:00:00") < fechaInicioMesActual)
+    .reduce((acc, cur) => acc + (Number(cur.monto) || 0), 0);
+
+const saldoArrastrado = ingresosHistoricos - egresosHistoricos;
+
+// 2. El "Saldo Neto" es lo que traíamos + lo que ganamos este mes
+const saldoFinalCaja = saldoArrastrado + utilidadNeta;
+
+// 3. Mostrar en la UI con el cambio de color
+const elementoUtilidad = document.getElementById('utilidad-neta');
+if (elementoUtilidad) {
+    // Usamos innerHTML para poner una etiqueta pequeña que explique el monto
+    elementoUtilidad.innerHTML = `
+        <div style="font-size: 9px; color: #64748b; font-weight: 400; text-transform: uppercase;">Saldo en Caja</div>
+        Q${saldoFinalCaja.toLocaleString()}
+    `;
+    
+    // El color depende de si hay dinero real en la cuenta o no
+    elementoUtilidad.style.color = saldoFinalCaja < 0 ? "#dc2626" : "#059669"; 
+}
 
     // Lógica de Pacientes Únicos y Nuevos
     const nombresMesUnicos = [...new Set(citasMes.map(c => (c.title || "").toLowerCase().trim()).filter(n => n !== ""))];
