@@ -603,8 +603,9 @@ input:-webkit-autofill:focus {
                     <div style="font-size: 11px; color: #555; line-height: 1.4;">
                         <b style="color: #8aa561; font-size: 13px;">Clínica de psicología RESILIENCIA</b><br>
                         <span>www.resilienciaguate.com</span><br>
-                        <span>+502 3360-8429</span><br>
+                        <span>Tel: +502 3360-8429</span><br>
                         <span>5ta avenida 1-97 Residencial Valle de la Mariposa, Amatitlán.</span>
+
                     </div>
                 </div>
 
@@ -614,25 +615,32 @@ input:-webkit-autofill:focus {
                     <p style="font-size: 13px; color: #444;">Fecha: <span id="receipt-curDate">-- de -- de ----</span></p>
                 </div>
 
-                <div id="receipt-box-patient" class="movable" style="top: 2.3in; left: 0.6in; position: absolute; cursor: move;">
-                    <div style="width: 7.3in; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
-                        <div style="display: flex; border-bottom: 1px solid #e2e8f0;">
-                            <div style="background: #f8fafc; width: 120px; padding: 10px; font-size: 11px; font-weight: bold; color: #8aa561;">NOMBRE:</div>
-                            <div style="flex: 1; padding: 10px;"><input type="text" id="receipt-pName" placeholder="Nombre completo del paciente" style="width: 100%; border: none; outline: none; font-size: 13px; font-weight: bold;"></div>
-                        </div>
-                        <div style="display: flex; border-bottom: 1px solid #e2e8f0;">
-                            <div style="background: #f8fafc; width: 120px; padding: 10px; font-size: 11px; font-weight: bold; color: #8aa561;">TELÉFONO:</div>
-                            <div style="flex: 1; padding: 10px;"><input type="text" placeholder="Número de contacto" style="width: 100%; border: none; outline: none; font-size: 13px;"></div>
-                        </div>
-                        <div style="display: flex;">
-                            <div style="background: #f8fafc; width: 120px; padding: 10px; font-size: 11px; font-weight: bold; color: #8aa561;">DIRECCIÓN:</div>
-                            <div style="flex: 1; padding: 10px;"><input type="text" placeholder="Ciudad / Domicilio" style="width: 100%; border: none; outline: none; font-size: 13px;"></div>
-                        </div>
-                    </div>
-                </div>
+            <div id="receipt-box-patient" class="movable" style="top: 2.5in; left: 0.6in; position: absolute; cursor: move;">
+    <div style="width: 7.3in; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+        <div style="display: flex; border-bottom: 1px solid #e2e8f0;">
+            <!-- Padding reducido de 10px a 5px para franjas más delgadas -->
+            <div style="background: #f8fafc; width: 120px; padding: 5px 10px; font-size: 11px; font-weight: bold; color: #8aa561;">NOMBRE:</div>
+            <div style="flex: 1; padding: 5px 10px;">
+                <input type="text" id="receipt-pName" placeholder="Nombre completo del paciente" style="width: 100%; border: none; outline: none; font-size: 13px; font-weight: bold; margin: 0; padding: 0;">
+            </div>
+        </div>
+        <div style="display: flex; border-bottom: 1px solid #e2e8f0;">
+            <div style="background: #f8fafc; width: 120px; padding: 5px 10px; font-size: 11px; font-weight: bold; color: #8aa561;">TELÉFONO:</div>
+            <div style="flex: 1; padding: 5px 10px;">
+                <input type="text" placeholder="Número de contacto" style="width: 100%; border: none; outline: none; font-size: 13px; margin: 0; padding: 0;">
+            </div>
+        </div>
+        <div style="display: flex;">
+            <div style="background: #f8fafc; width: 120px; padding: 5px 10px; font-size: 11px; font-weight: bold; color: #8aa561;">DIRECCIÓN:</div>
+            <div style="flex: 1; padding: 5px 10px;">
+                <input type="text" placeholder="Ciudad / Domicilio" style="width: 100%; border: none; outline: none; font-size: 13px; margin: 0; padding: 0;">
+            </div>
+        </div>
+    </div>
+</div>
 
-                <div id="receipt-box-table" class="movable" style="top: 4in; left: 0.6in; width: 7.3in; position: absolute; cursor: move;">
-                    <h3 style="color: #8aa561; font-size: 14px; margin-bottom: 10px; border-bottom: 2px solid #8aa561; padding-bottom: 5px;">Descripción de Servicios</h3>
+                <div id="receipt-box-table" class="movable" style="top: 3.5in; left: 0.6in; width: 7.3in; position: absolute; cursor: move;">
+                    <h3 style="color: #8aa561; font-size: 14px; margin-bottom: 10px; border-bottom: 2px solid #8aa561; padding-bottom: 5px;"></h3>
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead>
                             <tr style="background: #8aa561; color: white;">
@@ -1810,7 +1818,7 @@ window.enviarWhatsAppRecordatorio = () => {
     const num = document.getElementById('edit-whatsapp').value;
     if(!num) { window.showToast("Número inválido", "⚠️"); return; }
     const fecha = new Date(citaActiva.start).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
-    const msg = `Hola ${citaActiva.title}, te saludamos de Clínica Resiliencia. 🌿\n\nConfirmamos tu cita: *${fecha}*.\n\n¿Nos confirmas asistencia?`;
+    const msg = `Hola ${citaActiva.title}, te saludamos de Clínica Resiliencia.\n\nConfirmamos tu cita: *${fecha}*.\n\n¿Nos confirmas asistencia?`;
     window.open(`https://wa.me/${document.getElementById('edit-pais').value}${num}?text=${encodeURIComponent(msg)}`, '_blank');
 };
 
