@@ -28,7 +28,9 @@
 
     
     <style>
-/* //txt 1. VARIABLES Y BASES GLOBALES */
+/* ==========================================================================
+   1. VARIABLES Y BASES GLOBALES 
+   ========================================================================== */
 :root { 
     --bg-page: #f1f3f6; 
     --brand-dark: #1f2937; 
@@ -59,57 +61,111 @@ html, body {
     color-adjust: exact !important;
 }
 
-/* //txt 2. CABECERA Y NAVEGACIÓN (DESKTOP) */
+
+/* ==========================================================================
+   2. CABECERA Y NAVEGACIÓN (DISEÑO BLANCO MINIMALISTA PERFECTO)
+   ========================================================================== */
 .top-nav { 
-    background: var(--brand-dark); 
-    color: var(--text-light); 
+    background: #ffffff !important; 
+    color: #1e293b !important; 
     padding: 10px 40px; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
+    
+    /* Forzamos el comportamiento Grid de 3 columnas */
+    display: grid !important; 
+    grid-template-columns: 1fr auto 1fr !important; 
+    align-items: center !important; 
+    
     position: sticky; 
     top: 0; 
     z-index: 999; 
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+    border-bottom: 1px solid #e2e8f0; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02); 
 }
 
+/* El contenedor de las pestañas se amarra obligatoriamente al centro */
 .nav-links {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.05);
-    padding: 5px;
-    border-radius: 10px;
+    grid-column: 2 !important; 
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+    background: #f1f5f9 !important; /* Fondo gris claro sutil */
+    padding: 4px !important;
+    border-radius: 8px !important;
+    justify-content: center !important;
 }
 
+/* Estilo base para los enlaces (Texto gris oscuro/medio) */
 .nav-item {
     text-decoration: none;
-    color: rgba(255, 255, 255, 0.8);
+    color: #64748b !important; 
     font-weight: 600;
     font-size: 13px;
     padding: 8px 16px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    border-radius: 6px;
+    transition: all 0.2s ease;
     cursor: pointer;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px;
 }
 
+/* Hover: Cuando pasas el mouse por encima */
+.nav-item:hover {
+    color: #0f172a !important; 
+    background-color: #f8fafc;
+}
+
+/* Pestaña actualmente seleccionada (Activa) */
 .nav-item.active {
-    background: white !important;
-    color: var(--brand-dark) !important;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background: #ffffff !important;
+    color: #0284c7 !important; /* Azul de énfasis para entorno blanco */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     font-weight: 700;
 }
 
-#logout-btn { 
-    background: none; 
-    color: rgba(255,255,255,0.7); 
-    border: none; 
-    font-weight: 600; 
-    cursor: pointer; 
-    text-transform: uppercase; 
+/* Configuración universal para los iconos SVG dentro de la navegación */
+.nav-icon {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor; /* Copia dinámicamente el color del texto del ítem */
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
-/* //txt 3. ESTRUCTURA DE LA APP */
+/* Botón de Salir (Forzado al extremo derecho del Grid) */
+#logout-btn { 
+    grid-column: 3 !important;
+    justify-self: end !important; 
+    background: transparent !important; 
+    color: #ef4444 !important; /* Rojo sutil premium */
+    border: 1px solid #fee2e2; 
+    font-weight: 600; 
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer; 
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+#logout-btn:hover {
+    background-color: #fef2f2 !important;
+    border-color: #fca5a5;
+}
+
+/* Oculta por completo cualquier rastro de texto automático en la esquina izquierda */
+#display-profile-name {
+    display: none !important;
+}
+
+
+/* ==========================================================================
+   3. ESTRUCTURA DE LA APP
+   ========================================================================== */
 #app-content { 
     display: flex; 
     flex: 1; 
@@ -147,99 +203,105 @@ html, body {
 .app-logo-clinic { width: 100px; height: auto; margin-bottom: 8px; }
 .app-logo-dynamic { width: 90px; height: 90px; margin: 0 auto 10px; border-radius: 50%; object-fit: cover; border: 3px solid var(--brand-main); display: block; }
 .logo-text { font-weight: 600; color: #666; font-size: 10px; text-align: center; margin-bottom: 25px; text-transform: uppercase; }
-
- /* //txt 12. DISEÑO MÓVIL Y LOGIN (BLINDAJE NIVEL NÚCLEO) */
-    #login-screen {
-        width: 100% !important; 
-        max-width: 100vw !important; 
-        min-height: 100vh !important;
-        display: flex !important; 
-        align-items: center !important; 
-        justify-content: center !important;
-        background: #f2f2f7 !important; 
-        position: relative; 
-        z-index: 1000; 
-        overflow: hidden !important;
-    }
-
-    #login-screen[style*="display: none"] { display: none !important; }
-    
-    /* Esta es la tarjeta blanca del login */
-    .login-card { 
-        width: 90% !important; 
-        max-width: 320px !important; 
-        z-index: 1001 !important; 
-    }
-  .login-card { 
-        width: 90% !important; 
-        max-width: 320px !important; 
-        z-index: 1001 !important;
-        background: white !important;
-        padding: 50px !important;
-        border-radius: 20px !important;
-        margin: 0 auto !important; /* El centrado lo maneja el flex del padre */
-        box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
-        text-align: center !important;
-        
-        /* --- EL EFECTO DE FLOTAR --- */
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-    }
-
-    .login-card:hover {
-        transform: translateY(-15px) !important; /* Sube la tarjeta */
-        box-shadow: 0 30px 60px rgba(0,0,0,0.15) !important; /* Sombra más profunda */
-    }
-
-
-    /* --- ELIMINA EL AZUL POR ID (MÁXIMA PRIORIDAD) --- */
-    #email, #password {
-        border: 1.5px solid #e2e8f0 !important;
-        outline: none !important; /* MATA EL AZUL AQUÍ */
-        box-shadow: none !important;
-        transition: all 0.3s ease !important;
-        -webkit-appearance: none !important;
-    }
-
-    /* --- APLICAR EL VERDE AL HACER CLIC --- */
-    #email:focus, #password:focus {
-        outline: none !important;
-        border-color: #a5c941 !important; /* TU VERDE RESILIENCIA */
-        box-shadow: 0 0 0 4px rgba(165, 201, 65, 0.15) !important;
-        background-color: white !important;
-    }
-
-    /* --- EL GOLPE FINAL: AUTOCOMPLETADO DE CHROME --- */
-    #email:-webkit-autofill,
-    #password:-webkit-autofill,
-    #email:-webkit-autofill:focus,
-    #password:-webkit-autofill:focus {
-        -webkit-box-shadow: 0 0 0px 1000px white inset !important;
-        border: 1.5px solid #a5c941 !important;
-        outline: none !important;
-    }
-
 #search-input { width: 100%; padding: 10px 15px; border-radius: 6px; border: 1px solid var(--border-color); background: #fafafa; font-size: 13px; margin-bottom: 20px; }
 
-/* //txt 4. FORMULARIOS Y BOTONES */
+
+/* ==========================================================================
+   4. PANTALLA DE ACCESO (LOGIN CONTROL DE NÚCLEO)
+   ========================================================================== */
+#login-screen {
+    width: 100% !important; 
+    max-width: 100vw !important; 
+    min-height: 100vh !important;
+    display: flex !important; 
+    align-items: center !important; 
+    justify-content: center !important;
+    background: #f2f2f7 !important; 
+    position: relative; 
+    z-index: 1000; 
+    overflow: hidden !important;
+}
+
+#login-screen[style*="display: none"] { display: none !important; }
+
+.login-card { 
+    width: 90% !important; 
+    max-width: 320px !important; 
+    z-index: 1001 !important;
+    background: white !important;
+    padding: 50px !important;
+    border-radius: 20px !important;
+    margin: 0 auto !important; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08) !important;
+    text-align: center !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.login-card:hover {
+    transform: translateY(-15px) !important; 
+    box-shadow: 0 30px 60px rgba(0,0,0,0.15) !important; 
+}
+
+/* --- ELIMINACIÓN DE AZUL POR DEFAULT --- */
+#email, #password {
+    border: 1.5px solid #e2e8f0 !important;
+    outline: none !important; 
+    box-shadow: none !important;
+    transition: all 0.3s ease !important;
+    -webkit-appearance: none !important;
+}
+
+/* --- ENFOQUE CON TU VERDE RESILIENCIA --- */
+#email:focus, #password:focus {
+    outline: none !important;
+    border-color: #a5c941 !important; 
+    box-shadow: 0 0 0 4px rgba(165, 201, 65, 0.15) !important;
+    background-color: white !important;
+}
+
+/* --- CONTROL AUTOCOMPLETADO CHROME --- */
+#email:-webkit-autofill,
+#password:-webkit-autofill,
+#email:-webkit-autofill:focus,
+#password:-webkit-autofill:focus,
+input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+    border: 1.5px solid #a5c941 !important;
+    outline: none !important;
+}
+
+
+/* ==========================================================================
+   5. FORMULARIOS Y BOTONES GENERALES
+   ========================================================================== */
 input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radius: 8px; border: 1px solid #ddd; font-family: inherit; font-size: 13px; box-sizing: border-box; }
 .btn-action { width: 100%; background: var(--brand-dark); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; text-transform: uppercase; }
 .btn-secondary { background: #f3f4f6; color: var(--brand-dark); border: 1px solid #d1d5db; }
 .btn-grid { background: #1f2937; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; text-transform: uppercase; }
 
-/* //txt 5. MODALES Y GESTIÓN */
+
+/* ==========================================================================
+   6. MODALES Y GESTIÓN
+   ========================================================================== */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
 .modal-box { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 380px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
 .modal-box-gestion { background: white; padding: 40px; border-radius: 25px; width: 90%; max-width: 420px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); }
 .label-modal { font-size: 11px; color: #999; margin-top: 15px; display: block; text-transform: uppercase; }
 .grid-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 25px; }
 
-/* //txt 6. EQUIPO Y REPORTES */
+
+/* ==========================================================================
+   7. EQUIPO Y REPORTES
+   ========================================================================== */
 .report-row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #f3f4f6; font-size: 12px; color: #555; align-items: center; cursor: pointer; border-radius: 6px; width: 100%; margin-bottom: 4px; }
 .active-filter { background: #f0f7e6 !important; border-left: 3px solid var(--brand-main); }
 .img-perfil-equipo { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
 .report-count { background: #eee; color: #444; padding: 2px 7px; border-radius: 10px; font-weight: bold; font-size: 10px; }
 
-/* //txt 7. ESTIMULACIÓN (MIS PRIMEROS PASOS) */
+
+/* ==========================================================================
+   8. ESTIMULACIÓN (MIS PRIMEROS PASOS)
+   ========================================================================== */
 #controlPanel { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); color: #333; width: 100%; box-sizing: border-box; }
 
 .hoja-carta {
@@ -273,7 +335,10 @@ input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radi
 .premium-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: white; border: 2px solid #a5c941; border-radius: 50%; cursor: pointer; }
 .btn-mpp-save { width: 100%; background: #2c3e50; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 10px; cursor: pointer; }
 
-/* //txt 8. NOTIFICACIONES Y COMPONENTES IOS */
+
+/* ==========================================================================
+   9. NOTIFICACIONES Y COMPONENTES IOS
+   ========================================================================== */
 .ios-notification {
     position: fixed; top: -120px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; 
     background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
@@ -294,7 +359,10 @@ input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radi
 @keyframes toastIn { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes toastOut { to { transform: translateY(100px); opacity: 0; } }
 
-/* //txt 9. EVOLUCIÓN ESTILO MAIL */
+
+/* ==========================================================================
+   10. EVOLUCIÓN ESTILO MAIL Y MODALES IOS
+   ========================================================================== */
 .ios-split-view { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 60px); }
 .ios-sidebar-history { width: 300px; border-right: 1px solid #e5e5ea; background: #f8f8fa; overflow-y: auto; }
 .ios-main-editor { flex: 1; padding: 30px; background: white; display: flex; flex-direction: column; }
@@ -306,7 +374,6 @@ input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radi
 .ios-note-card:hover { background: #f0f0f2; }
 .ios-note-card:hover .btn-eliminar-nota { opacity: 1; }
 
-/* //txt 10. MODAL CONFIRMACIÓN Y BOTONES IOS */
 .confirm-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 100002; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s; }
 .confirm-dialog { background: white; width: 280px; border-radius: 14px; text-align: center; overflow: hidden; animation: scaleIn 0.2s; }
 .confirm-content { padding: 20px; }
@@ -326,7 +393,10 @@ input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radi
 .btn-back-ios span { font-size: 24px; margin-right: 5px; line-height: 0; margin-top: -2px; }
 .btn-eliminar-nota { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: #ff3b30; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity 0.2s; }
 
-/* //txt 11. CONFIGURACIÓN DE IMPRESIÓN */
+
+/* ==========================================================================
+   11. CONFIGURACIÓN DE IMPRESIÓN
+   ========================================================================== */
 @media print {
     .top-nav, .side-panel, #mpp-data-panel, .no-print, #login-screen, button, .nav-links, .navbar, header, nav, .header-blue, #header-main { display: none !important; }
     body, html, #app-content { display: block !important; background: white !important; height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; }
@@ -336,13 +406,14 @@ input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radi
     @page { size: letter; margin: 0 !important; }
 }
 
-/* //txt 12. DISEÑO MÓVIL (FAVORITO - IPHONE) */
+
+/* ==========================================================================
+   12. MEDIA QUERIES (SOPORTE DISPOSITIVOS MÓVILES - IPHONE)
+   ========================================================================== */
 @media (max-width: 768px) {
     body:not(:has(#login-screen[style*="display: none"])) aside.side-panel,
     body:not(:has(#login-screen[style*="display: none"])) #nav-bar,
     body:not(:has(#login-screen[style*="display: none"])) #app-content { display: none !important; }
-
-   
 
     html, body { overflow-x: hidden !important; background: #f2f2f7 !important; width: 100% !important; margin: 0 !important; padding: 0 !important; -webkit-text-size-adjust: 100%; }
 
@@ -350,6 +421,7 @@ input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radi
     .side-panel h2, .side-panel h3 { font-size: 10px !important; }
     .side-panel label, .side-panel span, .side-panel p { font-size: 9px !important; }
 
+    /* Forzar la barra de navegación al área inferior en móviles */
     .nav-links {
         display: flex !important; position: fixed !important; bottom: 0 !important; left: 0 !important; width: 100% !important;
         height: calc(50px + env(safe-area-inset-bottom)) !important; padding-bottom: env(safe-area-inset-bottom) !important;
@@ -359,17 +431,11 @@ input, select, textarea { width: 100%; padding: 10px; margin: 6px 0; border-radi
 
     .nav-item, .nav-links a { flex: 1 !important; display: flex !important; align-items: center !important; justify-content: center !important; text-decoration: none !important; color: #8e8e93 !important; font-size: 10px !important; font-weight: 700 !important; text-transform: uppercase !important; }
     .nav-item::before, .nav-links a::before, .nav-item[onclick*="estimulacion"], .nav-links a[onclick*="estimulacion"], .nav-item[onclick*="recibo"], .nav-links a[onclick*="recibo"] { display: none !important; }
-    .nav-item.active, .nav-links a.active { color: #a5c941 !important; }
+    .nav-item.active, .nav-links a.active { color: #a5c941 !important; background: transparent !important; box-shadow: none !important; }
 
     #app-content { display: block !important; padding: 6px 6px calc(65px + env(safe-area-inset-bottom)) 6px !important; width: 100% !important; box-sizing: border-box; }
     #calendar { height: 55vh !important; font-size: 9px !important; width: 100% !important; }
     .top-nav .logo-text, .app-logo-clinic, .app-logo-dynamic, .logo-text { display: none !important; }
-}
-
-/* Esto obliga a Chrome a usar tu verde incluso si hay autocompletado */
-input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0px 1000px white inset !important;
-    border: 1.5px solid #a5c941 !important;
 }
 </style>
 </head>
@@ -386,15 +452,63 @@ input:-webkit-autofill:focus {
 </div>
 
 <nav class="top-nav" id="nav-bar" style="display:none;">
-    <div id="display-profile-name" style="font-weight:600; font-size: 13px;"></div>
+    <div id="display-profile-name" style="font-weight: 700; font-size: 14px; letter-spacing: -0.3px; color: #1e293b;">Administrador</div>
+    
     <div class="nav-links">
-        <div class="nav-item active" onclick="showView('view-agenda', this)">Agenda</div>
-        <div class="nav-item" onclick="showView('view-pacientes', this)">Pacientes</div>
-        <div class="nav-item" onclick="showView('view-reportes', this)">Reportes</div>
-        <div class="nav-item" onclick="showView('view-estimulacion', this)">Estimulación</div>
-        <div class="nav-item" onclick="showView('view-recibo', this)">Recibo</div>
+        <div class="nav-item active" onclick="showView('view-agenda', this)">
+            <svg viewBox="0 0 24 24" class="nav-icon">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span>Agenda</span>
+        </div>
+
+        <div class="nav-item" onclick="showView('view-pacientes', this)">
+            <svg viewBox="0 0 24 24" class="nav-icon">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Pacientes</span>
+        </div>
+
+        <div class="nav-item" id="nav-reportes-link" onclick="showView('view-reportes', this)">
+            <svg viewBox="0 0 24 24" class="nav-icon">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+            <span>Reportes</span>
+        </div>
+
+        <div class="nav-item" onclick="showView('view-estimulacion', this)">
+            <svg viewBox="0 0 24 24" class="nav-icon">
+                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                <path d="M12 6v6l4 2"></path>
+            </svg>
+            <span>Estimulación</span>
+        </div>
+
+        <div class="nav-item" onclick="showView('view-recibo', this)">
+            <svg viewBox="0 0 24 24" class="nav-icon">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+            <span>Recibo</span>
+        </div>
     </div>
-    <button id="logout-btn" onclick="window.handleLogout()">SALIR</button>
+    
+    <button id="logout-btn" onclick="window.handleLogout()">
+        <svg viewBox="0 0 24 24" class="nav-icon">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        <span>Salir</span>
+    </button>
 </nav>
 
 <main id="app-content" style="display:none;">
@@ -2141,7 +2255,7 @@ window.ejecutarConfirmacionBorradoEstimulacion = async () => {
         document.getElementById('nav-bar').style.display = 'flex';
         document.getElementById('app-content').style.display = 'flex';
         
-        document.getElementById('display-profile-name').innerText = user.email;
+      //  document.getElementById('display-profile-name').innerText = user.email;
         document.getElementById('admin-selector-wrapper').style.display = 'block';
 
         if (isAdmin) {
@@ -2173,10 +2287,7 @@ function iniciarApp(isAdmin, emailActivo) {
         perfilesGlobal = snap.docs.map(d => ({ email: d.id, ...d.data() }));
         
         const miP = perfilesGlobal.find(p => p.email.toLowerCase() === emailActivo);
-        
-        // CORREO: Barra superior
-        const navEmail = document.getElementById('display-profile-name');
-        if (navEmail) navEmail.innerText = emailActivo; 
+
 
         if (miP) {
             // NOMBRE REAL: Sidebar
@@ -2194,8 +2305,7 @@ function iniciarApp(isAdmin, emailActivo) {
                 }
             }
         }
-        
-        // Ejecutar renderizado solo si la función existe
+   
         if (typeof renderizarAdminUnified === 'function') {
             renderizarAdminUnified(isAdmin);
         }
@@ -2943,8 +3053,10 @@ document.getElementById('search-paciente-tab')?.addEventListener('input', window
 
 window.showView = (viewId, element) => {
     const ADMIN_EMAIL = "resilienciaguate@gmail.com";
-    const perfilElem = document.getElementById('display-profile-name');
-    const correoActual = perfilElem ? perfilElem.innerText.toLowerCase().trim() : "";
+    
+    /* CORRECCIÓN DE SEGURIDAD MAESTRA: 
+       Consultamos al estado de Firebase Auth en lugar de leer el HTML invisible de la barra */
+    const correoActual = auth.currentUser ? auth.currentUser.email.toLowerCase().trim() : "";
     const esAdmin = (correoActual === ADMIN_EMAIL);
 
     // 1. SEGURIDAD Y MODALES
@@ -3049,12 +3161,12 @@ window.cambiarLogo = function(event) {
     reader.readAsDataURL(event.target.files[0]);
 };
 
-// Función para inicializar el gráfico de Radar
-window.dibujarGraficoEstimulacion = function(datos = [80, 75, 90, 70]) {
+// Función para inicializar el gráfico de Radar (CORREGIDA CON 5 VALORES INICIALES)
+window.dibujarGraficoEstimulacion = function(datos = [0, 0, 0, 0, 0]) {
     const canvas = document.getElementById('graficoAvances');
     if (!canvas) return; // Seguridad por si no encuentra el canvas
     
-   const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
     
     if (window.miGraficoRadar) {
         window.miGraficoRadar.destroy();
@@ -3067,12 +3179,12 @@ window.dibujarGraficoEstimulacion = function(datos = [80, 75, 90, 70]) {
         type: 'radar',
         data: {
             labels: [
-    'Motricidad Gruesa', 
-    'Motricidad Fina', 
-    'Área Cognitiva', 
-    'Área Socio Emocional', 
-    'Área de Lenguaje'
-],
+                'Motricidad Gruesa', 
+                'Motricidad Fina', 
+                'Área Cognitiva', 
+                'Área Socio Emocional', 
+                'Área de Lenguaje'
+            ],
             datasets: [{
                 label: 'Desarrollo Actual',
                 data: datos.map(v => parseInt(v)), // Asegura que sean números
