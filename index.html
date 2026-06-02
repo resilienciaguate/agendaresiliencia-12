@@ -2878,13 +2878,20 @@ if (elementoUtilidad) {
     // --- [7. TABLAS DE CUENTAS (PENDIENTES Y PAGADOS)] ---
     const tablaPendientes = document.getElementById('lista-pendientes-body');
     if (tablaPendientes) {
-        const pendientes = citasMes.filter(c => c.pagado !== true && (Number(c.monto) || 0) > 0);
+        const pendientes = citasMes.filter(c => 
+    (c.pagado === false || c.pagado === null || c.pagado === undefined) && 
+    (Number(c.monto) || 0) > 0
+);
         tablaPendientes.innerHTML = pendientes.length === 0 ? `<tr><td colspan="3" style="text-align:center; padding:20px; color:#94a3b8;">🎉 ¡Todo está cobrado!</td></tr>` : 
             pendientes.map(c => `
                 <tr style="border-bottom: 1px solid #f1f5f9;">
                     <td style="padding: 10px; font-weight: 600;">${c.title || "Paciente"}</td>
                     <td style="padding: 10px; color: #b91c1c; font-weight: 700;">Q${(Number(c.monto) || 0).toLocaleString()}</td>
-                    <td style="padding: 10px; text-align:right;"><button onclick="window.abrirGestionPorNombre('${(c.title || "").replace(/'/g, "\\'")}')" style="background: #fee2e2; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; color:#9f1239;">GESTIONAR</button></td>
+                    <td style="padding: 10px; text-align:right;">
+    <button onclick="window.abrirGestion('${c.id}')" style="background: #fee2e2; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; color:#9f1239;">
+        GESTIONAR
+    </button>
+</td>
                 </tr>`).join('');
     }
 
