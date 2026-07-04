@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Alianzas Estratégicas | Clínica Resiliencia</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+    /* --- VARIABLES Y RESETEO --- */
+    :root {
+        --bg-color: #f6f3ef; 
+        --text-dark: #000000;
+        --text-light: #9b834b;
+        --accent: #535353; 
+        --serif: 'DM Serif Display', serif;
+        --sans: 'Inter', sans-serif;
+        --transition: all 0.6s cubic-bezier(0.25, 1, 0.33, 1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+
+    /* --- NAVEGACIÓN REFINADA Y RESPONSIVA --- */
+    header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: rgba(246, 243, 239, 0.7); 
+        backdrop-filter: blur(15px); 
+        -webkit-backdrop-filter: blur(15px);
+        z-index: 1000;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        transition: all 0.4s ease;
+        overflow: visible;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 1.5rem 5%;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    .logo img {
+        height: 48px;
+        width: auto;
+    }
+
+    .menu-toggle {
+        display: none;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        width: 48px;
+        height: 48px;
+        font-size: 2rem;
+        cursor: pointer;
+        color: #222;
+        transition: .3s;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .menu-toggle:hover {
+        transform: scale(1.05);
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 2.2rem;
+        list-style: none;
+    }
+
+    .nav-links a {
+        text-decoration: none;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: var(--transition);
+        opacity: 0.8;
+        position: relative;
+        padding-bottom: 5px;
+    }
+
+    .nav-links a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: 0;
+        left: 0;
+        background-color: var(--text-light);
+        transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover::after {
+        width: 100%;
+    }
+
+    /* --- HERO EDITORIAL --- */
+    .alliances-hero {
+        background-color: #fff;
+        padding: 15rem 5% 6rem 5%;
+        text-align: center;
+    }
+
+    .alliances-hero .meta-title {
+        text-transform: uppercase;
+        letter-spacing: 6px;
+        font-size: 0.75rem;
+        color: var(--text-light);
+        font-weight: 600;
+        display: block;
+        margin-bottom: 1.5rem;
+    }
+
+    .alliances-hero h1 {
+        font-family: var(--serif);
+        font-size: 5.5rem;
+        line-height: 0.95;
+        margin-bottom: 2rem;
+        letter-spacing: -2px;
+        font-weight: 400;
+    }
+
+    .alliances-hero p {
+        font-size: 1.25rem;
+        font-weight: 300;
+        color: var(--accent);
+        max-width: 680px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+
+    /* --- SECCIÓN EDITORIAL DE ALIANZAS --- */
+    .alliances-editorial {
+        max-width: 1300px;
+        margin: auto;
+        padding: 40px 5% 140px;
+    }
+
+    .alliance-panel {
+        position: relative;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 80px;
+        align-items: center;
+        padding: 70px 0;
+        border-bottom: 1px solid rgba(0,0,0,.08);
+    }
+
+    .alliance-panel:last-child {
+        border-bottom: none;
+    }
+
+    .reverse {
+        direction: rtl;
+    }
+
+    .reverse > * {
+        direction: ltr;
+    }
+
+    .alliance-number {
+        position: absolute;
+        right: 0;
+        top: 40px;
+        font-family: var(--serif);
+        font-size: 8rem;
+        color: rgba(0,0,0,.04);
+        pointer-events: none;
+    }
+
+    .reverse .alliance-number {
+        left: 0;
+        right: auto;
+    }
+
+    .alliance-logo {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .alliance-logo img {
+        max-width: 180px;
+        max-height: 90px;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        transition: .5s;
+    }
+
+    .logo-promodeco {
+        max-width: 190px !important;
+        max-height: 95px !important;
+    }
+
+    .alliance-panel:hover img {
+        transform: scale(1.06);
+    }
+
+    .alliance-category {
+        display: inline-block;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        font-size: .72rem;
+        color: #9b834b;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .alliance-info h2 {
+        font-family: var(--serif);
+        font-size: 3rem;
+        font-weight: 400;
+        margin-bottom: 20px;
+    }
+
+    .alliance-info p {
+        max-width: 650px;
+        color: #6d6d6d;
+        line-height: 2;
+        font-size: 1.05rem;
+    }
+
+    /* --- ANIMACIONES REVEAL --- */
+    .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 1.2s cubic-bezier(0.25, 1, 0.33, 1), transform 1.2s cubic-bezier(0.25, 1, 0.33, 1);
+        will-change: opacity, transform;
+    }
+
+    .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* --- RESPONSIVO MÓVIL --- */
+    @media (max-width: 1024px) {
+        .alliances-hero h1 { font-size: 3.8rem !important; }
+        .alliance-info h2 { font-size: 2.5rem !important; }
+    }
+
+    @media (max-width: 900px) {
+        .alliances-hero h1 { font-size: 2.8rem !important; }
+        .alliances-hero p { font-size: 1.05rem !important; }
+        .alliances-hero { padding-top: 11rem !important; }
+
+        .alliance-panel, .reverse {
+            display: flex;
+            flex-direction: column !important;
+            text-align: center;
+            direction: ltr !important;
+            gap: 35px;
+            padding: 60px 0;
+        }
+
+        .alliance-info p {
+            margin: auto;
+        }
+
+        .alliance-number {
+            display: none;
+        }
+
+        .alliance-info h2 {
+            font-size: 2.2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        /* --- DESPLEGABLE MÓVIL SEGURO (MANTENIENDO LÓGICA RAÍZ) --- */
+        nav {
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            display: flex;
+        }
+
+        .nav-links {
+            position: absolute;
+            top: 100%;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 22px;
+            padding: 16px;
+            gap: 6px;
+            box-shadow: 0 25px 60px rgba(0,0,0,.12);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: .35s;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .nav-links.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .nav-links li {
+            list-style: none;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-size: .85rem;
+            text-align: left;
+            background: transparent;
+        }
+
+        .logo img {
+            height: 38px;
+        }
+    }
+    </style>
+</head>
+<body>
+
+    <!-- MENÚ DE NAVEGACIÓN UNIFICADO -->
+    <header>
+        <nav>
+            <a href="index.html" class="logo">
+                <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" alt="Logo Clínica Resiliencia">
+            </a>
+
+            <button class="menu-toggle" onclick="toggleMenu()">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <ul class="nav-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="servicios.html">Servicios</a></li>
+                <li><a href="team.html">Nuestro Team</a></li>
+                <li><a href="#" style="opacity: 1; font-weight: 600;">Alianzas</a></li>
+                <li><a href="materiales.html">Materiales</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+
+        <!-- HERO -->
+        <section class="alliances-hero">
+            <span class="meta-title">ALIANZAS ESTRATÉGICAS</span>
+            <h1>Empresas que han confiado en nosotros.</h1>
+            <p>
+                A lo largo de los últimos años hemos colaborado con instituciones
+                y organizaciones líderes desarrollando programas de salud mental,
+                bienestar integral y desarrollo humano.
+            </p>
+        </section>
+
+        <!-- LISTADO EDITORIAL -->
+        <section class="alliances-editorial">
+
+            <!-- Kerry -->
+            <article class="alliance-panel reveal">
+                <div class="alliance-number">01</div>
+                <div class="alliance-logo">
+                    <img src="kerry.webp" alt="Kerry">
+                </div>
+                <div class="alliance-info">
+                    <span class="alliance-category">Institucional</span>
+                    <h2>Kerry</h2>
+                    <p>
+                        Desarrollo e implementación de talleres enfocados en el manejo
+                        del estrés laboral y fortalecimiento de la resiliencia para
+                        colaboradores corporativos.
+                    </p>
+                </div>
+            </article>
+
+            <!-- Banco G&T -->
+            <article class="alliance-panel reverse reveal">
+                <div class="alliance-number">02</div>
+                <div class="alliance-logo">
+                    <img src="bancogyt.png" alt="Banco G&T">
+                </div>
+                <div class="alliance-info">
+                    <span class="alliance-category">Corporativo</span>
+                    <h2>Banco G&T Continental</h2>
+                    <p>
+                        Desarrollo de charlas magistrales enfocadas en equilibrio de
+                        vida, desarrollo humano y dinámicas de orientación relacional
+                        para fortalecer los entornos familiares y laborales.
+                    </p>
+                </div>
+            </article>
+
+            <!-- Maxa -->
+            <article class="alliance-panel reveal">
+                <div class="alliance-number">03</div>
+                <div class="alliance-logo">
+                    <img src="maxa.png" alt="Maxa">
+                </div>
+                <div class="alliance-info">
+                    <span class="alliance-category">Empresarial</span>
+                    <h2>Maxa</h2>
+                    <p>
+                        Desarrollo de programas de acompañamiento psicológico orientados
+                        al bienestar organizacional y fortalecimiento del clima laboral.
+                    </p>
+                </div>
+            </article>
+
+            <!-- Promodeco -->
+            <article class="alliance-panel reverse reveal">
+                <div class="alliance-number">04</div>
+                <div class="alliance-logo">
+                    <img src="promodeco.png" alt="Promodeco" class="logo-promodeco">
+                </div>
+                <div class="alliance-info">
+                    <span class="alliance-category">Desarrollo Social</span>
+                    <h2>Promodeco</h2>
+                    <p>
+                        Co-creación de experiencias transformadoras, incluyendo el taller
+                        <strong>Kintsugi del Corazón</strong>, enfocado en resiliencia y
+                        sanación emocional.
+                    </p>
+                </div>
+            </article>
+
+        </section>
+
+    </main>
+
+    <!-- FOOTER ULTRA-MINIMALISTA DE ALTA GAMA -->
+    <footer style="
+        background-color: #463d3c;
+        background-image: 
+            radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
+            url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22 opacity=%220.04%22/%3E%3C/svg%3E');
+        padding: 1rem 5% 1rem 5%;
+        border-top: 1px solid rgba(246, 243, 239, 0.05);
+        position: relative;
+        text-align: center;
+    ">
+        <div style="
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+        ">
+            
+            <!-- Logotipo Isotipo -->
+            <div>
+                <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png"
+                     style="
+                        display: block;
+                        width: auto;
+                        height: 89px;
+                        filter: brightness(0) invert(1);
+                        opacity: .95;
+                        transition: transform 0.4s ease;
+                     "
+                     alt="Clínica Resiliencia">
+            </div>
+
+            <!-- Línea Divisoria de Catálogo Refinada -->
+            <div style="width: 40px; height: 1px; background-color: rgba(246, 243, 239, 0.15);"></div>
+
+            <!-- Créditos Corporativos Cohesionados -->
+            <div style="
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                font-size: 0.72rem;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                color: rgba(246, 243, 239, 0.4);
+            ">
+                <p style="margin: 0;">© 2026 Clínica Resiliencia. Todos los derechos reservados.</p>
+                
+                <p style="margin: 0; text-transform: none; letter-spacing: 0; font-size: 0.85rem; color: rgba(246, 243, 239, 0.55);">
+                    Design by 
+                    <span style="
+                        font-family: var(--serif);
+                        font-style: italic;
+                        font-size: 1.05rem;
+                        color: #f6f3ef;
+                        margin-left: 4px;
+                    ">
+                        Antony de León
+                    </span>
+                </p>
+            </div>
+
+        </div>
+    </footer>
+
+    <script>
+    function handleReveal() {
+        const reveals = document.querySelectorAll(".reveal");
+        const windowHeight = window.innerHeight;
+        const visibleThreshold = 120; 
+
+        reveals.forEach(el => {
+            const elementTop = el.getBoundingClientRect().top;
+            const elementBottom = el.getBoundingClientRect().bottom;
+
+            if (elementTop < windowHeight - visibleThreshold && elementBottom > visibleThreshold) {
+                el.classList.add("active");
+                el.style.opacity = "1";
+                el.style.transform = "translateY(0)";
+            } else {
+                el.classList.remove("active");
+                el.style.opacity = "0";
+                el.style.transform = "translateY(30px)";
+            }
+        });
+    }
+
+    window.addEventListener("scroll", handleReveal);
+    window.addEventListener("load", handleReveal);
+    </script>
+
+    <script>
+    function toggleMenu(){
+        const menu = document.querySelector(".nav-links");
+        const icon = document.querySelector(".menu-toggle i");
+        menu.classList.toggle("active");
+        
+        if(menu.classList.contains("active")){
+            icon.className = "bi bi-x-lg";
+        } else {
+            icon.className = "bi bi-list";
+        }
+    }
+    </script>
+</body>
+</html>

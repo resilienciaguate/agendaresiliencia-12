@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nuestro Team | Clínica Resiliencia</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+    /* --- VARIABLES Y RESETEO --- */
+    :root {
+        --bg-color: #f6f3ef; 
+        --text-dark: #000000;
+        --text-light: #9b834b;
+        --accent: #535353; 
+        --serif: 'DM Serif Display', serif;
+        --sans: 'Inter', sans-serif;
+        --transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+
+    /* --- NAVEGACIÓN REFINADA Y RESPONSIVA --- */
+    header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: rgba(246, 243, 239, 0.8); 
+        backdrop-filter: blur(15px); 
+        -webkit-backdrop-filter: blur(15px);
+        z-index: 1000;
+        border-bottom: 1px solid rgba(58, 90, 64, 0.05);
+        transition: all 0.3s ease;
+        overflow: visible;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 1.5rem 5%;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    .logo img {
+        height: 48px;
+        width: auto;
+    }
+
+    .menu-toggle {
+        display: none;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        width: 48px;
+        height: 48px;
+        font-size: 2rem;
+        cursor: pointer;
+        color: #222;
+        transition: .3s;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .menu-toggle:hover {
+        transform: scale(1.05);
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 2.2rem;
+        list-style: none;
+    }
+
+    .nav-links a {
+        text-decoration: none;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: var(--transition);
+        opacity: 0.8;
+        position: relative;
+        padding-bottom: 5px;
+    }
+
+    .nav-links a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: 0;
+        left: 0;
+        background-color: var(--accent);
+        transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover::after {
+        width: 100%;
+    }
+
+    /* ================= TEAM HERO ================= */
+    .team-hero {
+        padding: 180px 5% 60px;
+        text-align: center;
+        max-width: 900px;
+        margin: auto;
+    }
+
+    .team-label {
+        display: inline-block;
+        text-transform: uppercase;
+        letter-spacing: 5px;
+        font-size: .75rem;
+        color: var(--text-light);
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .team-hero h1 {
+        font-family: var(--serif);
+        font-size: 5rem;
+        font-weight: 400;
+        margin-bottom: 25px;
+        line-height: 1;
+        letter-spacing: -1px;
+    }
+
+    .team-hero p {
+        max-width: 650px;
+        margin: auto;
+        font-size: 1.15rem;
+        color: var(--accent);
+        line-height: 1.9;
+        font-weight: 300;
+    }
+
+    /* ================= SLIDER ================= */
+    .team-slider {
+        position: relative;
+        max-width: 1200px;
+        margin: 0 auto 40px;
+        padding: 0 4%;
+    }
+
+    .team-card {
+        display: grid;
+        grid-template-columns: 460px 1fr;
+        gap: 80px;
+        align-items: center;
+        background: #ffffff;
+        padding: 50px;
+        border-radius: 40px;
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.02);
+    }
+
+    /* ================= FOTO ================= */
+    .team-photo {
+        overflow: hidden;
+        border-radius: 28px;
+        height: 560px;
+        box-shadow: 0 30px 70px rgba(0, 0, 0, .08);
+    }
+
+    .team-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: opacity 0.4s ease-in-out;
+    }
+
+    /* ================= CONTENIDO ================= */
+    .team-content #member-role {
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-size: .8rem;
+        color: var(--text-light);
+        font-weight: 600;
+        display: block;
+        transition: opacity 0.4s ease-in-out;
+    }
+
+    .team-content h2 {
+        font-family: var(--serif);
+        font-size: 4.5rem;
+        margin: 15px 0 30px;
+        line-height: 1.05;
+        letter-spacing: -1px;
+        font-weight: 400;
+        transition: opacity 0.4s ease-in-out;
+    }
+
+    /* ================= TAGS ================= */
+    .team-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 35px;
+        transition: opacity 0.4s ease-in-out;
+    }
+
+    .team-tags span {
+        border: 1px solid rgba(155, 131, 75, 0.25);
+        padding: 8px 18px;
+        border-radius: 999px;
+        background: transparent;
+        text-transform: none;
+        letter-spacing: 0;
+        color: var(--accent);
+        font-size: .85rem;
+        font-weight: 400;
+    }
+
+    /* ================= DESCRIPCIÓN ================= */
+    .team-content p {
+        color: var(--accent);
+        font-size: 1.1rem;
+        line-height: 1.9;
+        max-width: 520px;
+        font-weight: 300;
+        transition: opacity 0.4s ease-in-out;
+    }
+
+    /* ================= FLECHAS FLOTANTES ================= */
+    .arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        background: white;
+        cursor: pointer;
+        font-size: 20px;
+        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, .06);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+    }
+
+    .arrow.left {
+        left: 10px;
+    }
+
+    .arrow.right {
+        right: 10px;
+    }
+
+    .arrow:hover {
+        background: var(--text-dark);
+        color: white;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, .15);
+    }
+
+    /* ================= DOTS ================= */
+    .team-dots {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 120px;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+        transition: .4s;
+    }
+
+    .dot.active {
+        background: var(--text-light);
+        transform: scale(1.4);
+    }
+
+    /* --- RESPONSIVO --- */
+    @media (min-width: 1024px) {
+        .footer-container {
+            display: grid !important;
+            grid-template-columns: 1.2fr 1fr 1.1fr !important;
+            gap: 7rem !important;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .team-card {
+            grid-template-columns: 1fr;
+            gap: 50px;
+            padding: 40px;
+        }
+        .team-photo {
+            height: 480px;
+        }
+        .arrow {
+            display: none;
+        }
+        .team-slider {
+            padding: 0 5%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .team-hero h1 { font-size: 3rem !important; }
+        .team-content h2 { font-size: 3rem !important; }
+        .team-photo { height: 380px !important; }
+        
+        /* --- DESPLEGABLE MÓVIL SEGURO --- */
+        nav {
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            display: flex;
+        }
+
+        .nav-links {
+            position: absolute;
+            top: 100%;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 22px;
+            padding: 16px;
+            gap: 6px;
+            box-shadow: 0 25px 60px rgba(0,0,0,.12);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: .35s;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .nav-links.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .nav-links li {
+            list-style: none;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-size: .85rem;
+            text-align: left;
+            background: transparent;
+        }
+
+        .logo img {
+            height: 38px;
+        }
+
+        /* --- FOOTER CORPORATIVO AJUSTADO --- */
+        footer > div:first-child { display: flex !important; flex-direction: column !important; gap: 2.5rem !important; text-align: center !important; }
+        footer img { margin: 0 auto 1.5rem auto !important; width: 100px; }
+        footer div[style*="background: rgba"] { padding: 2rem 1.5rem !important; width: 100% !important; max-width: 100% !important; }
+        footer > div:last-child { flex-direction: column !important; text-align: center !important; gap: 10px !important; }
+        .footer-social-icons { justify-content: center !important; }
+        .footer-contact-info { display: flex !important; flex-direction: column !important; align-items: center !important; text-align: center !important; }
+        .footer-contact-info a, .footer-contact-info div { justify-content: center !important; }
+    }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav>
+            <a href="index.html" class="logo">
+                <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" alt="Logo Clínica Resiliencia">
+            </a>
+
+            <button class="menu-toggle" onclick="toggleMenu()">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <ul class="nav-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="servicios.html">Servicios</a></li>
+                <li><a href="#" style="opacity: 1; font-weight: 600;">Nuestro Team</a></li>
+                <li><a href="alianzas.html">Alianzas</a></li>
+                <li><a href="materiales.html">Materiales</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="team-hero">
+            <span class="team-label">CLÍNICA RESILIENCIA</span>
+            <h1>Nuestro Team</h1>
+            <p>Conoce a las profesionales que acompañarán tu proceso con empatía, experiencia y compromiso.</p>
+        </section>
+
+        <section class="team-slider">
+            <button class="arrow left" onclick="previousMember()">
+                <i class="bi bi-arrow-left"></i>
+            </button>
+
+            <div class="team-card">
+                <div class="team-photo">
+                    <img id="member-photo" src="https://lh3.googleusercontent.com/d/11JWONXgG-kjr6_JWjqOEMmZYowsaTV4V">
+                </div>
+
+                <div class="team-content">
+                    <span id="member-role">Founder · Licda. en Psicología</span>
+                    <h2 id="member-name">Odett Pineda</h2>
+                    <div class="team-tags" id="member-tags">
+                        <span>Neuropsicología Clínica</span>
+                        <span>Psicología Clínica</span>
+                        <span>TREC</span>
+                    </div>
+                    <p id="member-description">
+                        Especialista en procesos de ansiedad, depresión y desarrollo personal, acompañando desde una perspectiva científica y humana.
+                    </p>
+                </div>
+            </div>
+
+            <button class="arrow right" onclick="nextMember()">
+                <i class="bi bi-arrow-right"></i>
+            </button>
+        </section>
+
+        <div class="team-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </main>
+
+    <footer style="
+        background-color: #463d3c;
+        background-image: 
+            radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
+            url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22 opacity=%220.04%22/%3E%3C/svg%3E');
+        padding: 1rem 5% 1rem 5%;
+        border-top: 1px solid rgba(246, 243, 239, 0.05);
+        position: relative;
+        text-align: center;
+    ">
+        <div style="
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+        ">
+            
+            <div>
+                <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png"
+                     style="
+                        display: block;
+                        width: auto;
+                        height: 89px;
+                        filter: brightness(0) invert(1);
+                        opacity: .95;
+                        transition: transform 0.4s ease;
+                     "
+                     alt="Clínica Resiliencia">
+            </div>
+
+            <div style="width: 40px; height: 1px; background-color: rgba(246, 243, 239, 0.15);"></div>
+
+            <div style="
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                font-size: 0.72rem;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                color: rgba(246, 243, 239, 0.4);
+            ">
+                <p style="margin: 0;">© 2026 Clínica Resiliencia. Todos los derechos reservados.</p>
+                
+                <p style="margin: 0; text-transform: none; letter-spacing: 0; font-size: 0.85rem; color: rgba(246, 243, 239, 0.55);">
+                    Design by 
+                    <span style="
+                        font-family: var(--serif);
+                        font-style: italic;
+                        font-size: 1.05rem;
+                        color: #f6f3ef;
+                        margin-left: 4px;
+                    ">
+                        Antony de León
+                    </span>
+                </p>
+            </div>
+
+        </div>
+    </footer>
+
+    <script>
+    const team = [
+        {
+            name: "Odett Pineda",
+            role: "Founder · Licda. en Psicología",
+            photo: "https://lh3.googleusercontent.com/d/11JWONXgG-kjr6_JWjqOEMmZYowsaTV4V",
+            tags: ["Neuropsicología Clínica", "Psicología Clínica", "TREC"],
+            description: "Especialista en procesos de ansiedad, depresión y desarrollo personal, acompañando desde una perspectiva científica y humana."
+        },
+        {
+            name: "Fátima Rodas",
+            role: "Licda. en Psicología Clínica",
+            photo: "https://lh3.googleusercontent.com/d/1mSmiAAhC7FdeaWG2gAhqV0J0E_lxgDIh",
+            tags: ["Psicología Clínica"],
+            description: "Acompaña procesos terapéuticos enfocados en el bienestar emocional, fortalecimiento personal y desarrollo integral."
+        },
+        {
+            name: "Rebeca López",
+            role: "Licda. en Psicología Clínica",
+            photo: "https://lh3.googleusercontent.com/d/1iJyIrxs5Z8Zdnm6agcgdxoLmun6weE3A",
+            tags: ["Psicología Clínica"],
+            description: "Brinda atención psicológica con un enfoque humano, cercano y basado en evidencia para acompañar cada etapa del proceso terapéutico."
+        }
+    ];
+
+    let current = 0;
+
+    function renderMember(index) {
+        const member = team[index];
+        const photo = document.getElementById("member-photo");
+        const role = document.getElementById("member-role");
+        const name = document.getElementById("member-name");
+        const tags = document.getElementById("member-tags");
+        const description = document.getElementById("member-description");
+
+        photo.style.opacity = 0;
+        name.style.opacity = 0;
+        role.style.opacity = 0;
+        tags.style.opacity = 0;
+        description.style.opacity = 0;
+
+        setTimeout(() => {
+            photo.src = member.photo;
+            name.textContent = member.name;
+            role.textContent = member.role;
+            description.textContent = member.description;
+
+            tags.innerHTML = "";
+            member.tags.forEach(tag => {
+                tags.innerHTML += `<span>${tag}</span>`;
+            });
+
+            photo.style.opacity = 1;
+            name.style.opacity = 1;
+            role.style.opacity = 1;
+            tags.style.opacity = 1;
+            description.style.opacity = 1;
+
+            updateDots();
+        }, 250);
+    }
+
+    function nextMember() {
+        current++;
+        if (current >= team.length) {
+            current = 0;
+        }
+        renderMember(current);
+    }
+
+    function previousMember() {
+        current--;
+        if (current < 0) {
+            current = team.length - 1;
+        }
+        renderMember(current);
+    }
+
+    function updateDots() {
+        document.querySelectorAll(".dot").forEach((dot, index) => {
+            dot.classList.toggle("active", index === current);
+        });
+    }
+
+    document.querySelectorAll(".dot").forEach((dot, index) => {
+        dot.onclick = () => {
+            current = index;
+            renderMember(current);
+        };
+    });
+
+    function toggleMenu(){
+        const menu = document.querySelector(".nav-links");
+        const icon = document.querySelector(".menu-toggle i");
+        menu.classList.toggle("active");
+        
+        if(menu.classList.contains("active")){
+            icon.className = "bi bi-x-lg";
+        } else {
+            icon.className = "bi bi-list";
+        }
+    }
+
+    renderMember(0);
+    </script>
+</body>
+</html>

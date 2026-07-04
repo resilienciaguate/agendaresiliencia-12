@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Contacto Directo | Clínica Resiliencia</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+    /* --- VARIABLES Y RESETEO --- */
+    :root {
+        --bg-color: #f6f3ef; 
+        --text-dark: #000000;
+        --text-light: #9b834b;
+        --accent: #535353; 
+        --serif: 'DM Serif Display', serif;
+        --sans: 'Inter', sans-serif;
+        --transition: all 0.5s cubic-bezier(0.25, 1, 0.33, 1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+
+    /* --- NAVEGACIÓN REFINADA Y RESPONSIVA --- */
+    header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: rgba(246, 243, 239, 0.8); 
+        backdrop-filter: blur(15px); 
+        -webkit-backdrop-filter: blur(15px);
+        z-index: 1000;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        transition: all 0.4s ease;
+        overflow: visible;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 1.5rem 5%;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    .logo img {
+        height: 48px;
+        width: auto;
+    }
+
+    .menu-toggle {
+        display: none;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        width: 48px;
+        height: 48px;
+        font-size: 2rem;
+        cursor: pointer;
+        color: #222;
+        transition: .3s;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .menu-toggle:hover {
+        transform: scale(1.05);
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 2.2rem;
+        list-style: none;
+    }
+
+    .nav-links a {
+        text-decoration: none;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: var(--transition);
+        opacity: 0.8;
+        position: relative;
+        padding-bottom: 5px;
+    }
+
+    .nav-links a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: 0;
+        left: 0;
+        background-color: var(--text-light);
+        transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover::after {
+        width: 100%;
+    }
+
+    /* --- TITULAR CLARO E IMPACTANTE --- */
+    .header-block {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 14rem 5% 4rem 5%;
+    }
+
+    .header-block span {
+        text-transform: uppercase;
+        letter-spacing: 5px;
+        font-size: 0.75rem;
+        color: var(--text-light);
+        font-weight: 600;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    .header-block h1 {
+        font-family: var(--serif);
+        font-size: 4.8rem;
+        line-height: 1.05;
+        font-weight: 400;
+        letter-spacing: -1px;
+        max-width: 800px;
+    }
+
+    /* --- CONTENEDOR ESTRUCTURADO EN DOS BLOQUES COMPLETOS --- */
+    .main-grid-layout {
+        display: grid;
+        grid-template-columns: 1fr 1.1fr;
+        gap: 4rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 5% 12rem 5%;
+    }
+
+    /* BLOQUE IZQUIERDO: Directorio Físico y Canales de Comunicación */
+    .channels-card {
+        background-color: #ffffff;
+        padding: 4.5rem;
+        border-radius: 36px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.02);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .channel-row {
+        padding: 2rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .channel-row:first-of-type {
+        padding-top: 0;
+    }
+
+    .channel-row:last-of-type {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .channel-row h3 {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: var(--text-light);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .channel-row .main-data {
+        font-family: var(--serif);
+        font-size: 2.2rem;
+        color: var(--text-dark);
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    /* Botones Interactivos Corporativos */
+    .action-luxury-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        text-decoration: none;
+        padding: 12px 28px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        transition: var(--transition);
+        border: 1px solid transparent;
+    }
+
+    .action-luxury-btn:hover {
+        background-color: var(--text-dark);
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+
+    /* BLOQUE DERECHO: Formulario Estructurado Seguro */
+    .form-card {
+        background-color: #ffffff;
+        padding: 4.5rem;
+        border-radius: 36px;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.02);
+    }
+
+    .form-card h2 {
+        font-family: var(--serif);
+        font-size: 2.6rem;
+        font-weight: 400;
+        letter-spacing: -1px;
+        margin-bottom: 1rem;
+    }
+
+    .form-card p {
+        font-size: 1rem;
+        font-weight: 300;
+        color: var(--accent);
+        line-height: 1.6;
+        margin-bottom: 3.5rem;
+    }
+
+    .structured-form {
+        display: grid;
+        gap: 2.2rem;
+    }
+
+    .input-box {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .input-box label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-light);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .input-box input, .input-box textarea {
+        background: var(--bg-color);
+        border: 1px solid rgba(0,0,0,0.03);
+        padding: 1.1rem 1.5rem;
+        border-radius: 14px;
+        color: var(--text-dark);
+        font-family: var(--sans);
+        font-size: 1rem;
+        font-weight: 400;
+        outline: none;
+        transition: var(--transition);
+    }
+
+    .input-box input:focus, .input-box textarea:focus {
+        background-color: #ffffff;
+        border-color: var(--text-dark);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    }
+
+    .input-box textarea {
+        resize: none;
+    }
+
+    .submit-luxury-btn {
+        background-color: var(--text-dark);
+        color: #ffffff;
+        border: 1px solid var(--text-dark);
+        padding: 1.3rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: var(--transition);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+    }
+
+    .submit-luxury-btn:hover {
+        background-color: transparent;
+        color: var(--text-dark);
+        transform: translateY(-3px);
+    }
+
+    /* --- REVEAL ANIMATIONS --- */
+    .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 1.2s cubic-bezier(0.25, 1, 0.33, 1), transform 1.2s cubic-bezier(0.25, 1, 0.33, 1);
+        will-change: opacity, transform;
+    }
+
+    .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* --- REJILLAS INTERNAS COMPLEMENTARIAS --- */
+    .contact-title {
+        font-family: var(--serif);
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 2.5rem;
+        font-weight: 400;
+    }
+
+    .contact-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+    }
+
+    .contact-item {
+        background: white;
+        border-radius: 24px;
+        padding: 35px 30px;
+        border: 1px solid rgba(0,0,0,.05);
+        transition: .35s;
+        text-align: center;
+        box-shadow: 0 12px 30px rgba(0,0,0,.03);
+    }
+
+    .contact-item:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 25px 60px rgba(0,0,0,.08);
+    }
+
+    .contact-icon {
+        width: 64px;
+        height: 64px;
+        margin: auto auto 20px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg,#d7b39d,#746765);
+        color: white;
+        font-size: 1.4rem;
+    }
+
+    .contact-item h3 {
+        font-family: var(--serif);
+        font-size: 1.4rem;
+        margin-bottom: 12px;
+    }
+
+    .contact-item p {
+        color: #7b7b7b;
+        line-height: 1.7;
+        margin-bottom: 22px;
+    }
+
+    .contact-item > a {
+        display: inline-block;
+        text-decoration: none;
+        color: #000;
+        font-weight: 600;
+        transition: .3s;
+    }
+
+    .contact-item > a:hover {
+        letter-spacing: 1px;
+    }
+
+    .social-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .social-row a {
+        text-decoration: none;
+        padding: 10px 18px;
+        border-radius: 999px;
+        background: #f4f1ed;
+        color: #555;
+        font-size: .85rem;
+        transition: .3s;
+    }
+
+    .social-row a:hover {
+        background: #111;
+        color: white;
+    }
+
+    /* --- RESPONSIVO TOTAL --- */
+    @media (min-width: 1024px) {
+        .footer-container {
+            display: grid !important;
+            grid-template-columns: 1.2fr 1fr 1.1fr !important;
+            gap: 7rem !important;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .header-block h1 { font-size: 3.5rem !important; }
+        .main-grid-layout {
+            grid-template-columns: 1fr;
+            gap: 4rem;
+            padding-bottom: 8rem;
+        }
+        .channels-card, .form-card {
+            padding: 3.5rem;
+        }
+    }
+
+    @media (max-width: 900px) {
+        .contact-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .header-block h1 { font-size: 2.8rem !important; }
+        .header-block { padding-top: 10rem !important; padding-bottom: 2rem !important; }
+        .channels-card, .form-card { padding: 2.5rem 1.8rem !important; border-radius: 28px; }
+        .channel-row .main-data { font-size: 1.6rem !important; }
+        
+        /* --- DESPLEGABLE MÓVIL SEGURO --- */
+        nav {
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            display: flex;
+        }
+
+        .nav-links {
+            position: absolute;
+            top: 100%;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 22px;
+            padding: 16px;
+            gap: 6px;
+            box-shadow: 0 25px 60px rgba(0,0,0,.12);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: .35s;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .nav-links.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .nav-links li {
+            list-style: none;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-size: .85rem;
+            text-align: left;
+            background: transparent;
+        }
+
+        .logo img {
+            height: 38px;
+        }
+
+        /* --- FOOTER CORPORATIVO AJUSTADO --- */
+        footer > div:first-child { display: flex !important; flex-direction: column !important; gap: 2.5rem !important; text-align: center !important; }
+        footer img { margin: 0 auto 1.5rem auto !important; width: 100px; }
+        footer div[style*="background: rgba"] { padding: 2rem 1.5rem !important; width: 100% !important; max-width: 100% !important; }
+        footer > div:last-child { flex-direction: column !important; text-align: center !important; gap: 10px !important; }
+        .footer-social-icons { justify-content: center !important; }
+        .footer-contact-info { display: flex !important; flex-direction: column !important; align-items: center !important; text-align: center !important; }
+    }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav>
+            <a href="index.html" class="logo">
+                <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" alt="Logo Clínica Resiliencia">
+            </a>
+
+            <button class="menu-toggle" onclick="toggleMenu()">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <ul class="nav-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="servicios.html">Servicios</a></li>
+                <li><a href="team.html">Nuestro Team</a></li>
+                <li><a href="alianzas.html">Alianzas</a></li>
+                <li><a href="materiales.html">Materiales</a></li>
+                <li><a href="#" style="opacity: 1; font-weight: 600;">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="header-block">
+            <span>Atención Directa</span>
+            <h1>Agendar una consulta o resolver tus dudas comienza aquí.</h1>
+        </section>
+
+        <section class="main-grid-layout">
+
+            <div class="channels-card reveal">
+                <h2 class="contact-title">Elige cómo prefieres contactarnos</h2>
+                <div class="contact-grid">
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-telephone-fill"></i>
+                        </div>
+                        <h3>Llamada</h3>
+                        <p>+502 6610-4442</p>
+                        <a href="tel:+50266104442">Llamar ahora →</a>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-whatsapp"></i>
+                        </div>
+                        <h3>WhatsApp</h3>
+                        <p>Respuesta inmediata</p>
+                        <a href="https://api.whatsapp.com/send?phone=50233608429" target="_blank">Escribir →</a>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-geo-alt-fill"></i>
+                        </div>
+                        <h3>Ubicación</h3>
+                        <p>Amatitlán</p>
+                        <a href="https://waze.com/ul/h9fxd3fgfy" target="_blank">Abrir en Waze →</a>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-instagram"></i>
+                        </div>
+                        <h3>Redes Sociales</h3>
+                        <p>@resilienciaguate</p>
+                        <div class="social-row">
+                            <a href="https://www.instagram.com/resilienciaguate" target="_blank">Instagram</a>
+                            <a href="https://www.facebook.com/share/1H9evnADKy/" target="_blank">Facebook</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="form-card reveal">
+                <h2>Mensaje Privado</h2>
+                <p>Escríbenos con total confidencialidad. Te responderemos en un plazo menor a 24 horas hábiles.</p>
+                <form action="https://formsubmit.co/resilienciaguate@gmail.com" method="POST" class="structured-form">
+
+                    <div class="input-box">
+                        <label>Nombre Completo</label>
+                        <input type="text" name="name" placeholder="Ej. Arlette Estrada" required>
+                    </div>
+
+                    <div class="input-box">
+                        <label>Correo Electrónico</label>
+                        <input type="email" name="email" placeholder="ejemplo@correo.com" required>
+                    </div>
+
+                    <div class="input-box">
+                        <label>¿Cómo podemos apoyarte?</label>
+                        <textarea name="message" rows="5" placeholder="Escribe tu consulta aquí con total libertad..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="submit-luxury-btn">
+                        Enviar Solicitud de Contacto
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer style="
+        background-color: #463d3c;
+        background-image: 
+            radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
+            url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22 opacity=%220.04%22/%3E%3C/svg%3E');
+        padding: 1rem 5% 1rem 5%;
+        border-top: 1px solid rgba(246, 243, 239, 0.05);
+        position: relative;
+        text-align: center;
+    ">
+        <div style="
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+        ">
+            
+            <div>
+                <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png"
+                     style="
+                        display: block;
+                        width: auto;
+                        height: 89px;
+                        filter: brightness(0) invert(1);
+                        opacity: .95;
+                        transition: transform 0.4s ease;
+                     "
+                     alt="Clínica Resiliencia">
+            </div>
+
+            <div style="width: 40px; height: 1px; background-color: rgba(246, 243, 239, 0.15);"></div>
+
+            <div style="
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                font-size: 0.72rem;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                color: rgba(246, 243, 239, 0.4);
+            ">
+                <p style="margin: 0;">© 2026 Clínica Resiliencia. Todos los derechos reservados.</p>
+                
+                <p style="margin: 0; text-transform: none; letter-spacing: 0; font-size: 0.85rem; color: rgba(246, 243, 239, 0.55);">
+                    Design by 
+                    <span style="
+                        font-family: var(--serif);
+                        font-style: italic;
+                        font-size: 1.05rem;
+                        color: #f6f3ef;
+                        margin-left: 4px;
+                    ">
+                        Antony de León
+                    </span>
+                </p>
+            </div>
+
+        </div>
+    </footer>
+
+    <script>
+    function handleReveal() {
+        const reveals = document.querySelectorAll(".reveal");
+        const windowHeight = window.innerHeight;
+        const visibleThreshold = 150; 
+
+        reveals.forEach(el => {
+            const elementTop = el.getBoundingClientRect().top;
+            const elementBottom = el.getBoundingClientRect().bottom;
+
+            if (elementTop < windowHeight - visibleThreshold && elementBottom > visibleThreshold) {
+                el.classList.add("active");
+                el.style.opacity = "1";
+                el.style.transform = "translateY(0)";
+            } else {
+                el.classList.remove("active");
+                el.style.opacity = "0";
+                el.style.transform = "translateY(30px)";
+            }
+        });
+    }
+
+    window.addEventListener("scroll", handleReveal);
+    window.addEventListener("load", handleReveal);
+    </script>
+
+    <script>
+    function toggleMenu(){
+        const menu = document.querySelector(".nav-links");
+        const icon = document.querySelector(".menu-toggle i");
+        menu.classList.toggle("active");
+        
+        if(menu.classList.contains("active")){
+            icon.className = "bi bi-x-lg";
+        } else {
+            icon.className = "bi bi-list";
+        }
+    }
+    </script>
+</body>
+</html>

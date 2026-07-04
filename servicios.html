@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Servicios Especializados | Clínica Resiliencia</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+    /* --- VARIABLES Y RESETEO --- */
+    :root {
+        --bg-color: #f6f3ef; 
+        --text-dark: #000000;
+        --text-light: #9b834b;
+        --accent: #535353; 
+        --serif: 'DM Serif Display', serif;
+        --sans: 'Inter', sans-serif;
+        --transition: all 0.8s cubic-bezier(0.25, 1, 0.33, 1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-dark);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+    }
+
+    /* --- NAVEGACIÓN --- */
+    header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: rgba(246, 243, 239, 0.8); 
+        backdrop-filter: blur(15px); 
+        -webkit-backdrop-filter: blur(15px);
+        z-index: 1000;
+        border-bottom: 1px solid rgba(58, 90, 64, 0.05);
+        transition: all 0.3s ease;
+        overflow: visible;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 1.5rem 5%;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    .logo img {
+        height: 48px;
+        width: auto;
+    }
+
+    .menu-toggle {
+        display: none;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        width: 48px;
+        height: 48px;
+        font-size: 2rem;
+        cursor: pointer;
+        color: #222;
+        transition: .3s;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .menu-toggle:hover {
+        transform: scale(1.05);
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 2.2rem;
+        list-style: none;
+    }
+
+    .nav-links a {
+        text-decoration: none;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: var(--transition);
+        opacity: 0.8;
+        position: relative;
+        padding-bottom: 5px;
+    }
+
+    .nav-links a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 1px;
+        bottom: 0;
+        left: 0;
+        background-color: var(--accent);
+        transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover::after {
+        width: 100%;
+    }
+
+    /* --- HERO DE SERVICIOS EDITORIAL --- */
+    .services-hero {
+        background-color: #fff;
+        padding: 14rem 5% 6rem 5%;
+        text-align: center;
+    }
+
+    .services-hero .meta-title {
+        text-transform: uppercase;
+        letter-spacing: 6px;
+        font-size: 0.75rem;
+        color: var(--text-light);
+        font-weight: 600;
+        display: block;
+        margin-bottom: 1.5rem;
+    }
+
+    .services-hero h1 {
+        font-family: var(--serif);
+        font-size: 5.5rem;
+        line-height: 1;
+        margin-bottom: 2rem;
+        letter-spacing: -2px;
+        font-weight: 400;
+    }
+
+    .services-hero p {
+        font-size: 1.25rem;
+        font-weight: 300;
+        color: var(--accent);
+        max-width: 680px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+
+    /* --- ANIMACIÓN REVEAL SUTIL --- */
+    .reveal {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: opacity 1.2s cubic-bezier(0.25, 1, 0.33, 1), transform 1.2s cubic-bezier(0.25, 1, 0.33, 1);
+        will-change: opacity, transform;
+    }
+
+    .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* --- REJILLA ASIMÉTRICA DE ALTA GAMA --- */
+    .editorial-grid {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 8rem 5% 12rem 5%;
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 4rem 2rem;
+    }
+
+    .card-human {
+        background: #fff;
+        padding: 3rem;
+        border-radius: 32px;
+        border: 1px solid rgba(0,0,0,0.03);
+        box-shadow: 0 30px 70px rgba(0,0,0,0.02);
+        display: flex;
+        flex-direction: column;
+        transition: all 0.6s cubic-bezier(0.25, 1, 0.33, 1);
+    }
+
+    .editorial-grid > :nth-child(1) { grid-column: 1 / 7; }
+    .editorial-grid > :nth-child(2) { grid-column: 7 / 13; margin-top: 5rem; }
+    .editorial-grid > :nth-child(3) { grid-column: 1 / 7; margin-top: -3rem; }
+    .editorial-grid > :nth-child(4) { grid-column: 7 / 13; margin-top: 2rem; }
+    .editorial-grid > :nth-child(5) { grid-column: 3 / 11; margin-top: 3rem; }
+
+    .card-human:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 40px 90px rgba(155, 131, 75, 0.06);
+        border-color: rgba(155, 131, 75, 0.15);
+    }
+
+    .card-photo-container {
+        width: 100%;
+        height: 320px;
+        margin-bottom: 2rem;
+        border-radius: 20px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .card-photo-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 1s cubic-bezier(0.25, 1, 0.33, 1);
+    }
+
+    .card-human:hover .card-photo-container img {
+        transform: scale(1.04);
+    }
+
+    .card-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding-bottom: 1rem;
+    }
+
+    .card-number {
+        font-family: var(--serif);
+        font-size: 1.1rem;
+        color: var(--text-light);
+        font-style: italic;
+    }
+
+    .card-human h3 {
+        font-family: var(--serif);
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        font-weight: 400;
+        color: var(--text-dark);
+        letter-spacing: -0.5px;
+    }
+
+    .card-human p {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--accent);
+        font-weight: 300;
+    }
+
+    .intro-image-frame {
+        overflow: hidden; 
+        position: relative; 
+        background-color: var(--text-dark);
+    }
+
+    /* --- RESPONSIVO GENERAL Y MÓVIL --- */
+    @media (min-width: 1024px) {
+        .footer-container {
+            display: grid !important;
+            grid-template-columns: 1.2fr 1fr 1.1fr !important;
+            gap: 7rem !important;
+        }
+    }
+
+    @media (max-width: 992px) {
+        #servicios-intro > div:first-child {
+            grid-template-columns: 1fr !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        .editorial-grid {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 3.5rem !important;
+            padding: 4rem 6% 6rem 6% !important;
+        }
+        .editorial-grid > * {
+            grid-column: auto !important;
+            margin-top: 0 !important;
+        }
+        .card-human {
+            padding: 2rem !important;
+        }
+        .card-photo-container {
+            height: 260px !important;
+        }
+        .services-hero h1 { font-size: 3.8rem !important; }
+    }
+
+    @media (max-width: 768px) {
+        /* --- CABECERA Y HERO DE SERVICIOS --- */
+        .services-hero h1 { font-size: 2.6rem !important; }
+        .services-hero p { font-size: 1.05rem !important; }
+        .services-hero { padding-top: 9rem !important; padding-bottom: 4rem !important; }
+        
+        /* --- BLOQUE INTRODUCCIÓN EN MÓVIL --- */
+        #servicios-intro div[style*="padding: 6rem"] {
+            padding: 4rem 6% !important;
+        }
+        #servicios-intro h2 {
+            font-size: 2.2rem !important;
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .intro-image-frame {
+            height: 440px !important;
+        }
+
+        /* --- DESPLEGABLE MÓVIL SEGURO (MANTENIENDO LÓGICA RAÍZ) --- */
+        nav {
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            display: flex;
+        }
+
+        .nav-links {
+            position: absolute;
+            top: 100%;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 22px;
+            padding: 16px;
+            gap: 6px;
+            box-shadow: 0 25px 60px rgba(0,0,0,.12);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: .35s;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .nav-links.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .nav-links li {
+            list-style: none;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-size: .85rem;
+            text-align: left;
+            background: transparent;
+        }
+
+        .logo img {
+            height: 38px;
+        }
+
+        /* --- FOOTER CORPORATIVO AJUSTADO --- */
+        footer > div:first-child { display: flex !important; flex-direction: column !important; gap: 2.5rem !important; text-align: center !important; }
+        footer img { margin: 0 auto 1.5rem auto !important; width: 100px; }
+        footer div[style*="background: rgba"] { padding: 2rem 1.5rem !important; width: 100% !important; max-width: 100% !important; }
+        footer > div:last-child { flex-direction: column !important; text-align: center !important; gap: 10px !important; }
+        .footer-social-icons { justify-content: center !important; }
+        .footer-contact-info { display: flex !important; flex-direction: column !important; align-items: center !important; text-align: center !important; }
+        .footer-contact-info a, .footer-contact-info div { justify-content: center !important; }
+    }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav>
+            <a href="index.html" class="logo">
+                <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png" alt="Logo Clínica Resiliencia">
+            </a>
+
+            <button class="menu-toggle" onclick="toggleMenu()">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <ul class="nav-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="#" style="opacity: 1; font-weight: 600;">Servicios</a></li>
+                <li><a href="team.html">Nuestro Team</a></li>
+                <li><a href="alianzas.html">Alianzas</a></li>
+                <li><a href="materiales.html">Materiales</a></li>
+                <li><a href="contacto.html">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="services-hero">
+            <span class="meta-title">Nuestras Especialidades</span>
+            <h1>Áreas de Atención</h1>
+            <p>Cultivamos espacios de acompañamiento clínico y comunitario diseñados para responder con calidez, ética y empatía a las necesidades de cada etapa de la vida.</p>
+        </section>
+
+        <section id="servicios-intro" class="reveal" style="padding: 0; background-color: #fff;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; min-height: 70vh;">
+                <div style="padding: 6rem 8% 6rem 8%; display: flex; flex-direction: column; justify-content: center; background-color: var(--bg-color);">
+                    <div style="max-width: 600px; margin: 0 auto;">
+                        <h2 style="font-family: var(--serif); font-size: 3.5rem; font-weight: 400; margin-bottom: 2.5rem; line-height: 1.1; letter-spacing: -1px;">
+                            Un espacio para sanar y reconectar.
+                        </h2>
+                        <div style="color: var(--text-light); font-weight: 300; line-height: 1.9; font-size: 1.15rem;">
+                            <p style="margin-bottom: 1.5rem;">
+                                Somos un centro especializado en <strong>acompañar procesos emocionales</strong> desde el rigor profesional y la calidez humana. Nuestro equipo brinda atención integral a niños, adolescentes y adultos.
+                            </p>
+                            <p style="margin-bottom: 1.5rem; font-family: var(--serif); font-size: 1.4rem; color: var(--text-dark); font-style: italic; border-left: 2px solid var(--text-light); padding-left: 1.5rem;">
+                                "Creemos en la capacidad del ser humano para reconstruirse después de la adversidad."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="intro-image-frame">
+                    <img src="https://lh3.googleusercontent.com/d/15NSINCKTx9LubKCQfwHV7fqwuWGCeGiM" style="width:100%; height:100%; object-fit:cover; display:block;" alt="Espacio Resiliencia">
+                </div>
+            </div>
+
+            <div class="editorial-grid">
+                
+               <!-- 01. Terapia Psicológica -->
+                <div class="card-human reveal">
+                    <div class="card-photo-container">
+                        <img src="https://lh3.googleusercontent.com/d/1FssjI4PMEDvC7GMCzfqLOcHgvl24BRVY" 
+                             alt="Terapia Psicológica"
+                             style="object-position: center 20%;">
+                    </div>
+                    <div class="card-meta">
+                        <span class="card-number">01 // CLÍNICA</span>
+                    </div>
+                    <h3>Terapia Psicológica</h3>
+                    <p>Ofrecemos un espacio seguro y confidencial donde cada persona puede explorar sus emociones, experiences y desafíos de vida. Nuestra terapia está dirigida a niños, adolescentes y adultos con un enfoque humano y profesional.</p>
+                </div>
+
+                <div class="card-human reveal">
+                    <div class="card-photo-container">
+                        <img src="https://lh3.googleusercontent.com/d/1oDATaf1ujsJU4pdRA4CfBqKdl9dLjK_3" alt="Terapia de Lenguaje">
+                    </div>
+                    <div class="card-meta">
+                        <span class="card-number">02 // EVOLUCIÓN</span>
+                    </div>
+                    <h3>Terapia de Lenguaje</h3>
+                    <p>Fortalecemos las habilidades lingüísticas adaptándonos a necesidades específicas: retrasos en el habla, trastornos de la articulación, dificultades de expresión, TEA/TDAH y rehabilitación en adultos.</p>
+                </div>
+
+                <div class="card-human reveal">
+                    <div class="card-photo-container">
+                        <img src="https://lh3.googleusercontent.com/d/1WdGVl2Naox-L6Cu8PloURx0D1aAP5pax" alt="Estimulación Temprana">
+                    </div>
+                    <div class="card-meta">
+                        <span class="card-number">03 // DESARROLLO</span>
+                    </div>
+                    <h3>Estimulación Temprana</h3>
+                    <p>Sesiones personalizadas desde los 3 meses de edad para favorecer el desarrollo físico, cognitivo y emocional a través del juego, el movimiento y la exploración sensorial.</p>
+                </div>
+
+                <div class="card-human reveal">
+                    <div class="card-photo-container">
+                        <img src="https://lh3.googleusercontent.com/u/0/d/1ZbLkXFjCswj4W33vZYQhJ7PLh5bG9wPI" alt="Club de Lectura">
+                    </div>
+                    <div class="card-meta">
+                        <span class="card-number">04 // COMUNIDAD</span>
+                    </div>
+                    <h3>Club de Lectura</h3>
+                    <p>Un espacio de respiro en tu agenda para disfrutar de una buena taza de café, intercambiar puntos de vista y descubrir nuevas perspectivas en comunidad.</p>
+                </div>
+
+                <div class="card-human reveal">
+                    <div class="card-photo-container">
+                        <img src="https://lh3.googleusercontent.com/d/18wj30irwWCDrWuHO8S1NEgUR61Bg3rmD" alt="Talleres Integrales">
+                    </div>
+                    <div class="card-meta">
+                        <span class="card-number">05 // EXPERIENCIA CREATIVA</span>
+                    </div>
+                    <h3>Talleres Integrales</h3>
+                    <p>Experiencias grupales que conectan la mente con la creatividad, utilizando la introspección guiada y el arte como herramientas esenciales para el crecimiento colectivo y el autodescubrimiento dinámico.</p>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer style="
+        background-color: #463d3c;
+        background-image: 
+            radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04) 0%, transparent 70%),
+            url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noise%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noise)%22 opacity=%220.04%22/%3E%3C/svg%3E');
+        padding: 1rem 5% 1rem 5%;
+        border-top: 1px solid rgba(246, 243, 239, 0.05);
+        position: relative;
+        text-align: center;
+    ">
+        <div style="
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+        ">
+            
+            <div>
+                <img src="https://raw.githubusercontent.com/resilienciaguate/agendaresiliencia-12/main/Resiliencia.png"
+                     style="
+                        display: block;
+                        width: auto;
+                        height: 89px;
+                        filter: brightness(0) invert(1);
+                        opacity: .95;
+                        transition: transform 0.4s ease;
+                     "
+                     alt="Clínica Resiliencia">
+            </div>
+
+            <div style="width: 40px; height: 1px; background-color: rgba(246, 243, 239, 0.15);"></div>
+
+            <div style="
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                font-size: 0.72rem;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                color: rgba(246, 243, 239, 0.4);
+            ">
+                <p style="margin: 0;">© 2026 Clínica Resiliencia. Todos los derechos reservados.</p>
+                
+                <p style="margin: 0; text-transform: none; letter-spacing: 0; font-size: 0.85rem; color: rgba(246, 243, 239, 0.55);">
+                    Design by 
+                    <span style="
+                        font-family: var(--serif);
+                        font-style: italic;
+                        font-size: 1.05rem;
+                        color: #f6f3ef;
+                        margin-left: 4px;
+                    ">
+                        Antony de León
+                    </span>
+                </p>
+            </div>
+
+        </div>
+    </footer>
+ 
+    <script>
+    function handleReveal() {
+        const reveals = document.querySelectorAll(".reveal, .card-human");
+        const windowHeight = window.innerHeight;
+        const visibleThreshold = 100; 
+
+        reveals.forEach(el => {
+            const elementTop = el.getBoundingClientRect().top;
+            const elementBottom = el.getBoundingClientRect().bottom;
+
+            if (elementTop < windowHeight - visibleThreshold && elementBottom > visibleThreshold) {
+                el.classList.add("active");
+                el.style.opacity = "1";
+                el.style.transform = "translateY(0)";
+            } else {
+                el.classList.remove("active");
+                el.style.opacity = "0";
+                el.style.transform = "translateY(40px)";
+            }
+        });
+    }
+
+    window.addEventListener("scroll", handleReveal);
+    window.addEventListener("load", handleReveal);
+    </script>
+
+    <script>
+    function toggleMenu(){
+        const menu = document.querySelector(".nav-links");
+        const icon = document.querySelector(".menu-toggle i");
+        menu.classList.toggle("active");
+        
+        if(menu.classList.contains("active")){
+            icon.className = "bi bi-x-lg";
+        } else {
+            icon.className = "bi bi-list";
+        }
+    }
+    </script>
+</body>
+</html>
